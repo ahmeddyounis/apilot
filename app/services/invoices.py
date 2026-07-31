@@ -62,15 +62,29 @@ async def ingest_upload(
             idempotency_key=idempotency_key,
         )
     except IntegrityError:
-        # Concurrent request won the idempotency-key insert: adopt its outcome.
+        # Two unique constraints can lose here, and only one of them means "someone
+        # else already answered this exact request".
         await session.rollback()
         winner = await _existing_idempotency_row(session, auth.key_id, idempotency_key)
-        if winner is None:  # pragma: no cover — the race loser must find a winner
-            raise
-        outcome = await _apply_existing(session, winner, stored.sha256)
-        if outcome is None:  # pragma: no cover — winner row cannot be expired already
-            raise ConflictError("Idempotency conflict; retry the request") from None
-        return outcome
+        if winner is not None:
+            outcome = await _apply_existing(session, winner, stored.sha256)
+            if outcome is None:  # pragma: no cover — winner row cannot be expired already
+                raise ConflictError("Idempotency conflict; retry the request") from None
+            return outcome
+
+        # The other one is invoice_files.sha256: the same document uploaded twice
+        # under *different* idempotency keys. That is not a replay — it is two
+        # genuine requests, and the second is entitled to its own invoice over the
+        # shared file row. Both used to lose the insert race and one got a 500,
+        # which is the most ordinary thing an AP inbox does: the same document
+        # arriving twice, from two clerks or a re-mailed copy.
+        invoice = await _register_invoice(
+            session,
+            settings=settings,
+            auth=auth,
+            stored=stored,
+            idempotency_key=idempotency_key,
+        )
 
     await enqueue_pipeline(invoice.id)
     return IngestResult(invoice_id=invoice.id, status=invoice.status, replayed=False)

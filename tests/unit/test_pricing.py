@@ -25,9 +25,12 @@ def test_realistic_invoice_call() -> None:
     assert compute_cost(usage, "claude-opus-5") == Decimal("0.026950")
 
 
-def test_unknown_model_costs_zero() -> None:
+def test_unknown_model_is_not_billed_as_free() -> None:
+    """This used to assert 0, which is a lie shaped like an answer: the per-invoice
+    cost ledger reported $0.00 for real spend on any model missing from the
+    table."""
     usage = LLMUsage(input_tokens=1000, output_tokens=1000)
-    assert compute_cost(usage, "mystery-model") == Decimal(0)
+    assert compute_cost(usage, "mystery-model") > Decimal(0)
 
 
 def test_fake_model_is_free() -> None:
@@ -51,3 +54,23 @@ def test_output_config_matches_what_the_sdk_would_send() -> None:
 
     assert ours["type"] == "json_schema"
     assert ours["schema"] == sdk_schema
+
+
+def test_unknown_model_is_estimated_not_reported_as_free() -> None:
+    """Returning 0 made the cost ledger — the thing this module exists to produce
+    — report $0.00 for real spend whenever the configured model wasn't in the
+    table, and analytics and the eval harness both inherit that number."""
+    from app.llm.pricing import PRICING, compute_cost
+    from app.llm.types import LLMUsage
+
+    usage = LLMUsage(
+        input_tokens=1_000_000,
+        output_tokens=1_000_000,
+        cache_creation_input_tokens=0,
+        cache_read_input_tokens=0,
+    )
+    cost = compute_cost(usage, "claude-some-model-we-have-not-priced")
+
+    assert cost > 0
+    priciest = max(PRICING.values(), key=lambda p: p.output_per_mtok)
+    assert cost == priciest.input_per_mtok + priciest.output_per_mtok

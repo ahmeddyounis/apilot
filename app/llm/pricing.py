@@ -44,8 +44,19 @@ _SIX_DP = Decimal("0.000001")
 def compute_cost(usage: LLMUsage, model_id: str) -> Decimal:
     pricing = PRICING.get(model_id)
     if pricing is None:
-        logger.warning("unknown_model_pricing", model=model_id)
-        return Decimal(0)
+        # Zero is a lie that looks like an answer: point APILOT_EXTRACTION_MODEL at
+        # any model not in the table and the per-invoice cost ledger — the thing
+        # this module exists to produce — reports $0.00 for real spend, with the
+        # analytics endpoint and the eval harness's headline cost figure both
+        # inheriting it. Estimate at the most expensive known rate and say so, so
+        # the number is wrong in the direction that gets noticed.
+        fallback = max(PRICING.values(), key=lambda p: p.output_per_mtok)
+        logger.error(
+            "unknown_model_pricing_estimated",
+            model=model_id,
+            hint="add it to PRICING; cost is an upper-bound estimate until then",
+        )
+        pricing = fallback
     cost = (
         Decimal(usage.input_tokens) * pricing.input_per_mtok
         + Decimal(usage.output_tokens) * pricing.output_per_mtok

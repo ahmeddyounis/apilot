@@ -90,3 +90,31 @@ async def test_pipeline_runs_to_honest_terminal_state(
             "state_transition",
         ]
         assert events[-1].to_status == "extraction_failed"
+
+
+async def test_same_document_under_two_keys_gets_two_invoices(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """The most ordinary thing an AP inbox does: the same document arrives twice.
+
+    Different idempotency keys mean these are two genuine requests, not a replay,
+    so each is entitled to its own invoice over the shared content-addressed file
+    row — and the duplicate screen is what decides whether the second gets paid.
+    Racing them used to hand one caller a 500, because the loser of the
+    invoice_files.sha256 insert was only taught how to recover from losing the
+    *idempotency-key* insert.
+    """
+    results = await asyncio.gather(
+        client.post("/api/v1/invoices", **_upload_kwargs(full_access_key, "same-doc-a")),
+        client.post("/api/v1/invoices", **_upload_kwargs(full_access_key, "same-doc-b")),
+    )
+
+    assert [r.status_code for r in results] == [202, 202], [r.text for r in results]
+    ids = {r.json()["invoice_id"] for r in results}
+    assert len(ids) == 2, "the same document under two keys should yield two invoices"
+
+    # One file row, shared — content-addressed storage still deduplicates the bytes.
+    async with get_sessionmaker()() as session:
+        invoices = [await session.get(Invoice, UUID(i)) for i in ids]
+        file_ids = {inv.file_id for inv in invoices if inv is not None}
+        assert len(file_ids) == 1

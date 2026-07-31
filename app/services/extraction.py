@@ -341,9 +341,15 @@ async def _run_single(
             continue
 
         findings = arithmetic_findings(domain)
-        accepted = domain
-        accepted_wire = wire.model_dump()
-        accepted_findings = findings
+        # Keep the best reading, not the last one. The retry exists because the
+        # previous attempt had arithmetic findings; if this one has more, the model
+        # got further from the document, and overwriting meant persisting the worse
+        # transcription — with _persist recording its finding count as though it
+        # were the best available.
+        if accepted is None or len(findings) < len(accepted_findings):
+            accepted = domain
+            accepted_wire = wire.model_dump()
+            accepted_findings = findings
         if findings and attempt < config.max_attempts and config.retry_with_feedback:
             feedback = FeedbackContext(previous_raw_output=result.raw_text or "", errors=findings)
             continue
