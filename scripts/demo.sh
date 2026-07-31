@@ -67,8 +67,18 @@ curl -sf -D "$WORK/headers2" -X POST "$API/api/v1/invoices" \
 grep -i "idempotency-replay" "$WORK/headers2" || echo "  (no replay header)"
 
 say "Matching verdict for the over-billed invoice"
-curl -sf -H "X-API-Key: $KEY" "$API/api/v1/invoices/$ID_OVERBILLED/matching" \
-  | python3 -m json.tool | head -40
+# An invoice held by the duplicate screen never reaches matching, so there is no
+# verdict to show. That is what a second run of this script produces: the same
+# bytes are an exact-file duplicate of the first run's invoices.
+if verdict=$(curl -sf -H "X-API-Key: $KEY" "$API/api/v1/invoices/$ID_OVERBILLED/matching" 2>/dev/null) \
+   && [ -n "$verdict" ]; then
+  echo "$verdict" | python3 -m json.tool | head -40
+else
+  echo "  No matching verdict — this invoice was held before matching ran."
+  echo "  Re-running the demo against a database that already has these invoices"
+  echo "  holds all three as duplicates. Start clean with:"
+  echo "    docker compose down -v && docker compose up -d && make migrate && make demo"
+fi
 
 say "Human review queue (riskiest money first)"
 curl -sf -H "X-API-Key: $KEY" "$API/api/v1/exceptions" | python3 -m json.tool | head -30
