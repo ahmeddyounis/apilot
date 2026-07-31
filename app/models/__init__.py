@@ -6,6 +6,9 @@ from app.models.base import Base
 from app.models.idempotency import IdempotencyKey
 from app.models.invoice import Invoice, InvoiceFile, InvoiceLineItem, InvoiceStatus
 from app.models.llm_call import LlmCall
+from app.models.matching import MatchingResult
+from app.models.po import PoLineItem, PurchaseOrder
+from app.models.receipt import Receipt, ReceiptLineItem
 from app.models.vendor import Vendor
 
 __all__ = [
@@ -18,5 +21,10 @@ __all__ = [
     "InvoiceLineItem",
     "InvoiceStatus",
     "LlmCall",
+    "MatchingResult",
+    "PoLineItem",
+    "PurchaseOrder",
+    "Receipt",
+    "ReceiptLineItem",
     "Vendor",
 ]

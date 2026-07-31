@@ -19,6 +19,7 @@ from app.core.db import get_sessionmaker
 from app.llm.factory import build_llm_client
 from app.models import Invoice, InvoiceStatus
 from app.services.extraction import run_extraction
+from app.services.matching import run_matching_stage
 from app.services.state_machine import transition
 from app.services.validation import run_validation_stage
 
@@ -56,7 +57,12 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
             if not passed:
                 logger.info("pipeline_terminal", status=invoice.status.value)
                 return
+            # Screening (dedup/fraud, P5) slots in here before matching.
+            await transition(session, invoice, InvoiceStatus.MATCHING, actor=WORKER_ACTOR)
+            await session.commit()
 
-        # Later stages (screening → matching → decision gate) attach here as their
-        # milestones land.
+        if invoice.status is InvoiceStatus.MATCHING:
+            matching_llm = build_llm_client(settings, model=settings.matching_model)
+            await run_matching_stage(session, invoice, llm=matching_llm, settings=settings)
+
         logger.info("pipeline_checkpoint", status=invoice.status.value)

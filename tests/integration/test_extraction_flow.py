@@ -37,7 +37,10 @@ async def run_scenario(client: httpx.AsyncClient, key: str, name: str, content: 
 
 async def test_happy_extraction(client: httpx.AsyncClient, full_access_key: str) -> None:
     invoice = await run_scenario(client, full_access_key, "extract-happy", minimal_pdf("happy"))
-    assert invoice.status is InvoiceStatus.EXTRACTED
+    # Extraction + validation succeed; with no PO seeded the pipeline then lands in
+    # the review queue via the matching stage's missing_po short-circuit.
+    assert invoice.status is InvoiceStatus.EXCEPTION
+    assert invoice.exception_reason == "missing_po"
     assert invoice.vendor_name == "ACME Office Supply Co"
     assert invoice.total == Decimal("575.10")
     assert invoice.normalized_invoice_number == "INV20260042"
@@ -79,7 +82,7 @@ async def test_retry_with_feedback_recovers(
     client: httpx.AsyncClient, full_access_key: str
 ) -> None:
     invoice = await run_scenario(client, full_access_key, "extract-retry", minimal_pdf("retry"))
-    assert invoice.status is InvoiceStatus.EXTRACTED
+    assert invoice.status is InvoiceStatus.EXCEPTION  # downstream missing_po; see above
     assert invoice.extraction_attempts == 2
     assert invoice.total == Decimal("470.00")
 

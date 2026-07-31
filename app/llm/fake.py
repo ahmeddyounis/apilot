@@ -35,6 +35,7 @@ from app.llm.types import (
     LLMUsage,
     ParseResult,
     TextResult,
+    ToolTurn,
 )
 
 FAKE_MODEL_ID = "fake-llm"
@@ -168,4 +169,42 @@ class FakeLLM:
             usage=self._usage(record),
             model_id=FAKE_MODEL_ID,
             stop_reason="end_turn",
+        )
+
+    async def tool_turn(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        max_tokens: int = 8192,
+    ) -> ToolTurn:
+        """Fixture forms: {"tool_use": {"name", "input"}} or {"final_text": "..."}.
+
+        Keyed as ``<scenario>:tool_turn`` so one pipeline scenario can carry both an
+        extraction wire fixture and an investigation script.
+        """
+        base = _scenario.get()
+        if base is None:
+            raise FixtureMissingError(
+                "FakeLLM.tool_turn requires an explicit fake.scenario(...) key"
+            )
+        key = f"{base}:tool_turn"
+        record = self._next_record(key)
+        usage = self._usage(record)
+        if "tool_use" in record:
+            call = dict(record["tool_use"])
+            call_id = call.pop("id", f"fake-tool-{self._call_counts.get(key, 0)}")
+            content: list[dict[str, Any]] = [
+                {"type": "tool_use", "id": call_id, "name": call["name"], "input": call["input"]}
+            ]
+            return ToolTurn(
+                content=content, stop_reason="tool_use", usage=usage, model_id=FAKE_MODEL_ID
+            )
+        final_text = str(record.get("final_text", ""))
+        return ToolTurn(
+            content=[{"type": "text", "text": final_text}],
+            stop_reason="end_turn",
+            usage=usage,
+            model_id=FAKE_MODEL_ID,
         )

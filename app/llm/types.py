@@ -55,6 +55,27 @@ class TextResult:
     request_id: str | None = None
 
 
+@dataclass
+class ToolTurn:
+    """One assistant turn in a bounded tool-use loop (raw content blocks)."""
+
+    content: list[dict]
+    stop_reason: str | None
+    usage: LLMUsage
+    model_id: str
+    request_id: str | None = None
+
+    @property
+    def tool_uses(self) -> list[dict]:
+        return [block for block in self.content if block.get("type") == "tool_use"]
+
+    @property
+    def text(self) -> str:
+        return "".join(
+            block.get("text", "") for block in self.content if block.get("type") == "text"
+        )
+
+
 class LLMError(Exception):
     """Provider-layer failure that is not an API-level refusal."""
 

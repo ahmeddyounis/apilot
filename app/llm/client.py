@@ -5,11 +5,11 @@ Everything upstream (extraction, agent, evals) programs against this protocol;
 tool-turn method is added in its own milestone.
 """
 
-from typing import Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel
 
-from app.llm.types import DocumentInput, FeedbackContext, ParseResult, TextResult
+from app.llm.types import DocumentInput, FeedbackContext, ParseResult, TextResult, ToolTurn
 
 
 class LLMClient(Protocol):
@@ -35,4 +35,15 @@ class LLMClient(Protocol):
         max_tokens: int = 16384,
     ) -> TextResult:
         """Free-text completion over documents (the eval harness's 'naive' mode)."""
+        ...
+
+    async def tool_turn(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        max_tokens: int = 8192,
+    ) -> ToolTurn:
+        """One assistant turn with tools available (the matching agent's loop)."""
         ...

@@ -28,6 +28,7 @@ from app.llm.types import (
     LLMUsage,
     ParseResult,
     TextResult,
+    ToolTurn,
 )
 
 logger = structlog.get_logger(__name__)
@@ -188,5 +189,36 @@ class AnthropicClient:
             usage=_usage_from(response),
             model_id=self.model,
             stop_reason=str(response.stop_reason) if response.stop_reason else None,
+            request_id=getattr(response, "_request_id", None),
+        )
+
+    async def tool_turn(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        max_tokens: int = 8192,
+    ) -> ToolTurn:
+        response = await self._client.messages.create(
+            model=self.model,
+            max_tokens=max_tokens,
+            system=self._system_blocks(system),  # type: ignore[arg-type]
+            messages=messages,  # type: ignore[arg-type]
+            tools=tools,  # type: ignore[arg-type]
+        )
+        content: list[dict[str, Any]] = []
+        for block in response.content:
+            if block.type == "text":
+                content.append({"type": "text", "text": block.text})
+            elif block.type == "tool_use":
+                content.append(
+                    {"type": "tool_use", "id": block.id, "name": block.name, "input": block.input}
+                )
+        return ToolTurn(
+            content=content,
+            stop_reason=str(response.stop_reason) if response.stop_reason else None,
+            usage=_usage_from(response),
+            model_id=self.model,
             request_id=getattr(response, "_request_id", None),
         )

@@ -33,19 +33,24 @@ async def test_exceptions_queue_lists_and_sorts(
         client, full_access_key, "extract-corrupt-total", minimal_pdf("queue-corrupt")
     )
     clean = await run_scenario(client, full_access_key, "extract-happy", minimal_pdf("queue-clean"))
-    assert clean.status is InvoiceStatus.EXTRACTED  # validation passed, not queued
+    # Clean invoice passes validation but has no seeded PO → queued via missing_po.
+    assert clean.status is InvoiceStatus.EXCEPTION
+    assert clean.exception_reason == "missing_po"
 
     response = await client.get("/api/v1/exceptions", headers={"X-API-Key": full_access_key})
     assert response.status_code == 200
     page = response.json()
-    assert page["total_count"] == 1
-    item = page["items"][0]
-    assert item["id"] == str(corrupt.id)
-    assert item["status"] == "exception"
-    assert item["failed_rules"] == ["V-003"]
-    assert item["total"] == "600.00"
+    assert page["total_count"] == 2
+    # Priority = risk x money: corrupt (600.00) outranks clean (575.10) at equal risk.
+    first, second = page["items"]
+    assert first["id"] == str(corrupt.id)
+    assert first["failed_rules"] == ["V-003"]
+    assert first["total"] == "600.00"
+    assert second["id"] == str(clean.id)
+    assert second["exception_reason"] == "missing_po"
+    assert second["failed_rules"] == []
 
-    # min_total filter excludes it
+    # min_total filter excludes both
     filtered = await client.get(
         "/api/v1/exceptions",
         params={"min_total": "1000"},
@@ -60,7 +65,10 @@ async def test_happy_invoice_records_passing_validation(
     invoice = await run_scenario(
         client, full_access_key, "extract-happy", minimal_pdf("validation-happy")
     )
-    assert invoice.status is InvoiceStatus.EXTRACTED
+    # Validation itself passes (recorded below); the later matching stage queues the
+    # invoice because no PO is seeded in this test.
+    assert invoice.status is InvoiceStatus.EXCEPTION
+    assert invoice.exception_reason == "missing_po"
     assert invoice.validation_results is not None
     assert invoice.validation_results["passed"] is True
     # Vendor master is empty → the unknown-vendor flag annotates without gating.
@@ -72,4 +80,4 @@ async def test_happy_invoice_records_passing_validation(
     async with get_sessionmaker()() as session:
         refreshed = await session.get(Invoice, invoice.id)
         assert refreshed is not None
-        assert refreshed.exception_reason is None
+        assert refreshed.exception_reason == "missing_po"

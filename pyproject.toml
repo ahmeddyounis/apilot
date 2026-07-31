@@ -25,6 +25,9 @@ dependencies = [
     "aiofiles",
     "pypdfium2>=5.12.1",
     "pillow>=12.3.0",
+    "langgraph>=1.2.10",
+    "rapidfuzz>=3.14.5",
+    "scipy>=1.18.0",
 ]
 
 [dependency-groups]
@@ -93,7 +96,7 @@ module = "app.*"
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["testcontainers.*", "pypdfium2.*"]
+module = ["testcontainers.*", "pypdfium2.*", "scipy.*"]
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]
