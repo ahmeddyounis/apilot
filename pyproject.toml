@@ -63,6 +63,8 @@ extend-immutable-calls = [
     "fastapi.File",
     "typer.Option",
     "typer.Argument",
+    "app.api.deps.require_scopes",
+    "app.api.deps.rate_limited",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -70,6 +72,8 @@ extend-immutable-calls = [
 "app/core/config.py" = ["SIM905"]
 # Alembic autogenerate emits long op.create_table lines; readability there is moot.
 "alembic/versions/*" = ["E501"]
+# Blocking-call rules target production event loops, not test bodies.
+"tests/*" = ["ASYNC"]
 
 [tool.mypy]
 files = ["app", "tests"]

@@ -1,10 +1,13 @@
-"""Async Redis client (lazy singleton) — rate limiting, readiness, arq pool base."""
+"""Async Redis clients (lazy singletons): app client + arq job pool."""
 
+from arq import create_pool
+from arq.connections import ArqRedis, RedisSettings
 from redis.asyncio import Redis
 
 from app.core.config import get_settings
 
 _redis: Redis | None = None
+_arq_pool: ArqRedis | None = None
 
 
 def get_redis() -> Redis:
@@ -19,3 +22,17 @@ async def close_redis() -> None:
     if _redis is not None:
         await _redis.aclose()
     _redis = None
+
+
+async def get_arq_pool() -> ArqRedis:
+    global _arq_pool
+    if _arq_pool is None:
+        _arq_pool = await create_pool(RedisSettings.from_dsn(get_settings().redis_url))
+    return _arq_pool
+
+
+async def close_arq_pool() -> None:
+    global _arq_pool
+    if _arq_pool is not None:
+        await _arq_pool.aclose()
+    _arq_pool = None

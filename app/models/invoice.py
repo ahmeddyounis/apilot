@@ -113,6 +113,7 @@ class Invoice(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         cascade="all, delete-orphan",
         order_by="InvoiceLineItem.line_no",
     )
+    file: Mapped[InvoiceFile] = relationship()
 
     __table_args__ = (
         Index("ix_invoices_status", "status"),
