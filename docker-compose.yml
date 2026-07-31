@@ -61,6 +61,26 @@ services:
       retries: 5
       start_period: 10s
 
+  # Same image as the API; only the command differs.
+  worker:
+    build: .
+    command: ["arq", "app.worker.WorkerSettings"]
+    environment:
+      APILOT_DATABASE_URL: postgresql+asyncpg://apilot:apilot@db:5432/apilot
+      APILOT_REDIS_URL: redis://redis:6379/0
+      APILOT_STORAGE_DIR: /data/uploads
+      APILOT_LOG_FORMAT: json
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   pgdata:
   uploads:

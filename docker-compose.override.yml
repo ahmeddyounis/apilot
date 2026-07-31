@@ -1,9 +1,19 @@
-# Auto-loaded in local dev: live-reload API with the source bind-mounted.
+# Auto-loaded in local dev: live-reload API and worker with the source bind-mounted.
 services:
   api:
     command:
       ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     volumes:
       - ./app:/app/app
+      - ./seed:/app/seed
+      - ./evals:/app/evals
+    environment:
+      APILOT_LOG_FORMAT: console
+
+  worker:
+    command: ["arq", "app.worker.WorkerSettings", "--watch", "app"]
+    volumes:
+      - ./app:/app/app
+      - ./seed:/app/seed
     environment:
       APILOT_LOG_FORMAT: console

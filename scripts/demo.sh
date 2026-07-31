@@ -43,15 +43,20 @@ Path(sys.argv[1]).write_bytes(render_minimal_pdf(sys.argv[2]))
 PY
 done
 
-declare -A IDS
+# bash 3.2 (macOS default) has no associative arrays — keep ids in plain vars.
+ID_CLEAN=""; ID_OVERBILLED=""; ID_DUPLICATE=""
 for name in demo-clean demo-overbilled demo-duplicate; do
   say "Uploading $name"
   response=$(curl -sf -X POST "$API/api/v1/invoices" \
     -H "X-API-Key: $KEY" -H "Idempotency-Key: demo-$name-$(date +%s)" \
     -F "file=@$WORK/$name.pdf")
   id=$(echo "$response" | python3 -c 'import json,sys; print(json.load(sys.stdin)["invoice_id"])')
-  IDS[$name]=$id
-  echo "  invoice_id=$id  →  status=$(poll "$id")"
+  case "$name" in
+    demo-clean)      ID_CLEAN="$id" ;;
+    demo-overbilled) ID_OVERBILLED="$id" ;;
+    demo-duplicate)  ID_DUPLICATE="$id" ;;
+  esac
+  echo "  invoice_id=$id  ->  status=$(poll "$id")"
 done
 
 say "Idempotent re-upload (same key + same bytes returns the same invoice)"
@@ -62,7 +67,7 @@ curl -sf -D "$WORK/headers2" -X POST "$API/api/v1/invoices" \
 grep -i "idempotency-replay" "$WORK/headers2" || echo "  (no replay header)"
 
 say "Matching verdict for the over-billed invoice"
-curl -sf -H "X-API-Key: $KEY" "$API/api/v1/invoices/${IDS[demo-overbilled]}/matching" \
+curl -sf -H "X-API-Key: $KEY" "$API/api/v1/invoices/$ID_OVERBILLED/matching" \
   | python3 -m json.tool | head -40
 
 say "Human review queue (riskiest money first)"
