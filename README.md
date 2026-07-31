@@ -219,7 +219,13 @@ accuracy **1.00**, duplicate-detection recall **1.00** with zero false holds.
 ```bash
 uv run python -m evals.generator --dataset v1        # regenerate from the manifest seed
 uv run python -m evals.run --mode fixture --config validation --dataset v1 --check
+uv run python -m evals.promote_corrections --dataset v1   # reviewer fixes → eval cases
 ```
+
+That last command closes the product's central loop: a human corrects a field in the
+review queue, the correction is stored as ground truth, and the corrected invoice
+becomes a labeled eval case tagged `provenance: reviewer_correction` — so the dataset
+grows with exactly the real documents the system got wrong.
 
 CI runs the harness on every push and fails the build if any gated metric drops more
 than 2 points below the committed baseline or falls under its floor. Reports land in
