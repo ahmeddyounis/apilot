@@ -9,6 +9,7 @@ from sqlalchemy import ColumnElement, Numeric, case, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import AuthContext, rate_limited, require_scopes
+from app.api.errors import ApilotError
 from app.core.db import get_session
 from app.models import Invoice, InvoiceStatus
 from app.schemas.exceptions import ExceptionItemOut, ExceptionsPageOut
@@ -45,7 +46,17 @@ async def list_exceptions(
     _rate_limit: None = Depends(rate_limited()),
     session: AsyncSession = Depends(get_session),
 ) -> ExceptionsPageOut:
-    statuses = (status,) if status in _QUEUE_STATUSES else _QUEUE_STATUSES
+    if status is not None and status not in _QUEUE_STATUSES:
+        # Silently widening to the whole queue answered a different question than
+        # the one asked: `?status=approved` returned every exception and held
+        # invoice, which reads as "these are approved".
+        queue = ", ".join(sorted(s.value for s in _QUEUE_STATUSES))
+        raise ApilotError(
+            f"'{status.value}' is not a review-queue status. This endpoint lists {queue}.",
+            code="invalid_filter",
+            status_code=422,
+        )
+    statuses = (status,) if status is not None else _QUEUE_STATUSES
     conditions: list[ColumnElement[bool]] = [Invoice.status.in_(statuses)]
     if vendor_id is not None:
         conditions.append(Invoice.vendor_id == vendor_id)

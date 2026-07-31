@@ -30,16 +30,56 @@ _REVIEWABLE = (InvoiceStatus.EXCEPTION, InvoiceStatus.HELD)
 
 _LINE_PATH = re.compile(r"^line_items\[(\d+)\]\.(description|quantity|unit_price|amount)$")
 
+
+def _text(value: Any, *, max_length: int, optional: bool = False) -> str | None:
+    """Corrections are ground truth for the eval dataset, so they have to be text a
+    human actually typed — bare str() happily turned None into "None" and a JSON
+    object into "{'evil': 1}", then promote_corrections.py labelled it as truth."""
+    if value is None:
+        if optional:
+            return None
+        raise ValueError("value is required")
+    if not isinstance(value, str):
+        raise ValueError(f"expected a string, got {type(value).__name__}")
+    text = value.strip()
+    if not text:
+        raise ValueError("value cannot be blank")
+    if len(text) > max_length:
+        raise ValueError(f"value is longer than {max_length} characters")
+    return text
+
+
+def _money(value: Any) -> Decimal:
+    """Decimal() accepts "NaN" and "1e40". Both parse, so the guard below never
+    fired; the failure surfaced later as an InvalidOperation inside the rules
+    engine or a numeric overflow at commit — a 500 either way, from one JSON body.
+    The bound matches NUMERIC(14,2), the column these land in."""
+    amount = Decimal(str(value))
+    if not amount.is_finite():
+        raise ValueError(f"'{value}' is not a finite amount")
+    if abs(amount) >= Decimal(10) ** 12:
+        raise ValueError(f"'{value}' is too large to store")
+    return amount
+
+
+def _currency(value: Any) -> str:
+    code = _text(value, max_length=3)
+    assert code is not None
+    if len(code) != 3 or not code.isalpha():
+        raise ValueError(f"'{value}' is not a three-letter ISO 4217 code")
+    return code.upper()
+
+
 _HEADER_PARSERS: dict[str, Any] = {
-    "vendor_name": str,
-    "invoice_number": str,
+    "vendor_name": lambda v: _text(v, max_length=255),
+    "invoice_number": lambda v: _text(v, max_length=100),
     "invoice_date": date.fromisoformat,
     "due_date": lambda v: date.fromisoformat(v) if v is not None else None,
-    "currency": lambda v: str(v).upper(),
-    "po_number": lambda v: str(v) if v is not None else None,
-    "subtotal": Decimal,
-    "tax_amount": Decimal,
-    "total": Decimal,
+    "currency": _currency,
+    "po_number": lambda v: _text(v, max_length=100, optional=True),
+    "subtotal": _money,
+    "tax_amount": _money,
+    "total": _money,
 }
 
 
@@ -70,9 +110,9 @@ def _apply_correction(invoice: Invoice, field_path: str, new_value: Any) -> Any:
             raise CorrectionError(f"No line item with line_no {line_no}")
         old = getattr(line, attr)
         try:
-            value = str(new_value) if attr == "description" else Decimal(str(new_value))
-        except InvalidOperation as exc:
-            raise CorrectionError(f"'{new_value}' is not a valid amount") from exc
+            value = _text(new_value, max_length=500) if attr == "description" else _money(new_value)
+        except (InvalidOperation, ValueError, TypeError) as exc:
+            raise CorrectionError(f"Invalid value for {field_path}: {new_value!r}") from exc
         setattr(line, attr, value)
         return old
 

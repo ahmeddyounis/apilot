@@ -56,6 +56,20 @@ class ExportResult:
     invoice_ids: list[UUID]
 
 
+# Leading =, +, -, @ (and the tab/CR variants Excel also honours) make a cell a live
+# formula when the file is opened in Excel, Sheets or QuickBooks. vendor_name and
+# the line descriptions come off the invoice document, so the vendor writes them;
+# a reviewer can set them too. Prefixing with an apostrophe is the standard defence
+# and keeps the visible text intact.
+_FORMULA_LEAD = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _safe(value: object) -> object:
+    if isinstance(value, str) and value.startswith(_FORMULA_LEAD):
+        return "'" + value
+    return value
+
+
 async def build_export(
     session: AsyncSession,
     *,
@@ -90,15 +104,15 @@ async def build_export(
             for line in invoice.line_items:
                 writer.writerow(
                     [
-                        invoice.invoice_number,
-                        invoice.vendor_name,
+                        _safe(invoice.invoice_number),
+                        _safe(invoice.vendor_name),
                         invoice.invoice_date,
                         invoice.due_date or "",
                         "",
                         "",
                         f"PO {invoice.po_number}" if invoice.po_number else "",
                         "Accounts Payable",
-                        line.description,
+                        _safe(line.description),
                         f"{line.amount}",
                         "",
                     ]
@@ -110,14 +124,14 @@ async def build_export(
                 writer.writerow(
                     [
                         invoice.id,
-                        invoice.vendor_name,
-                        invoice.invoice_number,
+                        _safe(invoice.vendor_name),
+                        _safe(invoice.invoice_number),
                         invoice.invoice_date,
                         invoice.due_date or "",
                         invoice.currency,
-                        invoice.po_number or "",
+                        _safe(invoice.po_number or ""),
                         line.line_no,
-                        line.description,
+                        _safe(line.description),
                         line.quantity,
                         line.unit_price,
                         line.amount,
@@ -132,7 +146,10 @@ async def build_export(
     return ExportResult(
         filename=f"apilot_export_{export_format}_{stamp}.csv",
         content=buffer.getvalue(),
-        invoice_ids=[invoice.id for invoice in invoices],
+        # Only invoices that actually produced rows. An approved invoice with no
+        # line items contributes nothing to the file, and marking it exported
+        # would record money as delivered to accounting that was never in it.
+        invoice_ids=[invoice.id for invoice in invoices if invoice.line_items],
     )
 
 

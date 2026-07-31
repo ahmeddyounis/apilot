@@ -407,5 +407,37 @@
       "output_tokens": 640,
       "cache_read_input_tokens": 900
     }
+  },
+  "extract-formula-injection": {
+    "wire": {
+      "vendor_name": "=cmd|'/C calc.exe'!A0",
+      "vendor_tax_id": null,
+      "invoice_number": "FI-001",
+      "invoice_date": "2026-07-10",
+      "due_date": "2026-08-10",
+      "currency": "USD",
+      "po_number": null,
+      "line_items": [
+        {
+          "description": "@SUM(1+1)*cmd|'/C calc'!A0",
+          "quantity": "1",
+          "unit_price": "10.00",
+          "amount": "10.00"
+        }
+      ],
+      "subtotal": "10.00",
+      "tax_amount": "0.00",
+      "total": "10.00",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {
+        "vendor_name": 0.96,
+        "total": 0.97
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "total": 1
+      }
+    }
   }
 }
