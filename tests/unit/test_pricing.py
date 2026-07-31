@@ -33,3 +33,21 @@ def test_unknown_model_costs_zero() -> None:
 def test_fake_model_is_free() -> None:
     usage = LLMUsage(input_tokens=99999, output_tokens=99999)
     assert compute_cost(usage, "fake-llm") == Decimal("0.000000")
+
+
+def test_output_config_matches_what_the_sdk_would_send() -> None:
+    """We build output_config ourselves to keep client-side validation on our side
+    of the call. The request the API sees must be identical to messages.parse()'s,
+    or we've traded a crash for a silently weaker schema constraint."""
+    import anthropic
+    from pydantic import TypeAdapter
+
+    from app.llm.anthropic_client import _json_schema_format
+    from app.schemas.extraction_wire import InvoiceExtractionWire
+
+    ours = _json_schema_format(InvoiceExtractionWire)
+    # Exactly the two lines messages.parse() runs to build its own output_format.
+    sdk_schema = anthropic.transform_schema(TypeAdapter(InvoiceExtractionWire).json_schema())
+
+    assert ours["type"] == "json_schema"
+    assert ours["schema"] == sdk_schema

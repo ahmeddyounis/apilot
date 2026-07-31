@@ -4,7 +4,9 @@ Key behaviors:
 
 * PDFs go to the API natively as base64 ``document`` blocks; images as ``image``
   blocks — no client-side OCR.
-* Structured extraction uses ``messages.parse`` with the wire schema.
+* Structured extraction sends the wire schema as ``output_config`` and validates
+  the response here, so a schema mismatch is data (``parse_error``) that feeds
+  retry-with-feedback rather than an exception out of the SDK's own parser.
 * The static system prompt is a cached block (``cache_control: ephemeral``); all
   per-invoice content lives in the user message so the cache prefix stays byte-stable.
 * ``temperature``/``top_p``/``thinking`` are never sent (rejected or defaulted on
@@ -18,8 +20,9 @@ import time
 from typing import Any
 
 import structlog
-from anthropic import AsyncAnthropic
-from pydantic import BaseModel, ValidationError
+from anthropic import AsyncAnthropic, transform_schema
+from anthropic.types import JSONOutputFormatParam, OutputConfigParam
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from app.core.config import Settings
 from app.llm.types import (
@@ -52,6 +55,17 @@ numbers to make the math work. Do not apologize or explain."""
 def render_feedback(feedback: FeedbackContext) -> str:
     numbered = "\n".join(f"{i}. {err}" for i, err in enumerate(feedback.errors, start=1))
     return _FEEDBACK_TEMPLATE.format(previous=feedback.previous_raw_output, errors=numbered)
+
+
+def _json_schema_format(output_schema: type[BaseModel]) -> JSONOutputFormatParam:
+    """The same output_config the SDK's messages.parse() builds internally.
+
+    transform_schema strips the JSON-schema constructs structured outputs doesn't
+    accept, so this is byte-for-byte what parse() would have sent — we just keep
+    the client-side validation on our side of the call.
+    """
+    schema = TypeAdapter(output_schema).json_schema()
+    return JSONOutputFormatParam(schema=transform_schema(schema), type="json_schema")
 
 
 def _content_blocks(docs: list[DocumentInput], text: str) -> list[Any]:
@@ -116,12 +130,22 @@ class AnthropicClient:
     ) -> ParseResult[T]:
         text = user_text if feedback is None else f"{user_text}\n\n{render_feedback(feedback)}"
         started = time.monotonic()
-        response = await self._client.messages.parse(
+        # output_config rather than output_format, deliberately. Both send the same
+        # JSON-schema constraint to the API; the difference is client-side. Passing
+        # output_format makes the SDK validate every text block on the way out and
+        # raise pydantic's ValidationError straight through this call — which would
+        # skip the parse_error branch below entirely, so retry-with-feedback (the
+        # feature this client exists to support) was unreachable in live mode, and a
+        # schema-mismatched response became an uncaught exception that left the
+        # invoice stranded in `extracting`. Validating the text ourselves keeps the
+        # usage counts, the raw output and the failure, which is what the retry
+        # prompt needs to tell the model what was wrong.
+        response = await self._client.messages.create(
             model=self.model,
             max_tokens=max_tokens,
             system=self._system_blocks(system),  # type: ignore[arg-type]
             messages=[{"role": "user", "content": _content_blocks(docs, text)}],
-            output_format=output_schema,
+            output_config=OutputConfigParam(format=_json_schema_format(output_schema)),
         )
         elapsed_ms = int((time.monotonic() - started) * 1000)
         raw_text = next((block.text for block in response.content if block.type == "text"), None)
@@ -147,16 +171,14 @@ class AnthropicClient:
                 request_id=request_id,
             )
 
-        parsed: T | None = response.parsed_output
+        parsed: T | None = None
         parse_error: str | None = None
-        if parsed is None and raw_text is not None:
-            # Belt and suspenders: strict schema should prevent this, but the
-            # stripped-constraint client-side validation can still miss.
+        if raw_text is not None:
             try:
                 parsed = output_schema.model_validate_json(raw_text)
             except ValidationError as exc:
                 parse_error = f"output did not match schema: {exc.errors()[:5]}"
-        elif parsed is None:
+        else:
             parse_error = "model returned no text content"
 
         return ParseResult(
