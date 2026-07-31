@@ -152,19 +152,27 @@ def merge_pages(pages: list[PageExtractionWire]) -> dict[str, Any]:
     merged: dict[str, Any] = {}
 
     for field in _HEADER_FIELDS:
-        best: tuple[float, int, str] | None = None  # (confidence, page, value)
+        # Rank (did the model say how sure it was, how sure). Every confidence in
+        # the wire schema is optional, so silence is normal — but it isn't evidence.
+        # Standing in 0.5 for it meant a page reporting 0.40 lost to a page
+        # reporting nothing, and the *less* trustworthy reading won; the 0.5 was
+        # then written to invoices.field_confidence as though the model had said it,
+        # which also gave every paged invoice a manufactured V-013 flag (floor 0.70).
+        best: tuple[tuple[int, float], int, str] | None = None
         for page in pages:
             value = getattr(page, field)
             if value is None:
                 continue
             page_conf = getattr(page.field_confidence, field)
-            conf = page_conf if page_conf is not None else 0.5
-            if best is None or conf > best[0]:
-                best = (conf, page.page_number, value)
+            rank = (1, page_conf) if page_conf is not None else (0, 0.0)
+            if best is None or rank > best[0]:
+                best = (rank, page.page_number, value)
         if best is not None:
-            merged[field] = best[2]
-            confidence[field] = best[0]
-            refs[field] = best[1]
+            (reported, conf), page_number, value = best
+            merged[field] = value
+            refs[field] = page_number
+            if reported:
+                confidence[field] = conf
         else:
             merged[field] = None
 
@@ -191,7 +199,10 @@ def merge_pages(pages: list[PageExtractionWire]) -> dict[str, Any]:
             page_lines = page_lines[1:]  # carried-forward repeat of the previous row
         if page_lines and first_line_page is None:
             first_line_page = page.page_number
-        if page.line_items and page.field_confidence.line_items is not None:
+        # page_lines, not page.line_items: a page whose only row was a carried-forward
+        # repeat contributes nothing to the merge, so its confidence shouldn't drag
+        # the merged figure down.
+        if page_lines and page.field_confidence.line_items is not None:
             line_confidences.append(page.field_confidence.line_items)
         line_items.extend(page_lines)
     merged["line_items"] = [line.model_dump() for line in line_items]

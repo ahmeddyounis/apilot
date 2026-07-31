@@ -109,3 +109,36 @@ def test_payment_details_and_merged_wire_validates() -> None:
     assert merged["payment_details_raw"] == "IBAN DE00 1234"
     wire = InvoiceExtractionWire.model_validate(merged)
     assert wire.total == "10.00"
+
+
+def test_merge_records_only_confidences_the_model_reported() -> None:
+    """0.5 is a ranking stand-in for silence, not a measurement.
+
+    Recording it wrote a number the model never produced into
+    invoices.field_confidence, and V-013's floor is 0.70 — so every paged invoice
+    picked up a low-confidence flag manufactured by the merge itself.
+    """
+    merged = merge_pages(
+        [
+            page(1, vendor_name="Quiet Corp", field_confidence={}),
+            page(2, invoice_number="Q-1", field_confidence={"invoice_number": 0.93}),
+        ]
+    )
+
+    assert merged["vendor_name"] == "Quiet Corp"
+    assert "vendor_name" not in merged["field_confidence"]
+    assert merged["field_confidence"]["invoice_number"] == 0.93
+
+
+def test_a_reported_low_confidence_beats_silence() -> None:
+    """Ranking silence at 0.5 meant an explicit 0.40 lost to a page that said
+    nothing, and the *less* trustworthy value won."""
+    merged = merge_pages(
+        [
+            page(1, vendor_name="Stated Ltd", field_confidence={"vendor_name": 0.40}),
+            page(2, vendor_name="Silent Ltd", field_confidence={}),
+        ]
+    )
+
+    assert merged["vendor_name"] == "Stated Ltd"
+    assert merged["field_confidence"]["vendor_name"] == 0.40
