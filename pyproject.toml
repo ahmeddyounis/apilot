@@ -54,6 +54,17 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF", "ASYNC"]
 
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Security",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.File",
+    "typer.Option",
+    "typer.Argument",
+]
+
 [tool.ruff.lint.per-file-ignores]
 # Compact `"...".split()` default for the currency allowlist beats a 20-line literal.
 "app/core/config.py" = ["SIM905"]
