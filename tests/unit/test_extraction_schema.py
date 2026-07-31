@@ -126,3 +126,49 @@ def test_parse_json_loose_reports_garbage() -> None:
     wire, error = parse_json_loose("no json here at all")
     assert wire is None
     assert error is not None
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("total", "1E+30"),  # past Decimal's context precision: quantize() raises
+        ("total", "1e13"),  # quantizes fine, but NUMERIC(14,2) overflows on INSERT
+        ("subtotal", "999999999999999"),
+        ("tax_amount", "-1e20"),
+    ],
+)
+def test_implausible_amounts_are_coercion_errors_not_crashes(field: str, value: str) -> None:
+    """A misread figure must route through retry-with-feedback, not raise.
+
+    Both limits sit outside the extraction service's only handler, so before the
+    bound an oversized number escaped as InvalidOperation (from quantize) or
+    DataError (from the INSERT) and left the invoice stranded in `extracting`
+    while arq re-ran the task — a real LLM call per retry, same crash each time.
+    """
+    domain, errors = wire_to_domain(make_wire(**{field: value}))
+
+    assert domain is None
+    assert any(field in err and "implausibly large" in err for err in errors), errors
+
+
+def test_bounded_amounts_still_reach_the_arithmetic_checks() -> None:
+    """The bound must not eat legitimate large invoices, or fine-grained prices."""
+    domain, errors = wire_to_domain(
+        make_wire(
+            line_items=[
+                {
+                    "description": "Bulk resin",
+                    "quantity": "1000000",
+                    "unit_price": "999.9999",
+                    "amount": "999999900.00",
+                }
+            ],
+            subtotal="999999900.00",
+            tax_amount="0.00",
+            total="999999900.00",
+        )
+    )
+
+    assert errors == []
+    assert domain is not None
+    assert arithmetic_findings(domain) == []

@@ -137,8 +137,23 @@ def rule_v003_total_math(inputs: ValidationInput, ctx: RuleContext) -> list[Find
 
 
 def rule_v004_tax_rate(inputs: ValidationInput, ctx: RuleContext) -> list[Finding]:
-    if inputs.subtotal <= 0 or inputs.tax_amount <= 0:
+    if inputs.tax_amount <= 0:
         return []
+    if inputs.subtotal <= 0:
+        # Tax on nothing. Skipping this as "no subtotal to compare against" left the
+        # worst version of the finding unflagged: an invoice that is 100% unexplained
+        # "tax" satisfies every other rule (V-002 sums 0 == 0, V-003 sums 0 + tax ==
+        # total), so it reached the decision gate with a spotless validation record.
+        return [
+            Finding(
+                rule_id="V-004",
+                severity="flag",
+                field="tax_amount",
+                message="Tax charged with no subtotal to charge it on",
+                expected="subtotal > 0",
+                actual=f"subtotal={inputs.subtotal}, tax_amount={inputs.tax_amount}",
+            )
+        ]
     rate = inputs.tax_amount / inputs.subtotal
     if rate > Decimal("0.50"):
         return [

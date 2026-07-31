@@ -11,18 +11,52 @@ gate construction.
 
 from datetime import date
 from decimal import Decimal
+from typing import Annotated
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import AfterValidator, BaseModel, Field, ValidationError
 
 from app.core.money import amount_tolerance, quantize_amount
 from app.schemas.extraction_wire import InvoiceExtractionWire
 
 
+def _magnitude_bound(digits: int, unit: str) -> AfterValidator:
+    """Reject numbers too large for the column that has to hold them.
+
+    A misread figure ("1E+30" from a smudged total) is a model-output defect like
+    any other, but without this bound it escapes as an *exception* rather than a
+    validation error: Decimal.quantize raises InvalidOperation past the context
+    precision, and Postgres raises numeric field overflow past the column's
+    precision. Both fire outside the extraction service's only handler, leaving
+    the invoice stuck in `extracting` while arq re-runs the task — burning a real
+    LLM call per retry to reproduce the same crash. Bounding here makes it a
+    coercion error instead, which the retry loop already knows how to feed back
+    to the model.
+    """
+    limit = Decimal(10) ** digits
+
+    def check(value: Decimal) -> Decimal:
+        if abs(value) >= limit:
+            raise ValueError(
+                f"{value} is implausibly large for {unit} (limit is {digits} digits "
+                f"before the decimal point) — re-read the figure from the document"
+            )
+        return value
+
+    return AfterValidator(check)
+
+
+# Bounds mirror the NUMERIC precision of the columns these land in: money is
+# NUMERIC(14, 2), unit prices NUMERIC(14, 4), quantities NUMERIC(12, 3).
+Money = Annotated[Decimal, _magnitude_bound(12, "an amount")]
+UnitPrice = Annotated[Decimal, _magnitude_bound(10, "a unit price")]
+Quantity = Annotated[Decimal, _magnitude_bound(9, "a quantity")]
+
+
 class LineItem(BaseModel):
     description: str = Field(min_length=1)
-    quantity: Decimal
-    unit_price: Decimal
-    amount: Decimal
+    quantity: Quantity
+    unit_price: UnitPrice
+    amount: Money
 
 
 class InvoiceExtraction(BaseModel):
@@ -34,9 +68,9 @@ class InvoiceExtraction(BaseModel):
     currency: str = Field(pattern=r"^[A-Z]{3}$")
     po_number: str | None
     line_items: list[LineItem]
-    subtotal: Decimal
-    tax_amount: Decimal
-    total: Decimal
+    subtotal: Money
+    tax_amount: Money
+    total: Money
     payment_details_present: bool
     # Wire-only passthrough for fraud fingerprinting; dropped before persistence.
     payment_details_raw: str | None = None

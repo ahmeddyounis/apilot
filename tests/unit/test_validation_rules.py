@@ -113,6 +113,23 @@ def test_v004_tax_rate_flag_boundary() -> None:
     assert "V-004" in ids
 
 
+def test_v004_flags_tax_charged_on_no_subtotal() -> None:
+    """The bypass: with subtotal 0 the implied rate is infinite, so skipping the
+    rule let a wholly unsubstantiated amount pass all fourteen rules cleanly."""
+    all_tax = make_input(
+        line_items=[line(quantity="0", unit_price="0", amount="0")],
+        subtotal=Decimal("0"),
+        tax_amount=Decimal("2400.00"),
+        total=Decimal("2400.00"),
+    )
+
+    result = run_rules(all_tax, make_ctx())
+
+    assert "V-004" in [f.rule_id for f in result.findings], (
+        f"an invoice that is 100% tax passed clean: {result.findings}"
+    )
+
+
 def test_v005_currency_allowlist() -> None:
     result = run_rules(make_input(currency="XXX"), make_ctx())
     assert "V-005" in [f.rule_id for f in result.findings]

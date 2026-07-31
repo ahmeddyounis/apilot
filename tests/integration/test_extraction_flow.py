@@ -148,3 +148,24 @@ async def test_missing_fixture_is_honest_terminal(
         assert invoice is not None
         assert invoice.status is InvoiceStatus.EXTRACTION_FAILED
         assert "fixture" in (invoice.error_detail or "")
+
+
+async def test_oversized_total_fails_terminally_instead_of_stranding(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """A figure too large to represent must be a model-output defect, not a crash.
+
+    "1E+30" is a perfectly valid finite Decimal, so it sails through coercion, but
+    neither Decimal.quantize (context precision) nor NUMERIC(14,2) can hold it.
+    Both limits raise outside the extraction service's only handler, so the invoice
+    used to be left in `extracting` with no error surface while arq retried the
+    task — spending a real LLM call each time to reproduce the same exception.
+    """
+    invoice = await run_scenario(
+        client, full_access_key, "extract-oversized-total", minimal_pdf("oversized")
+    )
+
+    assert invoice.status is InvoiceStatus.EXTRACTION_FAILED
+    assert invoice.error_detail is not None
+    assert "implausibly large" in invoice.error_detail
+    assert invoice.total is None  # nothing half-written before the failure
