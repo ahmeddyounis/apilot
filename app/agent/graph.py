@@ -439,6 +439,13 @@ class Matcher:
                 request_id=turn.request_id,
                 trace_id=state.trace_id,
             )
+            # Commit the spend now, as extraction does. The provider has already
+            # billed for this turn; buffering it until the end of the stage meant
+            # any later failure — a timeout, a tool error, a pod kill — rolled the
+            # ledger back while the money stayed spent, and the retry then paid for
+            # the whole agent run again. cost_ledger.py promises "every API attempt
+            # gets a row"; this is what makes that true when things go wrong.
+            await self.session.commit()
             turns.append(
                 {
                     "turn": turn_number,

@@ -27,12 +27,18 @@ logger = structlog.get_logger(__name__)
 _RESUMABLE_STATUSES = (
     InvoiceStatus.RECEIVED,
     InvoiceStatus.EXTRACTING,
+    # EXTRACTED is a resting state the pipeline sits in across validation and
+    # screening — embedding inference plus several queries — and a worker that dies
+    # in that window leaves the invoice there for good. Same orphan class as
+    # RECEIVED: no retry, no cron, no human queue, and a client holding a 202.
+    InvoiceStatus.EXTRACTED,
     InvoiceStatus.MATCHING,
 )
 
 _TERMINAL_FOR_STATUS = {
     InvoiceStatus.RECEIVED: InvoiceStatus.EXTRACTION_FAILED,
     InvoiceStatus.EXTRACTING: InvoiceStatus.EXTRACTION_FAILED,
+    InvoiceStatus.EXTRACTED: InvoiceStatus.EXCEPTION,
     InvoiceStatus.MATCHING: InvoiceStatus.EXCEPTION,
 }
 
@@ -144,6 +150,12 @@ class WorkerSettings:
     on_shutdown = on_shutdown
     redis_settings = RedisSettings.from_dsn(get_settings().redis_url)
     job_timeout = 600
+    # arq only re-queues a job for Retry/RetryJob/CancelledError; a plain exception
+    # (an LLM error, a dropped connection, a killed pod) marks the job finished and
+    # drops it. The pipeline raises plain exceptions, so this bound is never the
+    # thing that retries anything — `requeue_stale` above is the real recovery path,
+    # and it enforces the same budget via invoices.pipeline_requeues. Kept aligned
+    # so an explicit Retry, if one is ever raised, obeys the same limit.
     max_tries = get_settings().pipeline_max_tries
     # We never read results; keeping them would also block same-id re-enqueues.
     keep_result = 0
