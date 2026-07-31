@@ -96,7 +96,7 @@ module = "app.*"
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["testcontainers.*", "pypdfium2.*", "scipy.*"]
+module = ["testcontainers.*", "pypdfium2.*", "scipy.*", "fastembed.*"]
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]

@@ -73,6 +73,7 @@ def make_state(
         po_number_raw="PO-2231",
         invoice_date="2026-07-05",
         fraud_flag_codes=fraud or [],
+        blocking_fraud_codes=fraud or [],
         invoice_lines=invoice_lines,
         po=po,
         po_resolution="by_number",

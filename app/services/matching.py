@@ -18,7 +18,13 @@ logger = structlog.get_logger(__name__)
 
 
 def _initial_state(invoice: Invoice, trace_id: str) -> MatchingState:
-    fraud_codes = sorted({flag.get("code", "?") for flag in invoice.fraud_flags or []})
+    flags = invoice.fraud_flags or []
+    fraud_codes = sorted({flag.get("code", "?") for flag in flags})
+    # Low-severity flags annotate the verdict but never block auto-approval —
+    # otherwise F-100 (first invoice from a vendor) would freeze a fresh system.
+    blocking = sorted(
+        {flag.get("code", "?") for flag in flags if flag.get("severity") in ("high", "medium")}
+    )
     return MatchingState(
         invoice_id=invoice.id,
         trace_id=trace_id,
@@ -30,6 +36,7 @@ def _initial_state(invoice: Invoice, trace_id: str) -> MatchingState:
         po_number_raw=invoice.po_number,
         invoice_date=invoice.invoice_date.isoformat() if invoice.invoice_date else None,
         fraud_flag_codes=fraud_codes,
+        blocking_fraud_codes=blocking,
         invoice_lines=[
             InvoiceLineData(
                 index=index,

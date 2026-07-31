@@ -376,7 +376,7 @@ def run_rules(inputs: ValidationInput, ctx: RuleContext) -> ValidationResult:
 # --- pipeline stage ----------------------------------------------------------------
 
 
-def _inputs_from_invoice(invoice: Invoice) -> ValidationInput:
+def inputs_from_invoice(invoice: Invoice) -> ValidationInput:
     if invoice.invoice_date is None:
         raise ValueError("validation requires an extracted invoice_date")
     return ValidationInput(
@@ -414,7 +414,7 @@ async def run_validation_stage(
         confidence_floor=settings.confidence_review_floor,
         vendor_known=invoice.vendor_id is not None,
     )
-    result = run_rules(_inputs_from_invoice(invoice), ctx)
+    result = run_rules(inputs_from_invoice(invoice), ctx)
     invoice.validation_results = result.to_jsonb()
 
     failed_rules = sorted({f.rule_id for f in result.findings if f.severity == "hard_fail"})

@@ -72,7 +72,7 @@ async def ingest_upload(
             raise ConflictError("Idempotency conflict; retry the request") from None
         return outcome
 
-    await _enqueue_pipeline(invoice.id)
+    await enqueue_pipeline(invoice.id)
     return IngestResult(invoice_id=invoice.id, status=invoice.status, replayed=False)
 
 
@@ -155,7 +155,7 @@ async def _register_invoice(
     return invoice
 
 
-async def _enqueue_pipeline(invoice_id: UUID) -> None:
+async def enqueue_pipeline(invoice_id: UUID) -> None:
     try:
         pool = await get_arq_pool()
         await pool.enqueue_job("process_invoice", str(invoice_id), _job_id=f"pipeline:{invoice_id}")

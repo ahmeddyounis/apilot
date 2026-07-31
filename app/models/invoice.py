@@ -83,6 +83,8 @@ class Invoice(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     tax_amount: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     total: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     payment_details_present: Mapped[bool | None] = mapped_column(Boolean)
+    # HMAC of remittance details from the wire-only raw text (never stored itself).
+    payment_fingerprint: Mapped[str | None] = mapped_column(Text)
 
     # Raw extraction output (immutable once written) + extraction metadata
     extraction: Mapped[dict[str, Any] | None] = mapped_column(JSONB)

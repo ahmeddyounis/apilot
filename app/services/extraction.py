@@ -29,6 +29,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
+from app.core.fingerprint import payment_fingerprint
 from app.core.normalize import normalize_invoice_number, normalize_vendor_name
 from app.llm.client import LLMClient
 from app.llm.types import DocumentInput, FeedbackContext, FixtureMissingError, ParseResult
@@ -258,11 +259,19 @@ async def run_extraction(
     try:
         if paged:
             await _run_paged(
-                session, invoice, llm=llm, config=config, data=data, page_count=page_count
+                session,
+                invoice,
+                llm=llm,
+                config=config,
+                data=data,
+                page_count=page_count,
+                settings=settings,
             )
         else:
             docs = [DocumentInput(kind="pdf" if is_pdf else "image", data=data, media_type=mime)]
-            await _run_single(session, invoice, llm=llm, config=config, docs=docs)
+            await _run_single(
+                session, invoice, llm=llm, config=config, docs=docs, settings=settings
+            )
     except FixtureMissingError as exc:
         # Fake mode without a fixture: terminal and honest, never invented.
         await _fail(session, invoice, reason="fixture_missing", detail=str(exc))
@@ -275,6 +284,7 @@ async def _run_single(
     llm: LLMClient,
     config: ExtractionConfig,
     docs: list[DocumentInput],
+    settings: Settings,
 ) -> None:
     feedback: FeedbackContext | None = None
     accepted: InvoiceExtraction | None = None
@@ -345,6 +355,7 @@ async def _run_single(
         model_id=model_id,
         mode="single",
         arithmetic=accepted_findings,
+        settings=settings,
     )
 
 
@@ -356,6 +367,7 @@ async def _run_paged(
     config: ExtractionConfig,
     data: bytes,
     page_count: int,
+    settings: Settings,
 ) -> None:
     rendered = await asyncio.to_thread(_render_pdf_pages, data)
     pages: list[PageExtractionWire] = []
@@ -439,6 +451,7 @@ async def _run_paged(
         model_id=model_id,
         mode="paged",
         arithmetic=arithmetic_findings(domain),
+        settings=settings,
     )
 
 
@@ -541,6 +554,7 @@ async def _persist(
     model_id: str,
     mode: str,
     arithmetic: list[str],
+    settings: Settings,
 ) -> None:
     invoice.vendor_name = extraction.vendor_name
     invoice.invoice_number = extraction.invoice_number
@@ -553,6 +567,13 @@ async def _persist(
     invoice.tax_amount = extraction.tax_amount
     invoice.total = extraction.total
     invoice.payment_details_present = extraction.payment_details_present
+    # The raw remittance text exists only in memory right here: reduce it to a
+    # keyed fingerprint for the bank-detail-change fraud signal, then let it go.
+    if extraction.payment_details_raw:
+        invoice.payment_fingerprint = payment_fingerprint(
+            extraction.payment_details_raw,
+            secret=settings.fingerprint_secret.get_secret_value(),
+        )
     invoice.extraction_model = model_id
     invoice.extraction_mode = mode
     invoice.field_confidence = dict(extraction.field_confidence)

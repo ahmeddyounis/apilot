@@ -590,7 +590,7 @@ class Matcher:
         eligible = (
             state.checks.all_pass()
             and not state.discrepancies
-            and not state.fraud_flag_codes
+            and not state.blocking_fraud_codes
             and state.total <= self.settings.auto_approve_max_total
         )
         verdict_value = "auto_approve" if eligible else "exception"
@@ -631,10 +631,10 @@ class Matcher:
                     f"the auto-approve threshold "
                     f"({self.settings.auto_approve_max_total}); routed for human approval."
                 )
-            if state.fraud_flag_codes:
+            if state.blocking_fraud_codes:
                 return (
                     f"{base} Clean match, but fraud screening flagged: "
-                    f"{', '.join(state.fraud_flag_codes)}."
+                    f"{', '.join(state.blocking_fraud_codes)}."
                 )
             failing = [k for k, v in state.checks.model_dump().items() if not v]
             return f"{base} Checks failing: {', '.join(failing)}."

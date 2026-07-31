@@ -63,7 +63,8 @@ class MatchingState(BaseModel):
     invoice_number: str | None = None
     po_number_raw: str | None = None
     invoice_date: str | None = None
-    fraud_flag_codes: list[str] = Field(default_factory=list)
+    fraud_flag_codes: list[str] = Field(default_factory=list)  # all codes, informational
+    blocking_fraud_codes: list[str] = Field(default_factory=list)  # medium/high only
 
     invoice_lines: list[InvoiceLineData] = Field(default_factory=list)
     po: PoData | None = None

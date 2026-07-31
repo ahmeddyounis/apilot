@@ -16,8 +16,10 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import get_settings
 from app.core.db import get_sessionmaker
+from app.llm.embeddings import build_embedding_provider
 from app.llm.factory import build_llm_client
 from app.models import Invoice, InvoiceStatus
+from app.services.dedup import run_screening_stage
 from app.services.extraction import run_extraction
 from app.services.matching import run_matching_stage
 from app.services.state_machine import transition
@@ -57,7 +59,13 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
             if not passed:
                 logger.info("pipeline_terminal", status=invoice.status.value)
                 return
-            # Screening (dedup/fraud, P5) slots in here before matching.
+            embedder = build_embedding_provider(settings)
+            proceed = await run_screening_stage(
+                session, invoice, settings=settings, embedder=embedder
+            )
+            if not proceed:
+                logger.info("pipeline_terminal", status=invoice.status.value)
+                return
             await transition(session, invoice, InvoiceStatus.MATCHING, actor=WORKER_ACTOR)
             await session.commit()
 
