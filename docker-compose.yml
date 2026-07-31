@@ -1,0 +1,66 @@
+# Host ports are remapped because 5432/6379/8080 are occupied on this machine:
+#   Postgres → 5433, Redis → 6380, API → 8000.
+# Container-internal URLs always use service DNS + default ports.
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: apilot
+      POSTGRES_PASSWORD: apilot
+      POSTGRES_DB: apilot
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apilot -d apilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:8.2.3-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APILOT_DATABASE_URL: postgresql+asyncpg://apilot:apilot@db:5432/apilot
+      APILOT_REDIS_URL: redis://redis:6379/0
+      APILOT_STORAGE_DIR: /data/uploads
+      APILOT_LOG_FORMAT: json
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import sys, urllib.request
+          sys.exit(0 if urllib.request.urlopen("http://localhost:8000/health", timeout=2).status == 200 else 1)
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  pgdata:
+  uploads:

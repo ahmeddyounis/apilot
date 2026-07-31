@@ -1,0 +1,9 @@
+# Auto-loaded in local dev: live-reload API with the source bind-mounted.
+services:
+  api:
+    command:
+      ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./app:/app/app
+    environment:
+      APILOT_LOG_FORMAT: console
