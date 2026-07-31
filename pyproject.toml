@@ -89,6 +89,10 @@ check_untyped_defs = true
 module = "app.*"
 disallow_untyped_defs = true
 
+[[tool.mypy.overrides]]
+module = "testcontainers.*"
+ignore_missing_imports = true
+
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true

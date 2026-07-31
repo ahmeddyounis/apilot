@@ -13,7 +13,11 @@ def make_settings(**overrides: Any) -> Settings:
     return Settings(_env_file=None, **overrides)
 
 
-def test_defaults_target_local_compose_ports() -> None:
+def test_defaults_target_local_compose_ports(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The integration conftest exports container URLs; strip them so this test
+    # sees the true class defaults regardless of suite ordering.
+    for var in ("APILOT_DATABASE_URL", "APILOT_REDIS_URL", "APILOT_STORAGE_DIR"):
+        monkeypatch.delenv(var, raising=False)
     settings = make_settings()
     assert "5433" in settings.database_url
     assert "6380" in settings.redis_url
