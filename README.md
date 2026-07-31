@@ -78,11 +78,13 @@ flowchart LR
     VA --> SC[Screening<br/>hash · embeddings · heuristics]
     SC -->|duplicate or<br/>high risk| HELD([held])
     SC --> MA[Matching agent<br/>LangGraph 3-way match]
-    MA -->|clean + under threshold| AP([approved])
+    MA -->|clean + at or under threshold| AP([approved])
     MA -->|discrepancy| EXC
     EXC --> RV[Human review<br/>approve · reject · correct]
     HELD --> RV
     RV --> AP
+    RV --> REJ([rejected])
+    RV -->|correct + re-run| MA
     AP --> EXP([exported])
 ```
 
@@ -273,7 +275,7 @@ catch duplicate invoices must not create them.
 | Agent | LangGraph | Explicit, replayable graph — not an unbounded loop |
 | Embeddings | fastembed (local, 384-dim) | Near-duplicate detection without a second API key |
 | Observability | structlog + request IDs, Prometheus, append-only audit log | Every state change, agent step, and LLM call is on the record |
-| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 158 tests; integration tests run real Postgres and real migrations |
+| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 190 tests; integration tests run real Postgres and real migrations |
 | Interop | MCP server (stdio) | `extract_invoice`, `check_duplicates`, `match_invoice` for any MCP client |
 
 Everything runs with **zero secrets** — the FakeLLM and FakeEmbeddings are complete

@@ -87,7 +87,7 @@ system.
 
 ## Releasing a hold
 
-A reviewer can release a held invoice through `POST /invoices/{id}/review`. Approving
+A reviewer can release a held invoice through `POST /api/v1/invoices/{id}/review`. Approving
 it directly is one path; correcting a field with `rerun_matching: true` re-runs the
 pipeline and clears the flags — recording the cleared codes in the append-only audit
 log, so the override is a fact on the record rather than a silent state change.

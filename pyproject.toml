@@ -42,13 +42,17 @@ dev = [
     "testcontainers[postgres,redis]",
     "types-aiofiles",
 ]
-# Populated in later milestones (synthetic generator, local embeddings). Kept out of
-# the default install so onnxruntime/playwright never weigh down core or CI-unit paths.
+# Local ONNX embeddings. Its own group because the runtime image needs it — near-
+# duplicate detection silently degrades to hashed fallback vectors without it — while
+# unit-test and lint CI paths shouldn't be carrying onnxruntime around.
+embeddings = ["fastembed>=0.8.0"]
+# Synthetic invoice generation for the eval harness. Kept out of the default install
+# so playwright never weighs down core or CI-unit paths.
 eval = [
     "faker>=40.36.0",
-    "fastembed>=0.8.0",
     "jinja2>=3.1.6",
     "playwright>=1.62.0",
+    {include-group = "embeddings"},
 ]
 
 [build-system]

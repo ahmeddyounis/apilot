@@ -68,8 +68,13 @@ def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
     try:
         return FastEmbedProvider(settings.embedding_model)
     except ImportError:
-        logger.warning(
-            "fastembed_unavailable",
-            hint="install the 'eval' dependency group for real near-dup embeddings",
+        # Loud, because the failure is invisible otherwise: the pipeline keeps
+        # running and near-duplicate detection keeps reporting scores, but they come
+        # from hashed bag-of-tokens vectors that cannot recognise a resubmission
+        # that has been reworded. The runtime image installs the `embeddings` group
+        # precisely so this path is not taken in a real deployment.
+        logger.error(
+            "fastembed_unavailable_near_duplicate_detection_degraded",
+            hint="install the 'embeddings' dependency group",
         )
         return FakeEmbeddings()

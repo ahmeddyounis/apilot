@@ -40,11 +40,16 @@ class InvoiceStatus(enum.StrEnum):
 
 
 # Stored as VARCHAR + CHECK (never a native PG enum) so adding a status stays a
-# painless migration.
+# painless migration. create_constraint must be explicit — it has defaulted to False
+# since SQLAlchemy 1.4, so the comment above described a constraint that was never
+# emitted. Without it Postgres accepted any string: a stray write of 'paid' was
+# stored happily and then raised LookupError on every read, leaving a row the API
+# couldn't return and the worker couldn't process.
 invoice_status_type = Enum(
     InvoiceStatus,
     name="invoice_status",
     native_enum=False,
+    create_constraint=True,
     length=32,
     values_callable=lambda e: [member.value for member in e],
 )

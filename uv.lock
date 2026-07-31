@@ -114,6 +114,9 @@ dev = [
     { name = "testcontainers", extra = ["redis"] },
     { name = "types-aiofiles" },
 ]
+embeddings = [
+    { name = "fastembed" },
+]
 eval = [
     { name = "faker" },
     { name = "fastembed" },
@@ -158,6 +161,7 @@ dev = [
     { name = "testcontainers", extras = ["postgres", "redis"] },
     { name = "types-aiofiles" },
 ]
+embeddings = [{ name = "fastembed", specifier = ">=0.8.0" }]
 eval = [
     { name = "faker", specifier = ">=40.36.0" },
     { name = "fastembed", specifier = ">=0.8.0" },

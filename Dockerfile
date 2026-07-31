@@ -7,12 +7,12 @@ WORKDIR /app
 # Dependency layer (cached until pyproject/uv.lock change)
 COPY pyproject.toml uv.lock README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project
+    uv sync --frozen --no-dev --group embeddings --no-install-project
 
 # Project layer
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+    uv sync --frozen --no-dev --group embeddings
 
 # --- runtime ----------------------------------------------------------------------
 FROM python:3.13-slim-bookworm
