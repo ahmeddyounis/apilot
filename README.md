@@ -275,7 +275,7 @@ catch duplicate invoices must not create them.
 | Agent | LangGraph | Explicit, replayable graph — not an unbounded loop |
 | Embeddings | fastembed (local, 384-dim) | Near-duplicate detection without a second API key |
 | Observability | structlog + request IDs, Prometheus, append-only audit log | Every state change, agent step, and LLM call is on the record |
-| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 190 tests; integration tests run real Postgres and real migrations |
+| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 205 tests; integration tests run real Postgres and real migrations |
 | Interop | MCP server (stdio) | `extract_invoice`, `check_duplicates`, `match_invoice` for any MCP client |
 
 Everything runs with **zero secrets** — the FakeLLM and FakeEmbeddings are complete
