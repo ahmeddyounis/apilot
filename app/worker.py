@@ -20,7 +20,20 @@ from app.services.state_machine import transition
 
 logger = structlog.get_logger(__name__)
 
-_IN_FLIGHT_STATUSES = (InvoiceStatus.EXTRACTING, InvoiceStatus.MATCHING)
+# RECEIVED is included deliberately: if Redis was unavailable when the upload was
+# accepted, the job was never enqueued and nothing else would ever pick the invoice
+# up. Without it, a momentary queue outage silently orphans accepted invoices.
+_RESUMABLE_STATUSES = (
+    InvoiceStatus.RECEIVED,
+    InvoiceStatus.EXTRACTING,
+    InvoiceStatus.MATCHING,
+)
+
+_TERMINAL_FOR_STATUS = {
+    InvoiceStatus.RECEIVED: InvoiceStatus.EXTRACTION_FAILED,
+    InvoiceStatus.EXTRACTING: InvoiceStatus.EXTRACTION_FAILED,
+    InvoiceStatus.MATCHING: InvoiceStatus.EXCEPTION,
+}
 
 
 async def process_invoice(ctx: dict[str, Any], invoice_id: str) -> None:
@@ -37,7 +50,7 @@ async def requeue_stale(ctx: dict[str, Any]) -> None:
         stale = (
             await session.scalars(
                 select(Invoice).where(
-                    Invoice.status.in_(_IN_FLIGHT_STATUSES),
+                    Invoice.status.in_(_RESUMABLE_STATUSES),
                     Invoice.updated_at < cutoff,
                 )
             )
@@ -49,11 +62,7 @@ async def requeue_stale(ctx: dict[str, Any]) -> None:
                 invoice.error_detail = (
                     f"Abandoned after {invoice.extraction_attempts} pipeline attempts"
                 )
-                terminal = (
-                    InvoiceStatus.EXTRACTION_FAILED
-                    if invoice.status is InvoiceStatus.EXTRACTING
-                    else InvoiceStatus.EXCEPTION
-                )
+                terminal = _TERMINAL_FOR_STATUS[invoice.status]
                 await transition(
                     session, invoice, terminal, actor="worker", reason="pipeline_error"
                 )

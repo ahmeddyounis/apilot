@@ -16,7 +16,10 @@ from app.models import Invoice, InvoiceStatus
 from app.services import audit
 
 ALLOWED: dict[InvoiceStatus, frozenset[InvoiceStatus]] = {
-    InvoiceStatus.RECEIVED: frozenset({InvoiceStatus.EXTRACTING}),
+    # EXTRACTION_FAILED from RECEIVED: the queue never picked the invoice up and the
+    # rescue cron gave up. Extraction genuinely never happened — say so honestly
+    # rather than leaving the invoice pending forever.
+    InvoiceStatus.RECEIVED: frozenset({InvoiceStatus.EXTRACTING, InvoiceStatus.EXTRACTION_FAILED}),
     InvoiceStatus.EXTRACTING: frozenset({InvoiceStatus.EXTRACTED, InvoiceStatus.EXTRACTION_FAILED}),
     InvoiceStatus.EXTRACTED: frozenset(
         {InvoiceStatus.MATCHING, InvoiceStatus.EXCEPTION, InvoiceStatus.HELD}

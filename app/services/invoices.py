@@ -160,7 +160,9 @@ async def enqueue_pipeline(invoice_id: UUID) -> None:
         pool = await get_arq_pool()
         await pool.enqueue_job("process_invoice", str(invoice_id), _job_id=f"pipeline:{invoice_id}")
     except Exception:
-        # The invoice stays in `received`; the stale-job cron will requeue it.
+        # The upload is already durable, so we still return 202. The invoice stays in
+        # `received` and the stale-job cron picks it up (RECEIVED is in the cron's
+        # resumable set precisely for this case).
         logger.exception("pipeline_enqueue_failed", invoice_id=str(invoice_id))
 
 
