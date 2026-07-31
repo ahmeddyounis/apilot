@@ -163,3 +163,33 @@ async def test_price_drift_triggers_tool_using_investigation(
             .where(AuditLog.invoice_id == invoice.id, AuditLog.event_type == "agent_step")
         )
         assert int(steps or 0) == len(nodes)
+
+
+async def test_a_purchase_order_cannot_be_billed_twice(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """One authorisation, one delivery, two invoices.
+
+    Each invoice used to be matched against the PO in isolation, so both saw the
+    full 10-unit delivery, both passed every check, and both auto-approved — 940.00
+    paid against a 470.00 order. Neither duplicate detection nor 3-way matching
+    caught it: the invoices are genuinely different documents, and each one on its
+    own is a perfect match.
+    """
+    await seed_po_and_receipt(client, full_access_key)
+
+    first = await run_scenario(
+        client, full_access_key, "extract-po-clean", minimal_pdf("bill-once")
+    )
+    assert first.status is InvoiceStatus.APPROVED
+
+    second = await run_scenario(
+        client, full_access_key, "extract-po-rebill", minimal_pdf("bill-twice")
+    )
+
+    assert second.status is InvoiceStatus.EXCEPTION, "the same PO was billed twice"
+    response = await client.get(
+        f"/api/v1/invoices/{second.id}/matching", headers={"X-API-Key": full_access_key}
+    )
+    verdict = response.json()["verdict"]
+    assert "po_over_consumption" in {d["type"] for d in verdict["discrepancies"]}

@@ -124,11 +124,19 @@ class Matcher:
             po = await tools.lookup_po(self.session, raw)
             if po is not None:
                 received = await tools.lookup_receipts(self.session, po.id)
+                billed = await tools.po_billed_total(
+                    self.session, po_id=po.id, exclude_invoice_id=state.invoice_id
+                )
                 return {
                     "po": po,
                     "po_resolution": "by_number",
                     "received_by_po_line": received,
-                    "event_summary": {"po_number": po.po_number, "resolution": "by_number"},
+                    "po_billed_elsewhere": billed,
+                    "event_summary": {
+                        "po_number": po.po_number,
+                        "resolution": "by_number",
+                        "already_billed": str(billed),
+                    },
                 }
             resolution = "not_found"
         else:
@@ -147,10 +155,14 @@ class Matcher:
             if len(candidates) == 1:
                 po = candidates[0]
                 received = await tools.lookup_receipts(self.session, po.id)
+                billed = await tools.po_billed_total(
+                    self.session, po_id=po.id, exclude_invoice_id=state.invoice_id
+                )
                 return {
                     "po": po,
                     "po_resolution": "fuzzy",
                     "received_by_po_line": received,
+                    "po_billed_elsewhere": billed,
                     "event_summary": {
                         "po_number": po.po_number,
                         "resolution": "fuzzy",
@@ -277,6 +289,24 @@ class Matcher:
                             ),
                         )
                     )
+            elif inv.unit_price > 0:
+                # A PO line priced at zero (freight placeholder, "TBD", sample) can't
+                # produce a drift ratio, but skipping the check outright meant the
+                # vendor could bill any amount at all on that line and still match.
+                price_ok = False
+                discrepancies.append(
+                    Discrepancy(
+                        type="price_mismatch",
+                        line=inv.description,
+                        invoice_price=str(inv.unit_price),
+                        po_price=str(pol.unit_price),
+                        impact=Impact(
+                            amount=str(quantize_amount(inv.unit_price * inv.quantity, currency)),
+                            currency=currency,
+                        ),
+                        note="purchase-order line carries no price to check against",
+                    )
+                )
 
             received = state.received_by_po_line.get(pol.line_no, Decimal(0))
             billable = min(inv.quantity, pol.quantity)
@@ -317,13 +347,43 @@ class Matcher:
                 )
             )
 
-        # receipt_match follows the spec's semantics: delivery complete *per the PO*
-        # (an over-billed quantity is quantity_mismatch's problem, not the receipt's).
-        aligned_po_lines = [po_by_index[pair.po_index] for pair in state.alignment]
-        receipt_ok = all(
-            state.received_by_po_line.get(line.line_no, Decimal(0)) >= line.quantity
-            for line in aligned_po_lines
+        # Delivery must cover what is *billed*, not the whole ordered quantity:
+        # comparing against the PO line made legitimate partial billing (5 of 10
+        # ordered, 5 delivered) fail with no discrepancy to explain why, while
+        # over-billing is caught by receipt_shortfall above, which uses the same
+        # billable figure. `all([])` is vacuously true, so an invoice where nothing
+        # aligned used to publish receipt_match: true having consulted no receipt.
+        receipt_ok = bool(state.alignment) and all(
+            state.received_by_po_line.get(po_by_index[pair.po_index].line_no, Decimal(0))
+            >= min(
+                inv_by_index[pair.invoice_index].quantity,
+                po_by_index[pair.po_index].quantity,
+            )
+            for pair in state.alignment
         )
+
+        # Cumulative consumption. Every invoice was matched against the PO in
+        # isolation, so the same authorisation could be billed to exhaustion: two
+        # invoices for the full delivery both auto-approved, and splitting the
+        # quantity across invoices evaded the near-duplicate screen as well (the
+        # totals differ, so nothing looked like a resubmission).
+        already_billed = state.po_billed_elsewhere
+        if already_billed > 0 and already_billed + state.total > po.total:
+            discrepancies.append(
+                Discrepancy(
+                    type="po_over_consumption",
+                    impact=Impact(
+                        amount=str(
+                            quantize_amount(already_billed + state.total - po.total, currency)
+                        ),
+                        currency=currency,
+                    ),
+                    note=(
+                        f"purchase order authorises {po.total} {po.currency}; "
+                        f"{already_billed} already billed against it by other invoices"
+                    ),
+                )
+            )
 
         vendor_ok = state.vendor_id is not None and state.vendor_id == po.vendor_id
         checks = MatchingChecks(
@@ -587,11 +647,31 @@ class Matcher:
                 "event_summary": {"verdict": "exception", "reason": "missing_po"},
             }
 
+        # Three conditions beyond "nothing looks wrong", each of which was a way to
+        # auto-approve on evidence the system doesn't actually have:
+        #
+        # - A fuzzy PO is a *guess* — matched by vendor, total and date window when
+        #   the number the vendor printed didn't resolve. The verdict then reported
+        #   the guessed PO number, so a reviewer couldn't even tell a substitution
+        #   had happened. Guessing which authorisation to pay against is the one
+        #   thing this system must not do silently.
+        # - A closed PO is not an authorisation to spend. Its status was loaded into
+        #   state and never read.
+        # - A pairing the model proposed is a hint, not evidence. It is accepted at a
+        #   *lower* similarity floor than the deterministic pass, so a line the code
+        #   refused to pair could be paid on the model's say-so — with line
+        #   descriptions coming from the invoice, which the vendor writes. The hint
+        #   still earns its keep by explaining the mismatch to a human; it just can't
+        #   be what releases the money.
+        po_is_authoritative = state.po_resolution == "by_number" and state.po.status == "open"
+        model_influenced = any(pair.source != "deterministic" for pair in state.alignment)
         eligible = (
             state.checks.all_pass()
             and not state.discrepancies
             and not state.blocking_fraud_codes
             and state.total <= self.settings.auto_approve_max_total
+            and po_is_authoritative
+            and not model_influenced
         )
         verdict_value = "auto_approve" if eligible else "exception"
         summary = state.investigation_summary or self._deterministic_summary(state, eligible)

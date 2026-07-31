@@ -9,18 +9,30 @@
       "currency": "USD",
       "po_number": "PO-2231",
       "line_items": [
-        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"}
+        {
+          "description": "Widget A-200",
+          "quantity": "10",
+          "unit_price": "47.00",
+          "amount": "470.00"
+        }
       ],
       "subtotal": "470.00",
       "tax_amount": "37.60",
       "total": "507.60",
       "payment_details_present": false,
       "payment_details_raw": null,
-      "field_confidence": {"vendor_name": 0.98, "po_number": 0.97, "total": 0.99},
-      "source_page_refs": {"vendor_name": 1, "po_number": 1, "total": 1}
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.97,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
     }
   },
-
   "extract-po-overbill": {
     "wire": {
       "vendor_name": "ACME Office Supply Co",
@@ -31,18 +43,30 @@
       "currency": "USD",
       "po_number": "PO-2231",
       "line_items": [
-        {"description": "Widget A-200", "quantity": "12", "unit_price": "47.00", "amount": "564.00"}
+        {
+          "description": "Widget A-200",
+          "quantity": "12",
+          "unit_price": "47.00",
+          "amount": "564.00"
+        }
       ],
       "subtotal": "564.00",
       "tax_amount": "45.12",
       "total": "609.12",
       "payment_details_present": false,
       "payment_details_raw": null,
-      "field_confidence": {"vendor_name": 0.98, "po_number": 0.97, "total": 0.99},
-      "source_page_refs": {"vendor_name": 1, "po_number": 1, "total": 1}
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.97,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
     }
   },
-
   "extract-po-missing": {
     "wire": {
       "vendor_name": "ACME Office Supply Co",
@@ -53,18 +77,30 @@
       "currency": "USD",
       "po_number": "PO-9999",
       "line_items": [
-        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"}
+        {
+          "description": "Widget A-200",
+          "quantity": "10",
+          "unit_price": "47.00",
+          "amount": "470.00"
+        }
       ],
       "subtotal": "470.00",
       "tax_amount": "37.60",
       "total": "507.60",
       "payment_details_present": false,
       "payment_details_raw": null,
-      "field_confidence": {"vendor_name": 0.98, "po_number": 0.6, "total": 0.99},
-      "source_page_refs": {"vendor_name": 1, "po_number": 1, "total": 1}
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.6,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
     }
   },
-
   "extract-po-pricedrift": {
     "wire": {
       "vendor_name": "ACME Office Supply Co",
@@ -75,18 +111,30 @@
       "currency": "USD",
       "po_number": "PO-2231",
       "line_items": [
-        {"description": "Widget A-200", "quantity": "10", "unit_price": "51.00", "amount": "510.00"}
+        {
+          "description": "Widget A-200",
+          "quantity": "10",
+          "unit_price": "51.00",
+          "amount": "510.00"
+        }
       ],
       "subtotal": "510.00",
       "tax_amount": "40.80",
       "total": "550.80",
       "payment_details_present": false,
       "payment_details_raw": null,
-      "field_confidence": {"vendor_name": 0.98, "po_number": 0.97, "total": 0.99},
-      "source_page_refs": {"vendor_name": 1, "po_number": 1, "total": 1}
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.97,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
     }
   },
-
   "extract-dup-resub": {
     "wire": {
       "vendor_name": "ACME Office Supply Co",
@@ -97,20 +145,75 @@
       "currency": "USD",
       "po_number": "PO-2231",
       "line_items": [
-        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"}
+        {
+          "description": "Widget A-200",
+          "quantity": "10",
+          "unit_price": "47.00",
+          "amount": "470.00"
+        }
       ],
       "subtotal": "470.00",
       "tax_amount": "37.60",
       "total": "507.60",
       "payment_details_present": false,
       "payment_details_raw": null,
-      "field_confidence": {"vendor_name": 0.98, "po_number": 0.97, "total": 0.99},
-      "source_page_refs": {"vendor_name": 1, "po_number": 1, "total": 1}
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.97,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
     }
   },
-
   "extract-po-pricedrift:tool_turn": [
-    {"tool_use": {"name": "vendor_price_history", "input": {"description": "Widget A-200"}}},
-    {"final_text": "{\"proposed_pairs\": [], \"summary\": \"Widget A-200 is billed at 51.00 against a PO price of 47.00 (+8.5%), and vendor history shows no comparable recent increase. Impact is 40.00 USD across 10 units. Recommend a vendor query before approval.\"}"}
-  ]
+    {
+      "tool_use": {
+        "name": "vendor_price_history",
+        "input": {
+          "description": "Widget A-200"
+        }
+      }
+    },
+    {
+      "final_text": "{\"proposed_pairs\": [], \"summary\": \"Widget A-200 is billed at 51.00 against a PO price of 47.00 (+8.5%), and vendor history shows no comparable recent increase. Impact is 40.00 USD across 10 units. Recommend a vendor query before approval.\"}"
+    }
+  ],
+  "extract-po-rebill": {
+    "wire": {
+      "vendor_name": "ACME Office Supply Co",
+      "vendor_tax_id": null,
+      "invoice_number": "INV-2026-0099",
+      "invoice_date": "2026-07-19",
+      "due_date": "2026-08-04",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {
+          "description": "Widget A-200",
+          "quantity": "6",
+          "unit_price": "47.00",
+          "amount": "282.00"
+        }
+      ],
+      "subtotal": "282.00",
+      "tax_amount": "22.56",
+      "total": "304.56",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "po_number": 0.97,
+        "total": 0.99
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "po_number": 1,
+        "total": 1
+      }
+    }
+  }
 }

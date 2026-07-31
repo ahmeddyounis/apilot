@@ -10,7 +10,7 @@ from typing import Any
 from uuid import UUID
 
 from rapidfuzz import fuzz
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -19,8 +19,15 @@ from app.models import (
     Invoice,
     InvoiceLineItem,
     InvoiceStatus,
+    MatchingResult,
     PurchaseOrder,
     Receipt,
+)
+
+# States in which an invoice is committed to being paid, and so consumes PO budget.
+_CONSUMING_STATUSES = (
+    InvoiceStatus.APPROVED,
+    InvoiceStatus.EXPORTED,
 )
 
 
@@ -98,6 +105,28 @@ async def lookup_receipts(session: AsyncSession, po_id: UUID) -> dict[int, Decim
                 line.quantity_received
             )
     return received
+
+
+async def po_billed_total(
+    session: AsyncSession, *, po_id: UUID, exclude_invoice_id: UUID
+) -> Decimal:
+    """How much other invoices have already been billed against this purchase order.
+
+    Only invoices that reached a paying state count — a rejected or still-queued
+    invoice consumes nothing. Without this, every invoice was matched against the
+    PO in isolation, so one authorisation could be billed over and over.
+    """
+    total = await session.scalar(
+        select(func.coalesce(func.sum(Invoice.total), 0))
+        .select_from(MatchingResult)
+        .join(Invoice, Invoice.id == MatchingResult.invoice_id)
+        .where(
+            MatchingResult.po_id == po_id,
+            Invoice.id != exclude_invoice_id,
+            Invoice.status.in_(_CONSUMING_STATUSES),
+        )
+    )
+    return Decimal(total or 0)
 
 
 async def vendor_price_history(

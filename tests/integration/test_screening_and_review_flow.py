@@ -155,6 +155,10 @@ async def test_correct_with_rerun_matching_reaches_approval(
     client: httpx.AsyncClient, full_access_key: str
 ) -> None:
     await seed_po_and_receipt(client, full_access_key)
+    # A second, unconsumed authorisation for the corrected invoice to bill against.
+    # Pointing it back at PO-2231 would now be caught as over-consumption, since the
+    # first invoice already used that purchase order up.
+    await seed_po_and_receipt(client, full_access_key, po_number="PO-2232")
     await run_scenario(client, full_access_key, "extract-po-clean", minimal_pdf("rerun-a"))
     held = await run_scenario(client, full_access_key, "extract-dup-resub", minimal_pdf("rerun-b"))
     assert held.status is InvoiceStatus.HELD
@@ -164,7 +168,7 @@ async def test_correct_with_rerun_matching_reaches_approval(
         headers={"X-API-Key": full_access_key},
         json={
             "action": "correct",
-            "corrections": [{"field_path": "po_number", "new_value": "PO-2231"}],
+            "corrections": [{"field_path": "po_number", "new_value": "PO-2232"}],
             "rerun_matching": True,
         },
     )

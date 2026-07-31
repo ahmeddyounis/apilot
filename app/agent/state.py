@@ -70,6 +70,9 @@ class MatchingState(BaseModel):
     po: PoData | None = None
     po_resolution: str = "not_found"  # by_number | fuzzy | not_found | no_po_number
     received_by_po_line: dict[int, Decimal] = Field(default_factory=dict)
+    # Total already billed against this PO by other invoices that reached a paying
+    # state — the budget this invoice has to fit inside.
+    po_billed_elsewhere: Decimal = Decimal(0)
 
     alignment: list[AlignedPair] = Field(default_factory=list)
     unmatched_invoice: list[int] = Field(default_factory=list)

@@ -30,6 +30,7 @@ class Discrepancy(BaseModel):
         "missing_po",
         "vendor_mismatch",
         "currency_mismatch",
+        "po_over_consumption",
     ]
     line: str | None = None
     invoice_qty: str | None = None
