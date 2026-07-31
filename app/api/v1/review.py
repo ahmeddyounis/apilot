@@ -6,9 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import AuthContext, rate_limited, require_scopes
 from app.api.errors import NotFoundError
 from app.core.db import get_session
-from app.models import Invoice
 from app.schemas.review import ReviewIn, ReviewOut
-from app.services.review import apply_review
+from app.services.review import apply_review, load_for_review
 
 router = APIRouter(tags=["review"])
 
@@ -22,7 +21,9 @@ async def review_invoice(
     _rate_limit: None = Depends(rate_limited()),
     session: AsyncSession = Depends(get_session),
 ) -> ReviewOut:
-    invoice = await session.get(Invoice, invoice_id)
+    # Locked read: concurrent reviewers serialize here, so the second one sees the
+    # first one's decision instead of racing past it.
+    invoice = await load_for_review(session, invoice_id)
     if invoice is None:
         raise NotFoundError(f"Invoice {invoice_id} not found")
 

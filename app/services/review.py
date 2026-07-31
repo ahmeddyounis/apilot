@@ -10,7 +10,9 @@ import re
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
+from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import AuthContext
@@ -43,6 +45,18 @@ _HEADER_PARSERS: dict[str, Any] = {
 class CorrectionError(ApilotError):
     status_code = 422
     code = "invalid_correction"
+
+
+async def load_for_review(session: AsyncSession, invoice_id: UUID) -> Invoice | None:
+    """Fetch an invoice with a row lock held for the rest of the transaction.
+
+    Review decisions are financial: without the lock, two reviewers acting at the
+    same time both read the pre-decision status, both find their transition legal,
+    and both commit — the invoice lands on whichever wrote last while the audit log
+    records both as having succeeded. FOR UPDATE serializes them, so the second
+    reader sees the decided status and gets a 409.
+    """
+    return await session.scalar(select(Invoice).where(Invoice.id == invoice_id).with_for_update())
 
 
 def _apply_correction(invoice: Invoice, field_path: str, new_value: Any) -> Any:
