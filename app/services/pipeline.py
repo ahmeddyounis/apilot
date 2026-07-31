@@ -20,6 +20,7 @@ from app.llm.factory import build_llm_client
 from app.models import Invoice, InvoiceStatus
 from app.services.extraction import run_extraction
 from app.services.state_machine import transition
+from app.services.validation import run_validation_stage
 
 logger = structlog.get_logger(__name__)
 
@@ -50,6 +51,12 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
                 logger.info("pipeline_terminal", status=invoice.status.value)
                 return
 
-        # Later stages (validation → screening → matching → decision gate) attach here
-        # as their milestones land.
+        if invoice.status is InvoiceStatus.EXTRACTED:
+            passed = await run_validation_stage(session, invoice, settings=settings)
+            if not passed:
+                logger.info("pipeline_terminal", status=invoice.status.value)
+                return
+
+        # Later stages (screening → matching → decision gate) attach here as their
+        # milestones land.
         logger.info("pipeline_checkpoint", status=invoice.status.value)

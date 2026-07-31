@@ -103,20 +103,27 @@ async def test_refusal_is_terminal_without_retry(
         assert call is not None and call.success is False
 
 
-async def test_persistent_arithmetic_is_accepted_not_failed(
+async def test_persistent_arithmetic_is_accepted_then_routed_by_validation(
     client: httpx.AsyncClient, full_access_key: str
 ) -> None:
-    """A faithfully-extracted internally-inconsistent document must be persisted
-    (validation routes it later) — never forced into extraction_failed."""
+    """The two-layer story in one test: a faithfully-extracted, internally
+    inconsistent document is PERSISTED by extraction (never extraction_failed) and
+    then routed to the human queue by the deterministic validation engine."""
     invoice = await run_scenario(
         client, full_access_key, "extract-arith-persistent", minimal_pdf("sketchy")
     )
-    assert invoice.status is InvoiceStatus.EXTRACTED
+    assert invoice.status is InvoiceStatus.EXCEPTION
+    assert invoice.exception_reason == "validation"
     assert invoice.extraction_attempts == 3  # 1 + 2 feedback retries, then accepted
-    assert invoice.total == Decimal("575.10")
+    assert invoice.total == Decimal("575.10")  # extraction preserved verbatim
     assert invoice.payment_details_present is True
     assert invoice.extraction is not None
     assert "payment_details_raw" not in invoice.extraction  # never persisted
+    assert invoice.validation_results is not None
+    hard = {
+        f["rule_id"] for f in invoice.validation_results["findings"] if f["severity"] == "hard_fail"
+    }
+    assert "V-001" in hard  # the printed line math really is wrong
 
 
 async def test_garbage_output_is_terminal_after_retries(

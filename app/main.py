@@ -7,6 +7,7 @@ from fastapi import APIRouter, FastAPI
 
 from app import __version__
 from app.api.errors import register_exception_handlers
+from app.api.v1.exceptions import router as exceptions_router
 from app.api.v1.health import router as health_router
 from app.api.v1.invoices import router as invoices_router
 from app.core.config import Settings, get_settings
@@ -42,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     api_v1 = APIRouter(prefix="/api/v1")
     api_v1.include_router(invoices_router)
+    api_v1.include_router(exceptions_router)
     app.include_router(api_v1)
 
     return app

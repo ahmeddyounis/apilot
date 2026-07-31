@@ -79,6 +79,28 @@
 
   "extract-refusal": {"stop_reason": "refusal"},
 
+  "extract-corrupt-total": {
+    "wire": {
+      "vendor_name": "Corrupt Totals Ltd",
+      "vendor_tax_id": null,
+      "invoice_number": "CT-100",
+      "invoice_date": "2026-07-10",
+      "due_date": "2026-08-10",
+      "currency": "USD",
+      "po_number": null,
+      "line_items": [
+        {"description": "Consulting", "quantity": "10", "unit_price": "47.00", "amount": "470.00"}
+      ],
+      "subtotal": "470.00",
+      "tax_amount": "37.60",
+      "total": "600.00",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {"vendor_name": 0.96, "total": 0.97},
+      "source_page_refs": {"vendor_name": 1, "total": 1}
+    }
+  },
+
   "extract-arith-persistent": {
     "wire": {
       "vendor_name": "Sketchy Numbers GmbH",
