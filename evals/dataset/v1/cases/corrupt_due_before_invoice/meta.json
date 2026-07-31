@@ -1,0 +1,10 @@
+{
+  "case_id": "corrupt_due_before_invoice",
+  "category": "corruption",
+  "template": "euro_vat",
+  "provenance": "synthetic",
+  "corruption": "due_before_invoice",
+  "expected_rule_ids": [
+    "V-009"
+  ]
+}

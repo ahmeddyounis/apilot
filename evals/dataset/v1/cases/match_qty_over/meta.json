@@ -1,0 +1,33 @@
+{
+  "case_id": "match_qty_over",
+  "category": "matching",
+  "template": "clean_modern",
+  "provenance": "synthetic",
+  "expected_verdict": "exception",
+  "expected_discrepancy_types": [
+    "quantity_mismatch"
+  ],
+  "po_seed": {
+    "po_number": "PO-7001",
+    "vendor_name": "Harrell LLC",
+    "currency": "USD",
+    "order_date": "2026-01-02",
+    "line_items": [
+      {
+        "line_no": 1,
+        "sku": "CHR-ERGO",
+        "description": "Ergonomic task chair",
+        "quantity": "1",
+        "unit_price": "12.31"
+      },
+      {
+        "line_no": 2,
+        "sku": "DSK-LED",
+        "description": "LED desk lamp, dimmable",
+        "quantity": "1",
+        "unit_price": "33.44"
+      }
+    ],
+    "receive_in_full": true
+  }
+}

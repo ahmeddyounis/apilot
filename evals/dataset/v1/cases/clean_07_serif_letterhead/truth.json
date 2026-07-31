@@ -1,0 +1,50 @@
+{
+  "vendor_name": "Ray-Bush",
+  "vendor_tax_id": "RD-0341316",
+  "invoice_number": "INV-2026-8668",
+  "invoice_date": "2026-01-13",
+  "due_date": "2026-02-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "CBL-USB2",
+      "description": "USB-C cable 2m braided",
+      "quantity": "5",
+      "unit_price": "336.92",
+      "amount": "1684.60"
+    },
+    {
+      "sku": "SFT-LIC",
+      "description": "Software licence, annual seat",
+      "quantity": "16",
+      "unit_price": "62.57",
+      "amount": "1001.12"
+    },
+    {
+      "sku": "CHR-ERGO",
+      "description": "Ergonomic task chair",
+      "quantity": "2",
+      "unit_price": "74.85",
+      "amount": "149.70"
+    },
+    {
+      "sku": "PPR-A4",
+      "description": "A4 copy paper, 80gsm, 500 sheets",
+      "quantity": "5",
+      "unit_price": "107.84",
+      "amount": "539.20"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "22",
+      "unit_price": "279.66",
+      "amount": "6152.52"
+    }
+  ],
+  "subtotal": "9527.14",
+  "tax_amount": "1905.43",
+  "total": "11432.57",
+  "payment_details_present": false
+}

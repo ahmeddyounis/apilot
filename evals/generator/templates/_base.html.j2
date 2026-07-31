@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 40px; color: #1c1c1c; }
+  table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+  th, td { padding: 6px 10px; text-align: left; }
+  .num { text-align: right; }
+  .totals { margin-top: 14px; width: 40%; margin-left: auto; }
+  .totals td { padding: 3px 10px; }
+  .muted { color: #666; font-size: 12px; }
+  {% block styles %}{% endblock %}
+</style>
+</head>
+<body>
+{% block header %}
+  <h1>{{ inv.vendor_name }}</h1>
+  <p class="muted">{% if inv.vendor_tax_id %}Tax ID: {{ inv.vendor_tax_id }}{% endif %}</p>
+{% endblock %}
+
+<table class="meta">
+  <tr><td><strong>{% block invno_label %}Invoice No.{% endblock %}</strong></td><td>{{ inv.invoice_number }}</td></tr>
+  <tr><td><strong>Invoice date</strong></td><td>{{ inv.invoice_date }}</td></tr>
+  {% if inv.due_date %}<tr><td><strong>Due date</strong></td><td>{{ inv.due_date }}</td></tr>{% endif %}
+  {% if inv.po_number %}<tr><td><strong>{% block po_label %}Purchase Order{% endblock %}</strong></td><td>{{ inv.po_number }}</td></tr>{% endif %}
+  <tr><td><strong>Currency</strong></td><td>{{ inv.currency }}</td></tr>
+</table>
+
+<table border="1">
+  <thead>
+    <tr><th>#</th><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr>
+  </thead>
+  <tbody>
+  {% for line in inv.line_items %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ line.description }}</td>
+      <td class="num">{{ line.quantity }}</td>
+      <td class="num">{{ line.unit_price }}</td>
+      <td class="num">{{ line.amount }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<table class="totals">
+  <tr><td>Subtotal</td><td class="num">{{ inv.subtotal }}</td></tr>
+  <tr><td>{% block tax_label %}Tax{% endblock %} {% if inv.tax_rate_display %}({{ inv.tax_rate_display }}){% endif %}</td><td class="num">{{ inv.tax_amount }}</td></tr>
+  <tr><td><strong>{% block total_label %}Total due{% endblock %}</strong></td><td class="num"><strong>{{ inv.total }} {{ inv.currency }}</strong></td></tr>
+</table>
+
+{% if inv.payment_details_present %}
+<p class="muted">Remit to: IBAN DE89 3704 0044 0532 0130 00 · BIC COBADEFFXXX</p>
+{% endif %}
+{% block footer %}{% endblock %}
+</body>
+</html>

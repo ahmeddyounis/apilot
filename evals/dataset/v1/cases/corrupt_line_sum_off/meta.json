@@ -1,0 +1,10 @@
+{
+  "case_id": "corrupt_line_sum_off",
+  "category": "corruption",
+  "template": "clean_modern",
+  "provenance": "synthetic",
+  "corruption": "line_sum_off",
+  "expected_rule_ids": [
+    "V-002"
+  ]
+}

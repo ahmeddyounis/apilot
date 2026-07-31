@@ -1,0 +1,29 @@
+{
+  "vendor_name": "Baker, Mason and White",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-1936",
+  "invoice_date": "2026-01-19",
+  "due_date": "2026-02-28",
+  "currency": "USD",
+  "po_number": "PO-7000",
+  "line_items": [
+    {
+      "sku": "CBL-USB2",
+      "description": "USB-C cable 2m braided",
+      "quantity": "4",
+      "unit_price": "28.36",
+      "amount": "113.44"
+    },
+    {
+      "sku": "SFT-LIC",
+      "description": "Software licence, annual seat",
+      "quantity": "2",
+      "unit_price": "51.61",
+      "amount": "103.22"
+    }
+  ],
+  "subtotal": "216.66",
+  "tax_amount": "10.83",
+  "total": "227.49",
+  "payment_details_present": true
+}

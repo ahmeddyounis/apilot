@@ -1,0 +1,29 @@
+{
+  "vendor_name": "Harrell LLC",
+  "vendor_tax_id": "XH-8932528",
+  "invoice_number": "INV-2026-5033",
+  "invoice_date": "2026-05-03",
+  "due_date": "2026-06-17",
+  "currency": "USD",
+  "po_number": "PO-7001",
+  "line_items": [
+    {
+      "sku": "CHR-ERGO",
+      "description": "Ergonomic task chair",
+      "quantity": "2",
+      "unit_price": "12.31",
+      "amount": "24.62"
+    },
+    {
+      "sku": "DSK-LED",
+      "description": "LED desk lamp, dimmable",
+      "quantity": "1",
+      "unit_price": "33.44",
+      "amount": "33.44"
+    }
+  ],
+  "subtotal": "58.06",
+  "tax_amount": "0.00",
+  "total": "58.06",
+  "payment_details_present": false
+}

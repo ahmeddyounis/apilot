@@ -1,0 +1,22 @@
+{
+  "vendor_name": "Ramirez, Booth and Blake",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-7227",
+  "invoice_date": "2026-01-28",
+  "due_date": "2026-02-28",
+  "currency": "EUR",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "22",
+      "unit_price": "152.35",
+      "amount": "3351.70"
+    }
+  ],
+  "subtotal": "3351.70",
+  "tax_amount": "268.14",
+  "total": "3619.84",
+  "payment_details_present": true
+}

@@ -1,0 +1,10 @@
+{
+  "case_id": "corrupt_impossible_date",
+  "category": "corruption",
+  "template": "clean_modern",
+  "provenance": "synthetic",
+  "corruption": "impossible_date",
+  "expected_rule_ids": [
+    "V-008"
+  ]
+}

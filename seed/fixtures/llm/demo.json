@@ -1,0 +1,73 @@
+{
+  "demo-clean": {
+    "wire": {
+      "vendor_name": "ACME Office Supply Co",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "INV-2026-5001",
+      "invoice_date": "2026-07-02",
+      "due_date": "2026-08-01",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"},
+        {"description": "A4 copy paper, 80gsm, 500 sheets", "quantity": "20", "unit_price": "6.25", "amount": "125.00"}
+      ],
+      "subtotal": "595.00",
+      "tax_amount": "47.60",
+      "total": "642.60",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {"vendor_name": 0.98, "invoice_number": 0.99, "invoice_date": 0.97, "due_date": 0.96, "currency": 0.98, "po_number": 0.97, "subtotal": 0.98, "tax_amount": 0.97, "total": 0.99, "line_items": 0.96, "payment_details_present": 0.95},
+      "source_page_refs": {"vendor_name": 1, "invoice_number": 1, "invoice_date": 1, "due_date": 1, "currency": 1, "po_number": 1, "subtotal": 1, "tax_amount": 1, "total": 1, "line_items": 1, "payment_details_present": 1}
+    },
+    "usage": {"input_tokens": 2350, "output_tokens": 680, "cache_read_input_tokens": 1180}
+  },
+
+  "demo-overbilled": {
+    "wire": {
+      "vendor_name": "ACME Office Supply Co",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "INV-2026-5002",
+      "invoice_date": "2026-07-03",
+      "due_date": "2026-08-02",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {"description": "Widget A-200", "quantity": "12", "unit_price": "47.00", "amount": "564.00"},
+        {"description": "A4 copy paper, 80gsm, 500 sheets", "quantity": "20", "unit_price": "6.25", "amount": "125.00"}
+      ],
+      "subtotal": "689.00",
+      "tax_amount": "55.12",
+      "total": "744.12",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {"vendor_name": 0.98, "invoice_number": 0.99, "invoice_date": 0.97, "due_date": 0.96, "currency": 0.98, "po_number": 0.97, "subtotal": 0.98, "tax_amount": 0.97, "total": 0.99, "line_items": 0.94, "payment_details_present": 0.95},
+      "source_page_refs": {"vendor_name": 1, "invoice_number": 1, "invoice_date": 1, "due_date": 1, "currency": 1, "po_number": 1, "subtotal": 1, "tax_amount": 1, "total": 1, "line_items": 1, "payment_details_present": 1}
+    },
+    "usage": {"input_tokens": 2350, "output_tokens": 690, "cache_read_input_tokens": 1180}
+  },
+
+  "demo-duplicate": {
+    "wire": {
+      "vendor_name": "ACME Office Supply Co",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "INV-2026-5001-A",
+      "invoice_date": "2026-07-02",
+      "due_date": "2026-08-01",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"},
+        {"description": "A4 copy paper, 80gsm, 500 sheets", "quantity": "20", "unit_price": "6.25", "amount": "125.00"}
+      ],
+      "subtotal": "595.00",
+      "tax_amount": "47.60",
+      "total": "642.60",
+      "payment_details_present": true,
+      "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 - BIC COBADEFFXXX",
+      "field_confidence": {"vendor_name": 0.97, "invoice_number": 0.93, "invoice_date": 0.97, "due_date": 0.96, "currency": 0.98, "po_number": 0.96, "subtotal": 0.98, "tax_amount": 0.97, "total": 0.99, "line_items": 0.96, "payment_details_present": 0.99},
+      "source_page_refs": {"vendor_name": 1, "invoice_number": 1, "invoice_date": 1, "due_date": 1, "currency": 1, "po_number": 1, "subtotal": 1, "tax_amount": 1, "total": 1, "line_items": 1, "payment_details_present": 1}
+    },
+    "usage": {"input_tokens": 2360, "output_tokens": 700, "cache_read_input_tokens": 1180}
+  }
+}

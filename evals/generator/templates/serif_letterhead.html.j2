@@ -1,0 +1,10 @@
+{% extends "_base.html.j2" %}
+{% block styles %}
+  body { font-family: Georgia, "Times New Roman", serif; }
+  h1 { border-bottom: 3px double #333; padding-bottom: 8px; }
+{% endblock %}
+{% block header %}
+  <h1>{{ inv.vendor_name }}</h1>
+  <p class="muted">Established supplier {% if inv.vendor_tax_id %}· VAT {{ inv.vendor_tax_id }}{% endif %}</p>
+{% endblock %}
+{% block po_label %}Order Ref{% endblock %}

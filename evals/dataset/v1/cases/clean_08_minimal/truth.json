@@ -1,0 +1,50 @@
+{
+  "vendor_name": "Flowers, Martin and Kelly",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-9317",
+  "invoice_date": "2026-01-28",
+  "due_date": "2026-02-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "11",
+      "unit_price": "76.10",
+      "amount": "837.10"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "10",
+      "unit_price": "287.92",
+      "amount": "2879.20"
+    },
+    {
+      "sku": "CBL-USB2",
+      "description": "USB-C cable 2m braided",
+      "quantity": "6",
+      "unit_price": "300.35",
+      "amount": "1802.10"
+    },
+    {
+      "sku": "SFT-LIC",
+      "description": "Software licence, annual seat",
+      "quantity": "1",
+      "unit_price": "175.61",
+      "amount": "175.61"
+    },
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "17",
+      "unit_price": "120.08",
+      "amount": "2041.36"
+    }
+  ],
+  "subtotal": "7735.37",
+  "tax_amount": "1547.07",
+  "total": "9282.44",
+  "payment_details_present": false
+}

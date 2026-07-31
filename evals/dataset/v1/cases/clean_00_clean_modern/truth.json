@@ -1,0 +1,22 @@
+{
+  "vendor_name": "Rodriguez, Figueroa and Sanchez",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-9935",
+  "invoice_date": "2026-02-05",
+  "due_date": "2026-03-19",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "24",
+      "unit_price": "183.24",
+      "amount": "4397.76"
+    }
+  ],
+  "subtotal": "4397.76",
+  "tax_amount": "219.89",
+  "total": "4617.65",
+  "payment_details_present": true
+}

@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Davis-Williams",
+  "vendor_tax_id": "YM-1226916",
+  "invoice_number": "INV-2026-6559",
+  "invoice_date": "2031-01-15",
+  "due_date": "2026-07-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "SFT-LIC",
+      "description": "Software licence, annual seat",
+      "quantity": "4",
+      "unit_price": "285.49",
+      "amount": "1141.96"
+    },
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "12",
+      "unit_price": "280.59",
+      "amount": "3367.08"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "14",
+      "unit_price": "309.06",
+      "amount": "4326.84"
+    }
+  ],
+  "subtotal": "8835.88",
+  "tax_amount": "0.00",
+  "total": "8835.88",
+  "payment_details_present": false
+}

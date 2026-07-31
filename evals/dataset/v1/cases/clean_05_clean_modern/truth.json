@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Wolfe LLC",
+  "vendor_tax_id": "GW-4235116",
+  "invoice_number": "INV-2026-5422",
+  "invoice_date": "2026-06-08",
+  "due_date": "2026-07-22",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "PPR-A4",
+      "description": "A4 copy paper, 80gsm, 500 sheets",
+      "quantity": "7",
+      "unit_price": "177.96",
+      "amount": "1245.72"
+    },
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "23",
+      "unit_price": "49.79",
+      "amount": "1145.17"
+    },
+    {
+      "sku": "CHR-ERGO",
+      "description": "Ergonomic task chair",
+      "quantity": "20",
+      "unit_price": "115.15",
+      "amount": "2303.00"
+    }
+  ],
+  "subtotal": "4693.89",
+  "tax_amount": "938.78",
+  "total": "5632.67",
+  "payment_details_present": false
+}

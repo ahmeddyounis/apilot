@@ -1,0 +1,33 @@
+{
+  "regression_delta": 0.02,
+  "gate_metrics": [
+    "totals_f1",
+    "line_items_f1",
+    "doc_exact_match",
+    "validation_catch_rate",
+    "matching_accuracy",
+    "dedup_recall"
+  ],
+  "_comment": "Floors are per-config: the naive and schema_retry ladder rungs have no validation layer, so a catch-rate floor would be nonsense there. Regression-vs-baseline still applies to every config.",
+  "floors": {
+    "validation": {
+      "totals_f1": 0.9,
+      "line_items_f1": 0.85,
+      "validation_catch_rate": 0.9,
+      "matching_accuracy": 0.75,
+      "dedup_recall": 0.9
+    },
+    "paged": {
+      "totals_f1": 0.9,
+      "line_items_f1": 0.85,
+      "validation_catch_rate": 0.9,
+      "matching_accuracy": 0.75,
+      "dedup_recall": 0.9
+    },
+    "schema_retry": {
+      "totals_f1": 0.85,
+      "line_items_f1": 0.8
+    },
+    "naive": {}
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "dataset_version": "v1",
+  "master_seed": 42,
+  "counts_by_category": {
+    "extraction": 10,
+    "corruption": 6,
+    "matching": 4,
+    "dedup": 2
+  },
+  "total_cases": 22
+}

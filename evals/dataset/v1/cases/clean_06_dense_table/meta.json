@@ -1,0 +1,6 @@
+{
+  "case_id": "clean_06_dense_table",
+  "category": "extraction",
+  "template": "dense_table",
+  "provenance": "synthetic"
+}

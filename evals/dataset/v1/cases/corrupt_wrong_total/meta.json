@@ -1,0 +1,10 @@
+{
+  "case_id": "corrupt_wrong_total",
+  "category": "corruption",
+  "template": "euro_vat",
+  "provenance": "synthetic",
+  "corruption": "wrong_total",
+  "expected_rule_ids": [
+    "V-003"
+  ]
+}

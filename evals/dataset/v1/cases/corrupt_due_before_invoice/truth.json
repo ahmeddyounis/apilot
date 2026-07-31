@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Rice-Maddox",
+  "vendor_tax_id": "BK-0184514",
+  "invoice_number": "INV-2026-2604",
+  "invoice_date": "2026-02-28",
+  "due_date": "2025-01-01",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "18",
+      "unit_price": "297.00",
+      "amount": "5346.00"
+    },
+    {
+      "sku": "DSK-LED",
+      "description": "LED desk lamp, dimmable",
+      "quantity": "5",
+      "unit_price": "279.48",
+      "amount": "1397.40"
+    },
+    {
+      "sku": "CHR-ERGO",
+      "description": "Ergonomic task chair",
+      "quantity": "6",
+      "unit_price": "185.54",
+      "amount": "1113.24"
+    }
+  ],
+  "subtotal": "7856.64",
+  "tax_amount": "1492.76",
+  "total": "9349.40",
+  "payment_details_present": true
+}

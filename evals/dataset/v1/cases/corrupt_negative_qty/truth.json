@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Smith-Bowen",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-5345",
+  "invoice_date": "2026-02-13",
+  "due_date": "2026-03-27",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "-2",
+      "unit_price": "269.34",
+      "amount": "1616.04"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "16",
+      "unit_price": "318.46",
+      "amount": "5095.36"
+    },
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "7",
+      "unit_price": "265.82",
+      "amount": "1860.74"
+    }
+  ],
+  "subtotal": "8572.14",
+  "tax_amount": "0.00",
+  "total": "8572.14",
+  "payment_details_present": false
+}

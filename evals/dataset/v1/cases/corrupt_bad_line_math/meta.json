@@ -1,0 +1,11 @@
+{
+  "case_id": "corrupt_bad_line_math",
+  "category": "corruption",
+  "template": "minimal",
+  "provenance": "synthetic",
+  "corruption": "bad_line_math",
+  "expected_rule_ids": [
+    "V-001",
+    "V-002"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "case_id": "dedup_original",
+  "category": "dedup",
+  "template": "clean_modern",
+  "provenance": "synthetic",
+  "dedup_role": "original"
+}

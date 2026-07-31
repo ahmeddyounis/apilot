@@ -1,0 +1,6 @@
+{
+  "case_id": "clean_09_euro_vat",
+  "category": "extraction",
+  "template": "euro_vat",
+  "provenance": "synthetic"
+}

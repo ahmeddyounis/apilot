@@ -1,0 +1,29 @@
+{
+  "vendor_name": "Dennis Inc",
+  "vendor_tax_id": "HM-8227824",
+  "invoice_number": "INV-2026-6718",
+  "invoice_date": "2026-05-07",
+  "due_date": "2026-06-28",
+  "currency": "USD",
+  "po_number": "PO-0000",
+  "line_items": [
+    {
+      "sku": "SHP-STD",
+      "description": "Standard shipping & handling",
+      "quantity": "1",
+      "unit_price": "4.52",
+      "amount": "4.52"
+    },
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "4",
+      "unit_price": "19.38",
+      "amount": "77.52"
+    }
+  ],
+  "subtotal": "82.04",
+  "tax_amount": "0.00",
+  "total": "82.04",
+  "payment_details_present": false
+}

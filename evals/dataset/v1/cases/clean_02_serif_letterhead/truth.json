@@ -1,0 +1,29 @@
+{
+  "vendor_name": "Mcclain, Miller and Henderson",
+  "vendor_tax_id": "JM-0133890",
+  "invoice_number": "INV-2026-6635",
+  "invoice_date": "2026-01-13",
+  "due_date": "2026-02-27",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "SFT-LIC",
+      "description": "Software licence, annual seat",
+      "quantity": "9",
+      "unit_price": "104.89",
+      "amount": "944.01"
+    },
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "7",
+      "unit_price": "223.59",
+      "amount": "1565.13"
+    }
+  ],
+  "subtotal": "2509.14",
+  "tax_amount": "0.00",
+  "total": "2509.14",
+  "payment_details_present": false
+}

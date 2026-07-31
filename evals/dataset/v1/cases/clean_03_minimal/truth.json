@@ -1,0 +1,22 @@
+{
+  "vendor_name": "Santos, Gardner and Robinson",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-6925",
+  "invoice_date": "2026-01-18",
+  "due_date": "2026-02-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "SHP-STD",
+      "description": "Standard shipping & handling",
+      "quantity": "18",
+      "unit_price": "84.80",
+      "amount": "1526.40"
+    }
+  ],
+  "subtotal": "1526.40",
+  "tax_amount": "290.02",
+  "total": "1816.42",
+  "payment_details_present": false
+}

@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Mcgee PLC",
+  "vendor_tax_id": "IG-4969653",
+  "invoice_number": "INV-2026-8744",
+  "invoice_date": "2026-06-16",
+  "due_date": "2026-07-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "3",
+      "unit_price": "23.58",
+      "amount": "84.11"
+    },
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "11",
+      "unit_price": "49.43",
+      "amount": "543.73"
+    },
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "17",
+      "unit_price": "158.97",
+      "amount": "2702.49"
+    }
+  ],
+  "subtotal": "3316.96",
+  "tax_amount": "265.36",
+  "total": "3582.32",
+  "payment_details_present": true
+}

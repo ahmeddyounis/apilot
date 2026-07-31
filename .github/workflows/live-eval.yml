@@ -1,0 +1,52 @@
+name: Live Eval
+
+# Manual only, and a no-op without a key — the default CI path never needs secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: Eval configuration
+        type: choice
+        options: [schema_retry, validation, paged, naive]
+        default: validation
+      model:
+        description: Model id (blank = configured default)
+        type: string
+        default: ""
+
+jobs:
+  live-eval:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check for an API key
+        id: guard
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY}" ]; then
+            echo "::notice::ANTHROPIC_API_KEY is not configured — skipping live eval."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: astral-sh/setup-uv@v9
+        if: steps.guard.outputs.run == 'true'
+        with:
+          enable-cache: true
+      - name: Install (with browser for HTML rendering)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          uv sync --all-groups
+          uv run playwright install --with-deps chromium
+      - name: Render dataset and run live eval
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          uv run python -m evals.generator --dataset v1 --render html
+          uv run python -m evals.run --mode live --dataset v1 \
+            --config "${{ inputs.config }}" ${{ inputs.model && format('--model {0}', inputs.model) || '' }}
+      - uses: actions/upload-artifact@v7
+        if: steps.guard.outputs.run == 'true'
+        with:
+          name: live-eval-reports
+          path: evals/reports/

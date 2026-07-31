@@ -1,0 +1,43 @@
+{
+  "vendor_name": "Doyle Ltd",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-1106",
+  "invoice_date": "2026-02-15",
+  "due_date": "2026-03-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "8",
+      "unit_price": "334.18",
+      "amount": "2673.44"
+    },
+    {
+      "sku": "DSK-LED",
+      "description": "LED desk lamp, dimmable",
+      "quantity": "20",
+      "unit_price": "20.39",
+      "amount": "407.80"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "18",
+      "unit_price": "133.31",
+      "amount": "2399.58"
+    },
+    {
+      "sku": "SHP-STD",
+      "description": "Standard shipping & handling",
+      "quantity": "23",
+      "unit_price": "360.13",
+      "amount": "8282.99"
+    }
+  ],
+  "subtotal": "13763.81",
+  "tax_amount": "2615.12",
+  "total": "16378.93",
+  "payment_details_present": false
+}

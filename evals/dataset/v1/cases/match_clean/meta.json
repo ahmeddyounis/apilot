@@ -1,0 +1,31 @@
+{
+  "case_id": "match_clean",
+  "category": "matching",
+  "template": "minimal",
+  "provenance": "synthetic",
+  "expected_verdict": "auto_approve",
+  "expected_discrepancy_types": [],
+  "po_seed": {
+    "po_number": "PO-7000",
+    "vendor_name": "Baker, Mason and White",
+    "currency": "USD",
+    "order_date": "2026-01-02",
+    "line_items": [
+      {
+        "line_no": 1,
+        "sku": "CBL-USB2",
+        "description": "USB-C cable 2m braided",
+        "quantity": "4",
+        "unit_price": "28.36"
+      },
+      {
+        "line_no": 2,
+        "sku": "SFT-LIC",
+        "description": "Software licence, annual seat",
+        "quantity": "2",
+        "unit_price": "51.61"
+      }
+    ],
+    "receive_in_full": true
+  }
+}

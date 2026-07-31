@@ -1,0 +1,36 @@
+{
+  "vendor_name": "Reid, Ferguson and Sanchez",
+  "vendor_tax_id": "OC-7648350",
+  "invoice_number": "INV-2026-7932",
+  "invoice_date": "2026-05-06",
+  "due_date": "2026-06-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "24",
+      "unit_price": "321.49",
+      "amount": "7715.76"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "3",
+      "unit_price": "352.11",
+      "amount": "1056.33"
+    },
+    {
+      "sku": "CHR-ERGO",
+      "description": "Ergonomic task chair",
+      "quantity": "5",
+      "unit_price": "87.14",
+      "amount": "435.70"
+    }
+  ],
+  "subtotal": "9207.79",
+  "tax_amount": "1749.48",
+  "total": "10994.38",
+  "payment_details_present": false
+}

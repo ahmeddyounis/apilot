@@ -7,7 +7,11 @@ from app.llm.anthropic_client import AnthropicClient
 from app.llm.client import LLMClient
 from app.llm.fake import FakeLLM
 
-_DEFAULT_FIXTURE_DIRS = [Path("tests/fixtures/llm"), Path("seed/fixtures/llm")]
+_DEFAULT_FIXTURE_DIRS = [
+    Path("tests/fixtures/llm"),
+    Path("seed/fixtures/llm"),
+    Path("evals/fixtures"),
+]
 
 
 def build_llm_client(settings: Settings, *, model: str | None = None) -> LLMClient:

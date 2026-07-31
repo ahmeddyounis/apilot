@@ -1,0 +1,11 @@
+{
+  "case_id": "match_missing_po",
+  "category": "matching",
+  "template": "dense_table",
+  "provenance": "synthetic",
+  "expected_verdict": "exception",
+  "expected_discrepancy_types": [
+    "missing_po"
+  ],
+  "po_seed": null
+}

@@ -1,0 +1,29 @@
+{
+  "vendor_name": "Adams, Zuniga and Wong",
+  "vendor_tax_id": null,
+  "invoice_number": "INV-2026-6038",
+  "invoice_date": "2026-04-01",
+  "due_date": "2026-05-15",
+  "currency": "EUR",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "18",
+      "unit_price": "350.57",
+      "amount": "6310.26"
+    },
+    {
+      "sku": "PPR-A4",
+      "description": "A4 copy paper, 80gsm, 500 sheets",
+      "quantity": "1",
+      "unit_price": "395.52",
+      "amount": "395.52"
+    }
+  ],
+  "subtotal": "6705.78",
+  "tax_amount": "536.46",
+  "total": "7242.24",
+  "payment_details_present": true
+}

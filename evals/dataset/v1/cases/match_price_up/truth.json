@@ -1,0 +1,29 @@
+{
+  "vendor_name": "George Group",
+  "vendor_tax_id": "KF-0154303",
+  "invoice_number": "INV-2026-7484",
+  "invoice_date": "2026-06-23",
+  "due_date": "2026-07-28",
+  "currency": "USD",
+  "po_number": "PO-7002",
+  "line_items": [
+    {
+      "sku": "DSK-LED",
+      "description": "LED desk lamp, dimmable",
+      "quantity": "4",
+      "unit_price": "88.65",
+      "amount": "354.60"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "3",
+      "unit_price": "45.72",
+      "amount": "137.16"
+    }
+  ],
+  "subtotal": "491.76",
+  "tax_amount": "24.59",
+  "total": "516.35",
+  "payment_details_present": true
+}

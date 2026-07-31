@@ -1,0 +1,8 @@
+{
+  "case_id": "dedup_near_resub",
+  "category": "dedup",
+  "template": "clean_modern",
+  "provenance": "synthetic",
+  "dedup_role": "near_duplicate",
+  "expected_flag": "DUP-SUSPECT"
+}

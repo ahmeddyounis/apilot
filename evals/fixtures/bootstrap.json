@@ -1,0 +1,2738 @@
+{
+ "eval:schema_retry:clean_00_clean_modern": [
+  {
+   "wire": {
+    "vendor_name": "Rodriguez, Figueroa and Sanchez",
+    "vendor_tax_id": null,
+    "invoice_number": "INV-2026-9935",
+    "invoice_date": "not-a-date",
+    "due_date": "2026-03-19",
+    "currency": "USD",
+    "po_number": null,
+    "line_items": [
+     {
+      "description": "Widget A-200",
+      "quantity": "24",
+      "unit_price": "183.24",
+      "amount": "4397.76"
+     }
+    ],
+    "subtotal": "4397.76",
+    "tax_amount": "219.89",
+    "total": "4617.65",
+    "payment_details_present": true,
+    "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+    "field_confidence": {
+     "vendor_name": 0.92,
+     "invoice_number": 0.98,
+     "invoice_date": 0.93,
+     "due_date": 0.95,
+     "currency": 0.9,
+     "subtotal": 0.91,
+     "tax_amount": 0.91,
+     "total": 0.96,
+     "line_items": 0.94,
+     "payment_details_present": 0.94
+    },
+    "source_page_refs": {
+     "vendor_name": 1,
+     "invoice_number": 1,
+     "invoice_date": 1,
+     "due_date": 1,
+     "currency": 1,
+     "subtotal": 1,
+     "tax_amount": 1,
+     "total": 1,
+     "line_items": 1,
+     "payment_details_present": 1
+    }
+   }
+  },
+  {
+   "wire": {
+    "vendor_name": "Rodriguez, Figueroa and Sanchez",
+    "vendor_tax_id": null,
+    "invoice_number": "INV-2026-9935",
+    "invoice_date": "2026-02-05",
+    "due_date": "2026-03-19",
+    "currency": "USD",
+    "po_number": null,
+    "line_items": [
+     {
+      "description": "Widget A-200",
+      "quantity": "24",
+      "unit_price": "183.24",
+      "amount": "4397.76"
+     }
+    ],
+    "subtotal": "4397.76",
+    "tax_amount": "219.89",
+    "total": "4617.65",
+    "payment_details_present": true,
+    "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+    "field_confidence": {
+     "vendor_name": 0.92,
+     "invoice_number": 0.98,
+     "invoice_date": 0.93,
+     "due_date": 0.95,
+     "currency": 0.9,
+     "subtotal": 0.91,
+     "tax_amount": 0.91,
+     "total": 0.96,
+     "line_items": 0.94,
+     "payment_details_present": 0.94
+    },
+    "source_page_refs": {
+     "vendor_name": 1,
+     "invoice_number": 1,
+     "invoice_date": 1,
+     "due_date": 1,
+     "currency": 1,
+     "subtotal": 1,
+     "tax_amount": 1,
+     "total": 1,
+     "line_items": 1,
+     "payment_details_present": 1
+    }
+   }
+  }
+ ],
+ "eval:validation:clean_00_clean_modern": {
+  "wire": {
+   "vendor_name": "Rodriguez, Figueroa and Sanchez",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-9935",
+   "invoice_date": "2026-02-05",
+   "due_date": "2026-03-19",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "24",
+     "unit_price": "183.24",
+     "amount": "4397.76"
+    }
+   ],
+   "subtotal": "4397.76",
+   "tax_amount": "219.89",
+   "total": "4617.65",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.92,
+    "invoice_number": 0.98,
+    "invoice_date": 0.93,
+    "due_date": 0.95,
+    "currency": 0.9,
+    "subtotal": 0.91,
+    "tax_amount": 0.91,
+    "total": 0.96,
+    "line_items": 0.94,
+    "payment_details_present": 0.94
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_00_clean_modern": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Rodriguez, Figueroa and Sanchez\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-9935\",\n \"invoice_date\": \"2026-02-05\",\n \"due_date\": \"2026-03-19\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"24\",\n   \"unit_price\": \"183.24\",\n   \"amount\": \"4397.76\"\n  }\n ],\n \"subtotal\": \"4397.76\",\n \"tax_amount\": \"219.89\",\n \"total\": \"4617.65\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.92,\n  \"invoice_number\": 0.98,\n  \"invoice_date\": 0.93,\n  \"due_date\": 0.95,\n  \"currency\": 0.9,\n  \"subtotal\": 0.91,\n  \"tax_amount\": 0.91,\n  \"total\": 0.96,\n  \"line_items\": 0.94,\n  \"payment_details_present\": 0.94\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_01_dense_table": {
+  "wire": {
+   "vendor_name": "Doyle Ltd",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-1106",
+   "invoice_date": "2026-02-15",
+   "due_date": "2026-03-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "8",
+     "unit_price": "334.18",
+     "amount": "2673.44"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "20",
+     "unit_price": "20.39",
+     "amount": "407.80"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "18",
+     "unit_price": "133.31",
+     "amount": "2399.58"
+    },
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "23",
+     "unit_price": "360.13",
+     "amount": "8282.99"
+    }
+   ],
+   "subtotal": "13763.81",
+   "tax_amount": "2615.12",
+   "total": "16378.93",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "invoice_number": 0.95,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "subtotal": 0.94,
+    "tax_amount": 0.94,
+    "total": 0.91,
+    "line_items": 0.91,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_01_dense_table": {
+  "wire": {
+   "vendor_name": "Doyle Ltd",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-1106",
+   "invoice_date": "2026-02-15",
+   "due_date": "2026-03-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "8",
+     "unit_price": "334.18",
+     "amount": "2673.44"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "20",
+     "unit_price": "20.39",
+     "amount": "407.80"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "18",
+     "unit_price": "133.31",
+     "amount": "2399.58"
+    },
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "23",
+     "unit_price": "360.13",
+     "amount": "8282.99"
+    }
+   ],
+   "subtotal": "13763.81",
+   "tax_amount": "2615.12",
+   "total": "16378.93",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "invoice_number": 0.95,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "subtotal": 0.94,
+    "tax_amount": 0.94,
+    "total": 0.91,
+    "line_items": 0.91,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_01_dense_table": {
+  "text": "This looks like an invoice from Doyle Ltd for a total of 16378.93 USD. Let me know if you need specific fields!"
+ },
+ "eval:schema_retry:clean_02_serif_letterhead": {
+  "wire": {
+   "vendor_name": "Mcclain, Miller and Henderson",
+   "vendor_tax_id": "JM-0133890",
+   "invoice_number": "INV-2026-6635",
+   "invoice_date": "2026-01-13",
+   "due_date": "2026-02-27",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "9",
+     "unit_price": "104.89",
+     "amount": "944.01"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "7",
+     "unit_price": "223.59",
+     "amount": "1565.13"
+    }
+   ],
+   "subtotal": "2509.14",
+   "tax_amount": "0.00",
+   "total": "2509.14",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "vendor_tax_id": 0.99,
+    "invoice_number": 0.92,
+    "invoice_date": 0.91,
+    "due_date": 0.96,
+    "currency": 0.96,
+    "subtotal": 0.91,
+    "tax_amount": 0.9,
+    "total": 0.95,
+    "line_items": 0.97,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_02_serif_letterhead": {
+  "wire": {
+   "vendor_name": "Mcclain, Miller and Henderson",
+   "vendor_tax_id": "JM-0133890",
+   "invoice_number": "INV-2026-6635",
+   "invoice_date": "2026-01-13",
+   "due_date": "2026-02-27",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "9",
+     "unit_price": "104.89",
+     "amount": "944.01"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "7",
+     "unit_price": "223.59",
+     "amount": "1565.13"
+    }
+   ],
+   "subtotal": "2509.14",
+   "tax_amount": "0.00",
+   "total": "2509.14",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "vendor_tax_id": 0.99,
+    "invoice_number": 0.92,
+    "invoice_date": 0.91,
+    "due_date": 0.96,
+    "currency": 0.96,
+    "subtotal": 0.91,
+    "tax_amount": 0.9,
+    "total": 0.95,
+    "line_items": 0.97,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_02_serif_letterhead": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Mcclain, Miller and Henderson\",\n \"vendor_tax_id\": \"JM-0133890\",\n \"invoice_number\": \"INV-2026-6635\",\n \"invoice_date\": \"2026-01-13\",\n \"due_date\": \"2026-02-27\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Software licence, annual seat\",\n   \"quantity\": \"9\",\n   \"unit_price\": \"104.89\",\n   \"amount\": \"944.01\"\n  },\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"7\",\n   \"unit_price\": \"223.59\",\n   \"amount\": \"1565.13\"\n  }\n ],\n \"subtotal\": \"2509.14\",\n \"tax_amount\": \"0.00\",\n \"total\": \"2509.14\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.91,\n  \"vendor_tax_id\": 0.99,\n  \"invoice_number\": 0.92,\n  \"invoice_date\": 0.91,\n  \"due_date\": 0.96,\n  \"currency\": 0.96,\n  \"subtotal\": 0.91,\n  \"tax_amount\": 0.9,\n  \"total\": 0.95,\n  \"line_items\": 0.97,\n  \"payment_details_present\": 0.98\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_03_minimal": {
+  "wire": {
+   "vendor_name": "Santos, Gardner and Robinson",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-6925",
+   "invoice_date": "2026-01-18",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "18",
+     "unit_price": "84.80",
+     "amount": "1526.40"
+    }
+   ],
+   "subtotal": "1526.40",
+   "tax_amount": "290.02",
+   "total": "1816.42",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.94,
+    "invoice_number": 0.97,
+    "invoice_date": 0.98,
+    "due_date": 0.93,
+    "currency": 0.91,
+    "subtotal": 0.92,
+    "tax_amount": 0.99,
+    "total": 0.99,
+    "line_items": 0.92,
+    "payment_details_present": 0.99
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_03_minimal": {
+  "wire": {
+   "vendor_name": "Santos, Gardner and Robinson",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-6925",
+   "invoice_date": "2026-01-18",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "18",
+     "unit_price": "84.80",
+     "amount": "1526.40"
+    }
+   ],
+   "subtotal": "1526.40",
+   "tax_amount": "290.02",
+   "total": "1816.42",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.94,
+    "invoice_number": 0.97,
+    "invoice_date": 0.98,
+    "due_date": 0.93,
+    "currency": 0.91,
+    "subtotal": 0.92,
+    "tax_amount": 0.99,
+    "total": 0.99,
+    "line_items": 0.92,
+    "payment_details_present": 0.99
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_03_minimal": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Santos, Gardner and Robinson\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-6925\",\n \"invoice_date\": \"2026-01-18\",\n \"due_date\": \"2026-02-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Standard shipping & handling\",\n   \"quantity\": \"18\",\n   \"unit_price\": \"84.80\",\n   \"amount\": \"1526.40\"\n  }\n ],\n \"subtotal\": \"1526.40\",\n \"tax_amount\": \"290.02\",\n \"total\": \"1816.42\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.94,\n  \"invoice_number\": 0.97,\n  \"invoice_date\": 0.98,\n  \"due_date\": 0.93,\n  \"currency\": 0.91,\n  \"subtotal\": 0.92,\n  \"tax_amount\": 0.99,\n  \"total\": 0.99,\n  \"line_items\": 0.92,\n  \"payment_details_present\": 0.99\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_04_euro_vat": {
+  "wire": {
+   "vendor_name": "Ramirez, Booth and Blake",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-7227",
+   "invoice_date": "2026-01-28",
+   "due_date": "2026-02-28",
+   "currency": "EUR",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "22",
+     "unit_price": "152.35",
+     "amount": "3351.70"
+    }
+   ],
+   "subtotal": "3351.70",
+   "tax_amount": "268.14",
+   "total": "3619.84",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "subtotal": 0.93,
+    "tax_amount": 0.97,
+    "total": 0.92,
+    "line_items": 0.93,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_04_euro_vat": {
+  "wire": {
+   "vendor_name": "Ramirez, Booth and Blake",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-7227",
+   "invoice_date": "2026-01-28",
+   "due_date": "2026-02-28",
+   "currency": "EUR",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "22",
+     "unit_price": "152.35",
+     "amount": "3351.70"
+    }
+   ],
+   "subtotal": "3351.70",
+   "tax_amount": "268.14",
+   "total": "3619.84",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "subtotal": 0.93,
+    "tax_amount": 0.97,
+    "total": 0.92,
+    "line_items": 0.93,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_04_euro_vat": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Ramirez, Booth and Blake\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-7227\",\n \"invoice_date\": \"2026-01-28\",\n \"due_date\": \"2026-02-28\",\n \"currency\": \"EUR\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"22\",\n   \"unit_price\": \"152.35\",\n   \"amount\": \"3351.70\"\n  }\n ],\n \"subtotal\": \"3351.70\",\n \"tax_amount\": \"268.14\",\n \"total\": \"3619.84\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.97,\n  \"invoice_number\": 0.91,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.98,\n  \"currency\": 0.92,\n  \"subtotal\": 0.93,\n  \"tax_amount\": 0.97,\n  \"total\": 0.92,\n  \"line_items\": 0.93,\n  \"payment_details_present\": 0.9\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_05_clean_modern": {
+  "wire": {
+   "vendor_name": "Wolfe LLC",
+   "vendor_tax_id": "GW-4235116",
+   "invoice_number": "INV-2026-5422",
+   "invoice_date": "2026-06-08",
+   "due_date": "2026-07-22",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "7",
+     "unit_price": "177.96",
+     "amount": "1245.72"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "23",
+     "unit_price": "49.79",
+     "amount": "1145.17"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "20",
+     "unit_price": "115.15",
+     "amount": "2303.00"
+    }
+   ],
+   "subtotal": "4693.89",
+   "tax_amount": "938.78",
+   "total": "5632.67",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.96,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.93,
+    "invoice_date": 0.91,
+    "due_date": 0.94,
+    "currency": 0.93,
+    "subtotal": 0.92,
+    "tax_amount": 0.97,
+    "total": 0.93,
+    "line_items": 0.9,
+    "payment_details_present": 0.96
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_05_clean_modern": {
+  "wire": {
+   "vendor_name": "Wolfe LLC",
+   "vendor_tax_id": "GW-4235116",
+   "invoice_number": "INV-2026-5422",
+   "invoice_date": "2026-06-08",
+   "due_date": "2026-07-22",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "7",
+     "unit_price": "177.96",
+     "amount": "1245.72"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "23",
+     "unit_price": "49.79",
+     "amount": "1145.17"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "20",
+     "unit_price": "115.15",
+     "amount": "2303.00"
+    }
+   ],
+   "subtotal": "4693.89",
+   "tax_amount": "938.78",
+   "total": "5632.67",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.96,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.93,
+    "invoice_date": 0.91,
+    "due_date": 0.94,
+    "currency": 0.93,
+    "subtotal": 0.92,
+    "tax_amount": 0.97,
+    "total": 0.93,
+    "line_items": 0.9,
+    "payment_details_present": 0.96
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_05_clean_modern": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Wolfe LLC\",\n \"vendor_tax_id\": \"GW-4235116\",\n \"invoice_number\": \"INV-2026-5422\",\n \"invoice_date\": \"2026-06-08\",\n \"due_date\": \"2026-07-22\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"A4 copy paper, 80gsm, 500 sheets\",\n   \"quantity\": \"7\",\n   \"unit_price\": \"177.96\",\n   \"amount\": \"1245.72\"\n  },\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"23\",\n   \"unit_price\": \"49.79\",\n   \"amount\": \"1145.17\"\n  },\n  {\n   \"description\": \"Ergonomic task chair\",\n   \"quantity\": \"20\",\n   \"unit_price\": \"115.15\",\n   \"amount\": \"2303.00\"\n  }\n ],\n \"subtotal\": \"4693.89\",\n \"tax_amount\": \"938.78\",\n \"total\": \"5632.67\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.96,\n  \"vendor_tax_id\": 0.91,\n  \"invoice_number\": 0.93,\n  \"invoice_date\": 0.91,\n  \"due_date\": 0.94,\n  \"currency\": 0.93,\n  \"subtotal\": 0.92,\n  \"tax_amount\": 0.97,\n  \"total\": 0.93,\n  \"line_items\": 0.9,\n  \"payment_details_present\": 0.96\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_06_dense_table": {
+  "wire": {
+   "vendor_name": "Munoz-Roman",
+   "vendor_tax_id": "ON-7816184",
+   "invoice_number": "INV-2026-5040",
+   "invoice_date": "2026-06-15",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "11",
+     "unit_price": "265.90",
+     "amount": "2924.90"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "9",
+     "unit_price": "46.37",
+     "amount": "417.33"
+    },
+    {
+     "description": "Widget A-200",
+     "quantity": "7",
+     "unit_price": "374.70",
+     "amount": "2622.90"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "23",
+     "unit_price": "209.22",
+     "amount": "4812.06"
+    },
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "7",
+     "unit_price": "330.17",
+     "amount": "2311.19"
+    }
+   ],
+   "subtotal": "13088.38",
+   "tax_amount": "2486.79",
+   "total": "15575.17",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "vendor_tax_id": 0.96,
+    "invoice_number": 0.95,
+    "invoice_date": 0.94,
+    "due_date": 0.92,
+    "currency": 0.98,
+    "subtotal": 0.96,
+    "tax_amount": 0.94,
+    "total": 0.92,
+    "line_items": 0.96,
+    "payment_details_present": 0.99
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_06_dense_table": {
+  "wire": {
+   "vendor_name": "Munoz-Roman",
+   "vendor_tax_id": "ON-7816184",
+   "invoice_number": "INV-2026-5040",
+   "invoice_date": "2026-06-15",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "11",
+     "unit_price": "265.90",
+     "amount": "2924.90"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "9",
+     "unit_price": "46.37",
+     "amount": "417.33"
+    },
+    {
+     "description": "Widget A-200",
+     "quantity": "7",
+     "unit_price": "374.70",
+     "amount": "2622.90"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "23",
+     "unit_price": "209.22",
+     "amount": "4812.06"
+    },
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "7",
+     "unit_price": "330.17",
+     "amount": "2311.19"
+    }
+   ],
+   "subtotal": "13088.38",
+   "tax_amount": "2486.79",
+   "total": "15575.17",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "vendor_tax_id": 0.96,
+    "invoice_number": 0.95,
+    "invoice_date": 0.94,
+    "due_date": 0.92,
+    "currency": 0.98,
+    "subtotal": 0.96,
+    "tax_amount": 0.94,
+    "total": 0.92,
+    "line_items": 0.96,
+    "payment_details_present": 0.99
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_06_dense_table": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Munoz-Roman\",\n \"vendor_tax_id\": \"ON-7816184\",\n \"invoice_number\": \"INV-2026-5040\",\n \"invoice_date\": \"2026-06-15\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"11\",\n   \"unit_price\": \"265.90\",\n   \"amount\": \"2924.90\"\n  },\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"9\",\n   \"unit_price\": \"46.37\",\n   \"amount\": \"417.33\"\n  },\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"7\",\n   \"unit_price\": \"374.70\",\n   \"amount\": \"2622.90\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"23\",\n   \"unit_price\": \"209.22\",\n   \"amount\": \"4812.06\"\n  },\n  {\n   \"description\": \"Standard shipping & handling\",\n   \"quantity\": \"7\",\n   \"unit_price\": \"330.17\",\n   \"amount\": \"2311.19\"\n  }\n ],\n \"subtotal\": \"13088.38\",\n \"tax_amount\": \"2486.79\",\n \"total\": \"15575.17\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.98,\n  \"vendor_tax_id\": 0.96,\n  \"invoice_number\": 0.95,\n  \"invoice_date\": 0.94,\n  \"due_date\": 0.92,\n  \"currency\": 0.98,\n  \"subtotal\": 0.96,\n  \"tax_amount\": 0.94,\n  \"total\": 0.92,\n  \"line_items\": 0.96,\n  \"payment_details_present\": 0.99\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_07_serif_letterhead": {
+  "wire": {
+   "vendor_name": "Ray-Bush",
+   "vendor_tax_id": "RD-0341316",
+   "invoice_number": "INV-2026-8668",
+   "invoice_date": "2026-01-13",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "5",
+     "unit_price": "336.92",
+     "amount": "1684.60"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "16",
+     "unit_price": "62.57",
+     "amount": "1001.12"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "2",
+     "unit_price": "74.85",
+     "amount": "149.70"
+    },
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "5",
+     "unit_price": "107.84",
+     "amount": "539.20"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "22",
+     "unit_price": "279.66",
+     "amount": "6152.52"
+    }
+   ],
+   "subtotal": "9527.14",
+   "tax_amount": "1905.43",
+   "total": "11432.57",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.95,
+    "vendor_tax_id": 0.98,
+    "invoice_number": 0.91,
+    "invoice_date": 0.97,
+    "due_date": 0.92,
+    "currency": 0.97,
+    "subtotal": 0.9,
+    "tax_amount": 0.95,
+    "total": 0.91,
+    "line_items": 0.96,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_07_serif_letterhead": {
+  "wire": {
+   "vendor_name": "Ray-Bush",
+   "vendor_tax_id": "RD-0341316",
+   "invoice_number": "INV-2026-8668",
+   "invoice_date": "2026-01-13",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "5",
+     "unit_price": "336.92",
+     "amount": "1684.60"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "16",
+     "unit_price": "62.57",
+     "amount": "1001.12"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "2",
+     "unit_price": "74.85",
+     "amount": "149.70"
+    },
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "5",
+     "unit_price": "107.84",
+     "amount": "539.20"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "22",
+     "unit_price": "279.66",
+     "amount": "6152.52"
+    }
+   ],
+   "subtotal": "9527.14",
+   "tax_amount": "1905.43",
+   "total": "11432.57",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.95,
+    "vendor_tax_id": 0.98,
+    "invoice_number": 0.91,
+    "invoice_date": 0.97,
+    "due_date": 0.92,
+    "currency": 0.97,
+    "subtotal": 0.9,
+    "tax_amount": 0.95,
+    "total": 0.91,
+    "line_items": 0.96,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_07_serif_letterhead": {
+  "text": "This looks like an invoice from Ray-Bush for a total of 11432.57 USD. Let me know if you need specific fields!"
+ },
+ "eval:schema_retry:clean_08_minimal": {
+  "wire": {
+   "vendor_name": "Flowers, Martin and Kelly",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-9317",
+   "invoice_date": "2026-01-28",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "11",
+     "unit_price": "76.10",
+     "amount": "837.10"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "10",
+     "unit_price": "287.92",
+     "amount": "2879.20"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "6",
+     "unit_price": "300.35",
+     "amount": "1802.10"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "1",
+     "unit_price": "175.61",
+     "amount": "175.61"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "17",
+     "unit_price": "120.08",
+     "amount": "2041.36"
+    }
+   ],
+   "subtotal": "7735.37",
+   "tax_amount": "1547.07",
+   "total": "9282.44",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "invoice_number": 0.99,
+    "invoice_date": 0.98,
+    "due_date": 0.95,
+    "currency": 0.91,
+    "subtotal": 0.99,
+    "tax_amount": 0.96,
+    "total": 0.97,
+    "line_items": 0.97,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_08_minimal": {
+  "wire": {
+   "vendor_name": "Flowers, Martin and Kelly",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-9317",
+   "invoice_date": "2026-01-28",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "11",
+     "unit_price": "76.10",
+     "amount": "837.10"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "10",
+     "unit_price": "287.92",
+     "amount": "2879.20"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "6",
+     "unit_price": "300.35",
+     "amount": "1802.10"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "1",
+     "unit_price": "175.61",
+     "amount": "175.61"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "17",
+     "unit_price": "120.08",
+     "amount": "2041.36"
+    }
+   ],
+   "subtotal": "7735.37",
+   "tax_amount": "1547.07",
+   "total": "9282.44",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "invoice_number": 0.99,
+    "invoice_date": 0.98,
+    "due_date": 0.95,
+    "currency": 0.91,
+    "subtotal": 0.99,
+    "tax_amount": 0.96,
+    "total": 0.97,
+    "line_items": 0.97,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_08_minimal": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Flowers, Martin and Kelly\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-9317\",\n \"invoice_date\": \"2026-01-28\",\n \"due_date\": \"2026-02-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"11\",\n   \"unit_price\": \"76.10\",\n   \"amount\": \"837.10\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"10\",\n   \"unit_price\": \"287.92\",\n   \"amount\": \"2879.20\"\n  },\n  {\n   \"description\": \"USB-C cable 2m braided\",\n   \"quantity\": \"6\",\n   \"unit_price\": \"300.35\",\n   \"amount\": \"1802.10\"\n  },\n  {\n   \"description\": \"Software licence, annual seat\",\n   \"quantity\": \"1\",\n   \"unit_price\": \"175.61\",\n   \"amount\": \"175.61\"\n  },\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"17\",\n   \"unit_price\": \"120.08\",\n   \"amount\": \"2041.36\"\n  }\n ],\n \"subtotal\": \"7735.37\",\n \"tax_amount\": \"1547.07\",\n \"total\": \"9282.44\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.98,\n  \"invoice_number\": 0.99,\n  \"invoice_date\": 0.98,\n  \"due_date\": 0.95,\n  \"currency\": 0.91,\n  \"subtotal\": 0.99,\n  \"tax_amount\": 0.96,\n  \"total\": 0.97,\n  \"line_items\": 0.97,\n  \"payment_details_present\": 0.92\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:clean_09_euro_vat": {
+  "wire": {
+   "vendor_name": "Adams, Zuniga and Wong",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-6038",
+   "invoice_date": "2026-04-01",
+   "due_date": "2026-05-15",
+   "currency": "EUR",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "18",
+     "unit_price": "350.57",
+     "amount": "6310.26"
+    },
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "1",
+     "unit_price": "395.52",
+     "amount": "395.52"
+    }
+   ],
+   "subtotal": "6705.78",
+   "tax_amount": "536.46",
+   "total": "7242.24",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "invoice_number": 0.96,
+    "invoice_date": 0.96,
+    "due_date": 0.99,
+    "currency": 0.95,
+    "subtotal": 0.94,
+    "tax_amount": 0.93,
+    "total": 0.93,
+    "line_items": 0.99,
+    "payment_details_present": 0.95
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:clean_09_euro_vat": {
+  "wire": {
+   "vendor_name": "Adams, Zuniga and Wong",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-6038",
+   "invoice_date": "2026-04-01",
+   "due_date": "2026-05-15",
+   "currency": "EUR",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "18",
+     "unit_price": "350.57",
+     "amount": "6310.26"
+    },
+    {
+     "description": "A4 copy paper, 80gsm, 500 sheets",
+     "quantity": "1",
+     "unit_price": "395.52",
+     "amount": "395.52"
+    }
+   ],
+   "subtotal": "6705.78",
+   "tax_amount": "536.46",
+   "total": "7242.24",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "invoice_number": 0.96,
+    "invoice_date": 0.96,
+    "due_date": 0.99,
+    "currency": 0.95,
+    "subtotal": 0.94,
+    "tax_amount": 0.93,
+    "total": 0.93,
+    "line_items": 0.99,
+    "payment_details_present": 0.95
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:clean_09_euro_vat": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Adams, Zuniga and Wong\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-6038\",\n \"invoice_date\": \"2026-04-01\",\n \"due_date\": \"2026-05-15\",\n \"currency\": \"EUR\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"18\",\n   \"unit_price\": \"350.57\",\n   \"amount\": \"6310.26\"\n  },\n  {\n   \"description\": \"A4 copy paper, 80gsm, 500 sheets\",\n   \"quantity\": \"1\",\n   \"unit_price\": \"395.52\",\n   \"amount\": \"395.52\"\n  }\n ],\n \"subtotal\": \"6705.78\",\n \"tax_amount\": \"536.46\",\n \"total\": \"7242.24\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.97,\n  \"invoice_number\": 0.96,\n  \"invoice_date\": 0.96,\n  \"due_date\": 0.99,\n  \"currency\": 0.95,\n  \"subtotal\": 0.94,\n  \"tax_amount\": 0.93,\n  \"total\": 0.93,\n  \"line_items\": 0.99,\n  \"payment_details_present\": 0.95\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_bad_line_math": {
+  "wire": {
+   "vendor_name": "Mcgee PLC",
+   "vendor_tax_id": "IG-4969653",
+   "invoice_number": "INV-2026-8744",
+   "invoice_date": "2026-06-16",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "23.58",
+     "amount": "84.11"
+    },
+    {
+     "description": "Widget A-200",
+     "quantity": "11",
+     "unit_price": "49.43",
+     "amount": "543.73"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "17",
+     "unit_price": "158.97",
+     "amount": "2702.49"
+    }
+   ],
+   "subtotal": "3316.96",
+   "tax_amount": "265.36",
+   "total": "3582.32",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.94,
+    "vendor_tax_id": 0.93,
+    "invoice_number": 0.96,
+    "invoice_date": 0.94,
+    "due_date": 0.96,
+    "currency": 0.96,
+    "subtotal": 0.96,
+    "tax_amount": 0.9,
+    "total": 0.93,
+    "line_items": 0.96,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_bad_line_math": {
+  "wire": {
+   "vendor_name": "Mcgee PLC",
+   "vendor_tax_id": "IG-4969653",
+   "invoice_number": "INV-2026-8744",
+   "invoice_date": "2026-06-16",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "23.58",
+     "amount": "84.11"
+    },
+    {
+     "description": "Widget A-200",
+     "quantity": "11",
+     "unit_price": "49.43",
+     "amount": "543.73"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "17",
+     "unit_price": "158.97",
+     "amount": "2702.49"
+    }
+   ],
+   "subtotal": "3316.96",
+   "tax_amount": "265.36",
+   "total": "3582.32",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.94,
+    "vendor_tax_id": 0.93,
+    "invoice_number": 0.96,
+    "invoice_date": 0.94,
+    "due_date": 0.96,
+    "currency": 0.96,
+    "subtotal": 0.96,
+    "tax_amount": 0.9,
+    "total": 0.93,
+    "line_items": 0.96,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_bad_line_math": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Mcgee PLC\",\n \"vendor_tax_id\": \"IG-4969653\",\n \"invoice_number\": \"INV-2026-8744\",\n \"invoice_date\": \"2026-06-16\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"3\",\n   \"unit_price\": \"23.58\",\n   \"amount\": \"84.11\"\n  },\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"11\",\n   \"unit_price\": \"49.43\",\n   \"amount\": \"543.73\"\n  },\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"17\",\n   \"unit_price\": \"158.97\",\n   \"amount\": \"2702.49\"\n  }\n ],\n \"subtotal\": \"3316.96\",\n \"tax_amount\": \"265.36\",\n \"total\": \"3582.32\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.94,\n  \"vendor_tax_id\": 0.93,\n  \"invoice_number\": 0.96,\n  \"invoice_date\": 0.94,\n  \"due_date\": 0.96,\n  \"currency\": 0.96,\n  \"subtotal\": 0.96,\n  \"tax_amount\": 0.9,\n  \"total\": 0.93,\n  \"line_items\": 0.96,\n  \"payment_details_present\": 0.9\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_due_before_invoice": {
+  "wire": {
+   "vendor_name": "Rice-Maddox",
+   "vendor_tax_id": "BK-0184514",
+   "invoice_number": "INV-2026-2604",
+   "invoice_date": "2026-02-28",
+   "due_date": "2025-01-01",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "18",
+     "unit_price": "297.00",
+     "amount": "5346.00"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "5",
+     "unit_price": "279.48",
+     "amount": "1397.40"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "6",
+     "unit_price": "185.54",
+     "amount": "1113.24"
+    }
+   ],
+   "subtotal": "7856.64",
+   "tax_amount": "1492.76",
+   "total": "9349.40",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.98,
+    "currency": 0.96,
+    "subtotal": 0.97,
+    "tax_amount": 0.97,
+    "total": 0.9,
+    "line_items": 0.94,
+    "payment_details_present": 0.93
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_due_before_invoice": {
+  "wire": {
+   "vendor_name": "Rice-Maddox",
+   "vendor_tax_id": "BK-0184514",
+   "invoice_number": "INV-2026-2604",
+   "invoice_date": "2026-02-28",
+   "due_date": "2025-01-01",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "18",
+     "unit_price": "297.00",
+     "amount": "5346.00"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "5",
+     "unit_price": "279.48",
+     "amount": "1397.40"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "6",
+     "unit_price": "185.54",
+     "amount": "1113.24"
+    }
+   ],
+   "subtotal": "7856.64",
+   "tax_amount": "1492.76",
+   "total": "9349.40",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.98,
+    "currency": 0.96,
+    "subtotal": 0.97,
+    "tax_amount": 0.97,
+    "total": 0.9,
+    "line_items": 0.94,
+    "payment_details_present": 0.93
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_due_before_invoice": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Rice-Maddox\",\n \"vendor_tax_id\": \"BK-0184514\",\n \"invoice_number\": \"INV-2026-2604\",\n \"invoice_date\": \"2026-02-28\",\n \"due_date\": \"2025-01-01\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"18\",\n   \"unit_price\": \"297.00\",\n   \"amount\": \"5346.00\"\n  },\n  {\n   \"description\": \"LED desk lamp, dimmable\",\n   \"quantity\": \"5\",\n   \"unit_price\": \"279.48\",\n   \"amount\": \"1397.40\"\n  },\n  {\n   \"description\": \"Ergonomic task chair\",\n   \"quantity\": \"6\",\n   \"unit_price\": \"185.54\",\n   \"amount\": \"1113.24\"\n  }\n ],\n \"subtotal\": \"7856.64\",\n \"tax_amount\": \"1492.76\",\n \"total\": \"9349.40\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.97,\n  \"vendor_tax_id\": 0.91,\n  \"invoice_number\": 0.91,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.98,\n  \"currency\": 0.96,\n  \"subtotal\": 0.97,\n  \"tax_amount\": 0.97,\n  \"total\": 0.9,\n  \"line_items\": 0.94,\n  \"payment_details_present\": 0.93\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_impossible_date": {
+  "wire": {
+   "vendor_name": "Davis-Williams",
+   "vendor_tax_id": "YM-1226916",
+   "invoice_number": "INV-2026-6559",
+   "invoice_date": "2031-01-15",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "4",
+     "unit_price": "285.49",
+     "amount": "1141.96"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "12",
+     "unit_price": "280.59",
+     "amount": "3367.08"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "14",
+     "unit_price": "309.06",
+     "amount": "4326.84"
+    }
+   ],
+   "subtotal": "8835.88",
+   "tax_amount": "0.00",
+   "total": "8835.88",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.96,
+    "currency": 0.97,
+    "subtotal": 0.92,
+    "tax_amount": 0.9,
+    "total": 0.97,
+    "line_items": 0.94,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_impossible_date": {
+  "wire": {
+   "vendor_name": "Davis-Williams",
+   "vendor_tax_id": "YM-1226916",
+   "invoice_number": "INV-2026-6559",
+   "invoice_date": "2031-01-15",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "4",
+     "unit_price": "285.49",
+     "amount": "1141.96"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "12",
+     "unit_price": "280.59",
+     "amount": "3367.08"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "14",
+     "unit_price": "309.06",
+     "amount": "4326.84"
+    }
+   ],
+   "subtotal": "8835.88",
+   "tax_amount": "0.00",
+   "total": "8835.88",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "vendor_tax_id": 0.91,
+    "invoice_number": 0.91,
+    "invoice_date": 0.95,
+    "due_date": 0.96,
+    "currency": 0.97,
+    "subtotal": 0.92,
+    "tax_amount": 0.9,
+    "total": 0.97,
+    "line_items": 0.94,
+    "payment_details_present": 0.9
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_impossible_date": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Davis-Williams\",\n \"vendor_tax_id\": \"YM-1226916\",\n \"invoice_number\": \"INV-2026-6559\",\n \"invoice_date\": \"2031-01-15\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Software licence, annual seat\",\n   \"quantity\": \"4\",\n   \"unit_price\": \"285.49\",\n   \"amount\": \"1141.96\"\n  },\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"12\",\n   \"unit_price\": \"280.59\",\n   \"amount\": \"3367.08\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"14\",\n   \"unit_price\": \"309.06\",\n   \"amount\": \"4326.84\"\n  }\n ],\n \"subtotal\": \"8835.88\",\n \"tax_amount\": \"0.00\",\n \"total\": \"8835.88\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.91,\n  \"vendor_tax_id\": 0.91,\n  \"invoice_number\": 0.91,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.96,\n  \"currency\": 0.97,\n  \"subtotal\": 0.92,\n  \"tax_amount\": 0.9,\n  \"total\": 0.97,\n  \"line_items\": 0.94,\n  \"payment_details_present\": 0.9\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_line_sum_off": {
+  "wire": {
+   "vendor_name": "Morales-Jones",
+   "vendor_tax_id": "QI-9537672",
+   "invoice_number": "INV-2026-4770",
+   "invoice_date": "2026-02-03",
+   "due_date": "2026-03-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "22",
+     "unit_price": "247.72",
+     "amount": "5449.84"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "15",
+     "unit_price": "342.19",
+     "amount": "5132.85"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "15",
+     "unit_price": "82.30",
+     "amount": "1234.50"
+    }
+   ],
+   "subtotal": "11842.19",
+   "tax_amount": "590.86",
+   "total": "12408.05",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.99,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.97,
+    "invoice_date": 0.95,
+    "due_date": 0.95,
+    "currency": 0.94,
+    "subtotal": 0.92,
+    "tax_amount": 0.97,
+    "total": 0.95,
+    "line_items": 0.99,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_line_sum_off": {
+  "wire": {
+   "vendor_name": "Morales-Jones",
+   "vendor_tax_id": "QI-9537672",
+   "invoice_number": "INV-2026-4770",
+   "invoice_date": "2026-02-03",
+   "due_date": "2026-03-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "22",
+     "unit_price": "247.72",
+     "amount": "5449.84"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "15",
+     "unit_price": "342.19",
+     "amount": "5132.85"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "15",
+     "unit_price": "82.30",
+     "amount": "1234.50"
+    }
+   ],
+   "subtotal": "11842.19",
+   "tax_amount": "590.86",
+   "total": "12408.05",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.99,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.97,
+    "invoice_date": 0.95,
+    "due_date": 0.95,
+    "currency": 0.94,
+    "subtotal": 0.92,
+    "tax_amount": 0.97,
+    "total": 0.95,
+    "line_items": 0.99,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_line_sum_off": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Morales-Jones\",\n \"vendor_tax_id\": \"QI-9537672\",\n \"invoice_number\": \"INV-2026-4770\",\n \"invoice_date\": \"2026-02-03\",\n \"due_date\": \"2026-03-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"22\",\n   \"unit_price\": \"247.72\",\n   \"amount\": \"5449.84\"\n  },\n  {\n   \"description\": \"USB-C cable 2m braided\",\n   \"quantity\": \"15\",\n   \"unit_price\": \"342.19\",\n   \"amount\": \"5132.85\"\n  },\n  {\n   \"description\": \"Software licence, annual seat\",\n   \"quantity\": \"15\",\n   \"unit_price\": \"82.30\",\n   \"amount\": \"1234.50\"\n  }\n ],\n \"subtotal\": \"11842.19\",\n \"tax_amount\": \"590.86\",\n \"total\": \"12408.05\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.99,\n  \"vendor_tax_id\": 0.97,\n  \"invoice_number\": 0.97,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.95,\n  \"currency\": 0.94,\n  \"subtotal\": 0.92,\n  \"tax_amount\": 0.97,\n  \"total\": 0.95,\n  \"line_items\": 0.99,\n  \"payment_details_present\": 0.92\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_negative_qty": {
+  "wire": {
+   "vendor_name": "Smith-Bowen",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5345",
+   "invoice_date": "2026-02-13",
+   "due_date": "2026-03-27",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "-2",
+     "unit_price": "269.34",
+     "amount": "1616.04"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "16",
+     "unit_price": "318.46",
+     "amount": "5095.36"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "7",
+     "unit_price": "265.82",
+     "amount": "1860.74"
+    }
+   ],
+   "subtotal": "8572.14",
+   "tax_amount": "0.00",
+   "total": "8572.14",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.92,
+    "invoice_number": 0.95,
+    "invoice_date": 0.92,
+    "due_date": 0.96,
+    "currency": 0.92,
+    "subtotal": 0.99,
+    "tax_amount": 0.93,
+    "total": 0.96,
+    "line_items": 0.94,
+    "payment_details_present": 0.95
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_negative_qty": {
+  "wire": {
+   "vendor_name": "Smith-Bowen",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5345",
+   "invoice_date": "2026-02-13",
+   "due_date": "2026-03-27",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Widget A-200",
+     "quantity": "-2",
+     "unit_price": "269.34",
+     "amount": "1616.04"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "16",
+     "unit_price": "318.46",
+     "amount": "5095.36"
+    },
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "7",
+     "unit_price": "265.82",
+     "amount": "1860.74"
+    }
+   ],
+   "subtotal": "8572.14",
+   "tax_amount": "0.00",
+   "total": "8572.14",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.92,
+    "invoice_number": 0.95,
+    "invoice_date": 0.92,
+    "due_date": 0.96,
+    "currency": 0.92,
+    "subtotal": 0.99,
+    "tax_amount": 0.93,
+    "total": 0.96,
+    "line_items": 0.94,
+    "payment_details_present": 0.95
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_negative_qty": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Smith-Bowen\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-5345\",\n \"invoice_date\": \"2026-02-13\",\n \"due_date\": \"2026-03-27\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Widget A-200\",\n   \"quantity\": \"-2\",\n   \"unit_price\": \"269.34\",\n   \"amount\": \"1616.04\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"16\",\n   \"unit_price\": \"318.46\",\n   \"amount\": \"5095.36\"\n  },\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"7\",\n   \"unit_price\": \"265.82\",\n   \"amount\": \"1860.74\"\n  }\n ],\n \"subtotal\": \"8572.14\",\n \"tax_amount\": \"0.00\",\n \"total\": \"8572.14\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.92,\n  \"invoice_number\": 0.95,\n  \"invoice_date\": 0.92,\n  \"due_date\": 0.96,\n  \"currency\": 0.92,\n  \"subtotal\": 0.99,\n  \"tax_amount\": 0.93,\n  \"total\": 0.96,\n  \"line_items\": 0.94,\n  \"payment_details_present\": 0.95\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:corrupt_wrong_total": {
+  "wire": {
+   "vendor_name": "Reid, Ferguson and Sanchez",
+   "vendor_tax_id": "OC-7648350",
+   "invoice_number": "INV-2026-7932",
+   "invoice_date": "2026-05-06",
+   "due_date": "2026-06-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "24",
+     "unit_price": "321.49",
+     "amount": "7715.76"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "352.11",
+     "amount": "1056.33"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "5",
+     "unit_price": "87.14",
+     "amount": "435.70"
+    }
+   ],
+   "subtotal": "9207.79",
+   "tax_amount": "1749.48",
+   "total": "10994.38",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.92,
+    "vendor_tax_id": 0.99,
+    "invoice_number": 0.92,
+    "invoice_date": 0.9,
+    "due_date": 0.98,
+    "currency": 0.93,
+    "subtotal": 0.96,
+    "tax_amount": 0.95,
+    "total": 0.9,
+    "line_items": 0.92,
+    "payment_details_present": 0.96
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:corrupt_wrong_total": {
+  "wire": {
+   "vendor_name": "Reid, Ferguson and Sanchez",
+   "vendor_tax_id": "OC-7648350",
+   "invoice_number": "INV-2026-7932",
+   "invoice_date": "2026-05-06",
+   "due_date": "2026-06-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Toner cartridge 55X black",
+     "quantity": "24",
+     "unit_price": "321.49",
+     "amount": "7715.76"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "352.11",
+     "amount": "1056.33"
+    },
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "5",
+     "unit_price": "87.14",
+     "amount": "435.70"
+    }
+   ],
+   "subtotal": "9207.79",
+   "tax_amount": "1749.48",
+   "total": "10994.38",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.92,
+    "vendor_tax_id": 0.99,
+    "invoice_number": 0.92,
+    "invoice_date": 0.9,
+    "due_date": 0.98,
+    "currency": 0.93,
+    "subtotal": 0.96,
+    "tax_amount": 0.95,
+    "total": 0.9,
+    "line_items": 0.92,
+    "payment_details_present": 0.96
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:corrupt_wrong_total": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Reid, Ferguson and Sanchez\",\n \"vendor_tax_id\": \"OC-7648350\",\n \"invoice_number\": \"INV-2026-7932\",\n \"invoice_date\": \"2026-05-06\",\n \"due_date\": \"2026-06-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Toner cartridge 55X black\",\n   \"quantity\": \"24\",\n   \"unit_price\": \"321.49\",\n   \"amount\": \"7715.76\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"3\",\n   \"unit_price\": \"352.11\",\n   \"amount\": \"1056.33\"\n  },\n  {\n   \"description\": \"Ergonomic task chair\",\n   \"quantity\": \"5\",\n   \"unit_price\": \"87.14\",\n   \"amount\": \"435.70\"\n  }\n ],\n \"subtotal\": \"9207.79\",\n \"tax_amount\": \"1749.48\",\n \"total\": \"10994.38\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.92,\n  \"vendor_tax_id\": 0.99,\n  \"invoice_number\": 0.92,\n  \"invoice_date\": 0.9,\n  \"due_date\": 0.98,\n  \"currency\": 0.93,\n  \"subtotal\": 0.96,\n  \"tax_amount\": 0.95,\n  \"total\": 0.9,\n  \"line_items\": 0.92,\n  \"payment_details_present\": 0.96\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:dedup_near_resub": {
+  "wire": {
+   "vendor_name": "Brandt-Hickman",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5905-R",
+   "invoice_date": "2026-06-17",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "6",
+     "unit_price": "290.16",
+     "amount": "1740.96"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "18",
+     "unit_price": "201.25",
+     "amount": "3622.50"
+    }
+   ],
+   "subtotal": "5363.46",
+   "tax_amount": "1072.69",
+   "total": "6436.15",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.95,
+    "invoice_number": 0.91,
+    "invoice_date": 0.91,
+    "due_date": 0.94,
+    "currency": 0.92,
+    "subtotal": 0.95,
+    "tax_amount": 0.91,
+    "total": 0.97,
+    "line_items": 0.93,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:dedup_near_resub": {
+  "wire": {
+   "vendor_name": "Brandt-Hickman",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5905-R",
+   "invoice_date": "2026-06-17",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "6",
+     "unit_price": "290.16",
+     "amount": "1740.96"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "18",
+     "unit_price": "201.25",
+     "amount": "3622.50"
+    }
+   ],
+   "subtotal": "5363.46",
+   "tax_amount": "1072.69",
+   "total": "6436.15",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.95,
+    "invoice_number": 0.91,
+    "invoice_date": 0.91,
+    "due_date": 0.94,
+    "currency": 0.92,
+    "subtotal": 0.95,
+    "tax_amount": 0.91,
+    "total": 0.97,
+    "line_items": 0.93,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:dedup_near_resub": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Brandt-Hickman\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-5905-R\",\n \"invoice_date\": \"2026-06-17\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"6\",\n   \"unit_price\": \"290.16\",\n   \"amount\": \"1740.96\"\n  },\n  {\n   \"description\": \"USB-C cable 2m braided\",\n   \"quantity\": \"18\",\n   \"unit_price\": \"201.25\",\n   \"amount\": \"3622.50\"\n  }\n ],\n \"subtotal\": \"5363.46\",\n \"tax_amount\": \"1072.69\",\n \"total\": \"6436.15\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.95,\n  \"invoice_number\": 0.91,\n  \"invoice_date\": 0.91,\n  \"due_date\": 0.94,\n  \"currency\": 0.92,\n  \"subtotal\": 0.95,\n  \"tax_amount\": 0.91,\n  \"total\": 0.97,\n  \"line_items\": 0.93,\n  \"payment_details_present\": 0.98\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:dedup_original": {
+  "wire": {
+   "vendor_name": "Brandt-Hickman",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5905",
+   "invoice_date": "2026-06-17",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "6",
+     "unit_price": "290.16",
+     "amount": "1740.96"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "18",
+     "unit_price": "201.25",
+     "amount": "3622.50"
+    }
+   ],
+   "subtotal": "5363.46",
+   "tax_amount": "1072.69",
+   "total": "6436.15",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.96,
+    "invoice_number": 0.94,
+    "invoice_date": 0.95,
+    "due_date": 0.95,
+    "currency": 0.94,
+    "subtotal": 0.93,
+    "tax_amount": 0.96,
+    "total": 0.91,
+    "line_items": 0.96,
+    "payment_details_present": 0.94
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:dedup_original": {
+  "wire": {
+   "vendor_name": "Brandt-Hickman",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-5905",
+   "invoice_date": "2026-06-17",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": null,
+   "line_items": [
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "6",
+     "unit_price": "290.16",
+     "amount": "1740.96"
+    },
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "18",
+     "unit_price": "201.25",
+     "amount": "3622.50"
+    }
+   ],
+   "subtotal": "5363.46",
+   "tax_amount": "1072.69",
+   "total": "6436.15",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.96,
+    "invoice_number": 0.94,
+    "invoice_date": 0.95,
+    "due_date": 0.95,
+    "currency": 0.94,
+    "subtotal": 0.93,
+    "tax_amount": 0.96,
+    "total": 0.91,
+    "line_items": 0.96,
+    "payment_details_present": 0.94
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:dedup_original": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Brandt-Hickman\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-5905\",\n \"invoice_date\": \"2026-06-17\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": null,\n \"line_items\": [\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"6\",\n   \"unit_price\": \"290.16\",\n   \"amount\": \"1740.96\"\n  },\n  {\n   \"description\": \"USB-C cable 2m braided\",\n   \"quantity\": \"18\",\n   \"unit_price\": \"201.25\",\n   \"amount\": \"3622.50\"\n  }\n ],\n \"subtotal\": \"5363.46\",\n \"tax_amount\": \"1072.69\",\n \"total\": \"6436.15\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.96,\n  \"invoice_number\": 0.94,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.95,\n  \"currency\": 0.94,\n  \"subtotal\": 0.93,\n  \"tax_amount\": 0.96,\n  \"total\": 0.91,\n  \"line_items\": 0.96,\n  \"payment_details_present\": 0.94\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:match_clean": {
+  "wire": {
+   "vendor_name": "Baker, Mason and White",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-1936",
+   "invoice_date": "2026-01-19",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": "PO-7000",
+   "line_items": [
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "4",
+     "unit_price": "28.36",
+     "amount": "113.44"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "2",
+     "unit_price": "51.61",
+     "amount": "103.22"
+    }
+   ],
+   "subtotal": "216.66",
+   "tax_amount": "10.83",
+   "total": "227.49",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "invoice_number": 0.96,
+    "invoice_date": 0.95,
+    "due_date": 0.96,
+    "currency": 0.91,
+    "po_number": 0.91,
+    "subtotal": 0.93,
+    "tax_amount": 0.9,
+    "total": 0.99,
+    "line_items": 0.98,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:match_clean": {
+  "wire": {
+   "vendor_name": "Baker, Mason and White",
+   "vendor_tax_id": null,
+   "invoice_number": "INV-2026-1936",
+   "invoice_date": "2026-01-19",
+   "due_date": "2026-02-28",
+   "currency": "USD",
+   "po_number": "PO-7000",
+   "line_items": [
+    {
+     "description": "USB-C cable 2m braided",
+     "quantity": "4",
+     "unit_price": "28.36",
+     "amount": "113.44"
+    },
+    {
+     "description": "Software licence, annual seat",
+     "quantity": "2",
+     "unit_price": "51.61",
+     "amount": "103.22"
+    }
+   ],
+   "subtotal": "216.66",
+   "tax_amount": "10.83",
+   "total": "227.49",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.91,
+    "invoice_number": 0.96,
+    "invoice_date": 0.95,
+    "due_date": 0.96,
+    "currency": 0.91,
+    "po_number": 0.91,
+    "subtotal": 0.93,
+    "tax_amount": 0.9,
+    "total": 0.99,
+    "line_items": 0.98,
+    "payment_details_present": 0.98
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:match_clean": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Baker, Mason and White\",\n \"vendor_tax_id\": null,\n \"invoice_number\": \"INV-2026-1936\",\n \"invoice_date\": \"2026-01-19\",\n \"due_date\": \"2026-02-28\",\n \"currency\": \"USD\",\n \"po_number\": \"PO-7000\",\n \"line_items\": [\n  {\n   \"description\": \"USB-C cable 2m braided\",\n   \"quantity\": \"4\",\n   \"unit_price\": \"28.36\",\n   \"amount\": \"113.44\"\n  },\n  {\n   \"description\": \"Software licence, annual seat\",\n   \"quantity\": \"2\",\n   \"unit_price\": \"51.61\",\n   \"amount\": \"103.22\"\n  }\n ],\n \"subtotal\": \"216.66\",\n \"tax_amount\": \"10.83\",\n \"total\": \"227.49\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.91,\n  \"invoice_number\": 0.96,\n  \"invoice_date\": 0.95,\n  \"due_date\": 0.96,\n  \"currency\": 0.91,\n  \"po_number\": 0.91,\n  \"subtotal\": 0.93,\n  \"tax_amount\": 0.9,\n  \"total\": 0.99,\n  \"line_items\": 0.98,\n  \"payment_details_present\": 0.98\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"po_number\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:match_missing_po": {
+  "wire": {
+   "vendor_name": "Dennis Inc",
+   "vendor_tax_id": "HM-8227824",
+   "invoice_number": "INV-2026-6718",
+   "invoice_date": "2026-05-07",
+   "due_date": "2026-06-28",
+   "currency": "USD",
+   "po_number": "PO-0000",
+   "line_items": [
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "1",
+     "unit_price": "4.52",
+     "amount": "4.52"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "4",
+     "unit_price": "19.38",
+     "amount": "77.52"
+    }
+   ],
+   "subtotal": "82.04",
+   "tax_amount": "0.00",
+   "total": "82.04",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.99,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "po_number": 0.95,
+    "subtotal": 0.91,
+    "tax_amount": 0.91,
+    "total": 0.93,
+    "line_items": 0.93,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:match_missing_po": {
+  "wire": {
+   "vendor_name": "Dennis Inc",
+   "vendor_tax_id": "HM-8227824",
+   "invoice_number": "INV-2026-6718",
+   "invoice_date": "2026-05-07",
+   "due_date": "2026-06-28",
+   "currency": "USD",
+   "po_number": "PO-0000",
+   "line_items": [
+    {
+     "description": "Standard shipping & handling",
+     "quantity": "1",
+     "unit_price": "4.52",
+     "amount": "4.52"
+    },
+    {
+     "description": "Consulting services (hourly)",
+     "quantity": "4",
+     "unit_price": "19.38",
+     "amount": "77.52"
+    }
+   ],
+   "subtotal": "82.04",
+   "tax_amount": "0.00",
+   "total": "82.04",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.98,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.99,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.92,
+    "po_number": 0.95,
+    "subtotal": 0.91,
+    "tax_amount": 0.91,
+    "total": 0.93,
+    "line_items": 0.93,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:match_missing_po": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Dennis Inc\",\n \"vendor_tax_id\": \"HM-8227824\",\n \"invoice_number\": \"INV-2026-6718\",\n \"invoice_date\": \"2026-05-07\",\n \"due_date\": \"2026-06-28\",\n \"currency\": \"USD\",\n \"po_number\": \"PO-0000\",\n \"line_items\": [\n  {\n   \"description\": \"Standard shipping & handling\",\n   \"quantity\": \"1\",\n   \"unit_price\": \"4.52\",\n   \"amount\": \"4.52\"\n  },\n  {\n   \"description\": \"Consulting services (hourly)\",\n   \"quantity\": \"4\",\n   \"unit_price\": \"19.38\",\n   \"amount\": \"77.52\"\n  }\n ],\n \"subtotal\": \"82.04\",\n \"tax_amount\": \"0.00\",\n \"total\": \"82.04\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.98,\n  \"vendor_tax_id\": 0.97,\n  \"invoice_number\": 0.99,\n  \"invoice_date\": 0.94,\n  \"due_date\": 0.98,\n  \"currency\": 0.92,\n  \"po_number\": 0.95,\n  \"subtotal\": 0.91,\n  \"tax_amount\": 0.91,\n  \"total\": 0.93,\n  \"line_items\": 0.93,\n  \"payment_details_present\": 0.92\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"po_number\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:match_price_up": {
+  "wire": {
+   "vendor_name": "George Group",
+   "vendor_tax_id": "KF-0154303",
+   "invoice_number": "INV-2026-7484",
+   "invoice_date": "2026-06-23",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": "PO-7002",
+   "line_items": [
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "4",
+     "unit_price": "88.65",
+     "amount": "354.60"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "45.72",
+     "amount": "137.16"
+    }
+   ],
+   "subtotal": "491.76",
+   "tax_amount": "24.59",
+   "total": "516.35",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.93,
+    "vendor_tax_id": 0.95,
+    "invoice_number": 0.97,
+    "invoice_date": 0.99,
+    "due_date": 0.91,
+    "currency": 0.93,
+    "po_number": 0.92,
+    "subtotal": 0.97,
+    "tax_amount": 0.95,
+    "total": 0.97,
+    "line_items": 0.95,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:match_price_up": {
+  "wire": {
+   "vendor_name": "George Group",
+   "vendor_tax_id": "KF-0154303",
+   "invoice_number": "INV-2026-7484",
+   "invoice_date": "2026-06-23",
+   "due_date": "2026-07-28",
+   "currency": "USD",
+   "po_number": "PO-7002",
+   "line_items": [
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "4",
+     "unit_price": "88.65",
+     "amount": "354.60"
+    },
+    {
+     "description": "Widget B-100 (compact)",
+     "quantity": "3",
+     "unit_price": "45.72",
+     "amount": "137.16"
+    }
+   ],
+   "subtotal": "491.76",
+   "tax_amount": "24.59",
+   "total": "516.35",
+   "payment_details_present": true,
+   "payment_details_raw": "Remit to: IBAN DE89 3704 0044 0532 0130 00 \u00b7 BIC COBADEFFXXX",
+   "field_confidence": {
+    "vendor_name": 0.93,
+    "vendor_tax_id": 0.95,
+    "invoice_number": 0.97,
+    "invoice_date": 0.99,
+    "due_date": 0.91,
+    "currency": 0.93,
+    "po_number": 0.92,
+    "subtotal": 0.97,
+    "tax_amount": 0.95,
+    "total": 0.97,
+    "line_items": 0.95,
+    "payment_details_present": 0.92
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:match_price_up": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"George Group\",\n \"vendor_tax_id\": \"KF-0154303\",\n \"invoice_number\": \"INV-2026-7484\",\n \"invoice_date\": \"2026-06-23\",\n \"due_date\": \"2026-07-28\",\n \"currency\": \"USD\",\n \"po_number\": \"PO-7002\",\n \"line_items\": [\n  {\n   \"description\": \"LED desk lamp, dimmable\",\n   \"quantity\": \"4\",\n   \"unit_price\": \"88.65\",\n   \"amount\": \"354.60\"\n  },\n  {\n   \"description\": \"Widget B-100 (compact)\",\n   \"quantity\": \"3\",\n   \"unit_price\": \"45.72\",\n   \"amount\": \"137.16\"\n  }\n ],\n \"subtotal\": \"491.76\",\n \"tax_amount\": \"24.59\",\n \"total\": \"516.35\",\n \"payment_details_present\": true,\n \"payment_details_raw\": \"Remit to: IBAN DE89 3704 0044 0532 0130 00 \\u00b7 BIC COBADEFFXXX\",\n \"field_confidence\": {\n  \"vendor_name\": 0.93,\n  \"vendor_tax_id\": 0.95,\n  \"invoice_number\": 0.97,\n  \"invoice_date\": 0.99,\n  \"due_date\": 0.91,\n  \"currency\": 0.93,\n  \"po_number\": 0.92,\n  \"subtotal\": 0.97,\n  \"tax_amount\": 0.95,\n  \"total\": 0.97,\n  \"line_items\": 0.95,\n  \"payment_details_present\": 0.92\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"po_number\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ },
+ "eval:schema_retry:match_qty_over": {
+  "wire": {
+   "vendor_name": "Harrell LLC",
+   "vendor_tax_id": "XH-8932528",
+   "invoice_number": "INV-2026-5033",
+   "invoice_date": "2026-05-03",
+   "due_date": "2026-06-17",
+   "currency": "USD",
+   "po_number": "PO-7001",
+   "line_items": [
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "2",
+     "unit_price": "12.31",
+     "amount": "24.62"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "1",
+     "unit_price": "33.44",
+     "amount": "33.44"
+    }
+   ],
+   "subtotal": "58.06",
+   "tax_amount": "0.00",
+   "total": "58.06",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.98,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.97,
+    "po_number": 0.9,
+    "subtotal": 0.93,
+    "tax_amount": 0.98,
+    "total": 0.92,
+    "line_items": 0.98,
+    "payment_details_present": 0.94
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:validation:match_qty_over": {
+  "wire": {
+   "vendor_name": "Harrell LLC",
+   "vendor_tax_id": "XH-8932528",
+   "invoice_number": "INV-2026-5033",
+   "invoice_date": "2026-05-03",
+   "due_date": "2026-06-17",
+   "currency": "USD",
+   "po_number": "PO-7001",
+   "line_items": [
+    {
+     "description": "Ergonomic task chair",
+     "quantity": "2",
+     "unit_price": "12.31",
+     "amount": "24.62"
+    },
+    {
+     "description": "LED desk lamp, dimmable",
+     "quantity": "1",
+     "unit_price": "33.44",
+     "amount": "33.44"
+    }
+   ],
+   "subtotal": "58.06",
+   "tax_amount": "0.00",
+   "total": "58.06",
+   "payment_details_present": false,
+   "payment_details_raw": null,
+   "field_confidence": {
+    "vendor_name": 0.97,
+    "vendor_tax_id": 0.97,
+    "invoice_number": 0.98,
+    "invoice_date": 0.94,
+    "due_date": 0.98,
+    "currency": 0.97,
+    "po_number": 0.9,
+    "subtotal": 0.93,
+    "tax_amount": 0.98,
+    "total": 0.92,
+    "line_items": 0.98,
+    "payment_details_present": 0.94
+   },
+   "source_page_refs": {
+    "vendor_name": 1,
+    "vendor_tax_id": 1,
+    "invoice_number": 1,
+    "invoice_date": 1,
+    "due_date": 1,
+    "currency": 1,
+    "po_number": 1,
+    "subtotal": 1,
+    "tax_amount": 1,
+    "total": 1,
+    "line_items": 1,
+    "payment_details_present": 1
+   }
+  }
+ },
+ "eval:naive:match_qty_over": {
+  "text": "Here is the extracted data:\n```json\n{\n \"vendor_name\": \"Harrell LLC\",\n \"vendor_tax_id\": \"XH-8932528\",\n \"invoice_number\": \"INV-2026-5033\",\n \"invoice_date\": \"2026-05-03\",\n \"due_date\": \"2026-06-17\",\n \"currency\": \"USD\",\n \"po_number\": \"PO-7001\",\n \"line_items\": [\n  {\n   \"description\": \"Ergonomic task chair\",\n   \"quantity\": \"2\",\n   \"unit_price\": \"12.31\",\n   \"amount\": \"24.62\"\n  },\n  {\n   \"description\": \"LED desk lamp, dimmable\",\n   \"quantity\": \"1\",\n   \"unit_price\": \"33.44\",\n   \"amount\": \"33.44\"\n  }\n ],\n \"subtotal\": \"58.06\",\n \"tax_amount\": \"0.00\",\n \"total\": \"58.06\",\n \"payment_details_present\": false,\n \"payment_details_raw\": null,\n \"field_confidence\": {\n  \"vendor_name\": 0.97,\n  \"vendor_tax_id\": 0.97,\n  \"invoice_number\": 0.98,\n  \"invoice_date\": 0.94,\n  \"due_date\": 0.98,\n  \"currency\": 0.97,\n  \"po_number\": 0.9,\n  \"subtotal\": 0.93,\n  \"tax_amount\": 0.98,\n  \"total\": 0.92,\n  \"line_items\": 0.98,\n  \"payment_details_present\": 0.94\n },\n \"source_page_refs\": {\n  \"vendor_name\": 1,\n  \"vendor_tax_id\": 1,\n  \"invoice_number\": 1,\n  \"invoice_date\": 1,\n  \"due_date\": 1,\n  \"currency\": 1,\n  \"po_number\": 1,\n  \"subtotal\": 1,\n  \"tax_amount\": 1,\n  \"total\": 1,\n  \"line_items\": 1,\n  \"payment_details_present\": 1\n }\n}\n```"
+ }
+}

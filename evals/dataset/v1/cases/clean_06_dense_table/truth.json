@@ -1,0 +1,50 @@
+{
+  "vendor_name": "Munoz-Roman",
+  "vendor_tax_id": "ON-7816184",
+  "invoice_number": "INV-2026-5040",
+  "invoice_date": "2026-06-15",
+  "due_date": "2026-07-28",
+  "currency": "USD",
+  "po_number": null,
+  "line_items": [
+    {
+      "sku": "TNR-55X",
+      "description": "Toner cartridge 55X black",
+      "quantity": "11",
+      "unit_price": "265.90",
+      "amount": "2924.90"
+    },
+    {
+      "sku": "SRV-CONS",
+      "description": "Consulting services (hourly)",
+      "quantity": "9",
+      "unit_price": "46.37",
+      "amount": "417.33"
+    },
+    {
+      "sku": "WID-A200",
+      "description": "Widget A-200",
+      "quantity": "7",
+      "unit_price": "374.70",
+      "amount": "2622.90"
+    },
+    {
+      "sku": "WID-B100",
+      "description": "Widget B-100 (compact)",
+      "quantity": "23",
+      "unit_price": "209.22",
+      "amount": "4812.06"
+    },
+    {
+      "sku": "SHP-STD",
+      "description": "Standard shipping & handling",
+      "quantity": "7",
+      "unit_price": "330.17",
+      "amount": "2311.19"
+    }
+  ],
+  "subtotal": "13088.38",
+  "tax_amount": "2486.79",
+  "total": "15575.17",
+  "payment_details_present": false
+}

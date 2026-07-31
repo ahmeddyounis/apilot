@@ -1,4 +1,4 @@
-.PHONY: install fmt lint type test test-unit test-int eval-fixtures up down logs api worker migrate revision seed demo ci
+.PHONY: install fmt lint type test test-unit test-int eval-fixtures eval-dataset mcp up down logs api worker migrate revision seed demo ci
 
 install:
 	uv sync --all-groups
@@ -24,7 +24,16 @@ test:
 	uv run pytest -m "unit or integration"
 
 eval-fixtures:
-	uv run python -m evals.run --mode fixture --config schema_retry
+	uv run python -m evals.run --mode fixture --config naive --dataset v1 --check
+	uv run python -m evals.run --mode fixture --config schema_retry --dataset v1 --check
+	uv run python -m evals.run --mode fixture --config validation --dataset v1 --check
+
+eval-dataset:
+	uv run python -m evals.generator --dataset v1
+	uv run python -m evals.bootstrap_fixtures --dataset v1
+
+mcp:
+	uv run python -m app.mcp_server
 
 up:
 	docker compose up -d --build

@@ -1,0 +1,11 @@
+{
+  "case_id": "corrupt_negative_qty",
+  "category": "corruption",
+  "template": "minimal",
+  "provenance": "synthetic",
+  "corruption": "negative_qty",
+  "expected_rule_ids": [
+    "V-001",
+    "V-006"
+  ]
+}
