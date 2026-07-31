@@ -1,4 +1,6 @@
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
@@ -12,7 +14,8 @@ async def test_alembic_version_is_current() -> None:
     engine = get_engine()
     async with engine.connect() as conn:
         version = (await conn.execute(text("SELECT version_num FROM alembic_version"))).scalar()
-    assert version == "0001"
+    head = ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
+    assert version == head
 
 
 async def test_audit_log_is_append_only() -> None:

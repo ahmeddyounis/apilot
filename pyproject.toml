@@ -23,6 +23,8 @@ dependencies = [
     "anthropic",
     "prometheus-fastapi-instrumentator",
     "aiofiles",
+    "pypdfium2>=5.12.1",
+    "pillow>=12.3.0",
 ]
 
 [dependency-groups]
@@ -72,8 +74,9 @@ extend-immutable-calls = [
 "app/core/config.py" = ["SIM905"]
 # Alembic autogenerate emits long op.create_table lines; readability there is moot.
 "alembic/versions/*" = ["E501"]
-# Blocking-call rules target production event loops, not test bodies.
+# Blocking-call rules target production event loops, not test bodies or one-shot scripts.
 "tests/*" = ["ASYNC"]
+"scripts/*" = ["ASYNC"]
 
 [tool.mypy]
 files = ["app", "tests"]
@@ -90,7 +93,7 @@ module = "app.*"
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = "testcontainers.*"
+module = ["testcontainers.*", "pypdfium2.*"]
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]

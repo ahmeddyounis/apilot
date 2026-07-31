@@ -1,0 +1,106 @@
+{
+  "extract-happy": {
+    "wire": {
+      "vendor_name": "ACME Office Supply Co",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "INV-2026-0042",
+      "invoice_date": "2026-07-01",
+      "due_date": "2026-07-31",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"},
+        {"description": "Widget B-100", "quantity": "5", "unit_price": "12.50", "amount": "62.50"}
+      ],
+      "subtotal": "532.50",
+      "tax_amount": "42.60",
+      "total": "575.10",
+      "payment_details_present": false,
+      "payment_details_raw": null,
+      "field_confidence": {
+        "vendor_name": 0.98, "vendor_tax_id": 0.8, "invoice_number": 0.99,
+        "invoice_date": 0.97, "due_date": 0.96, "currency": 0.95, "po_number": 0.9,
+        "subtotal": 0.98, "tax_amount": 0.97, "total": 0.99, "line_items": 0.95,
+        "payment_details_present": 0.9
+      },
+      "source_page_refs": {
+        "vendor_name": 1, "vendor_tax_id": 1, "invoice_number": 1, "invoice_date": 1,
+        "due_date": 1, "currency": 1, "po_number": 1, "subtotal": 1, "tax_amount": 1,
+        "total": 1, "line_items": 1, "payment_details_present": 1
+      }
+    },
+    "usage": {"input_tokens": 2100, "output_tokens": 640, "cache_read_input_tokens": 900}
+  },
+
+  "extract-retry": [
+    {
+      "wire": {
+        "vendor_name": "ACME Office Supply Co",
+        "vendor_tax_id": null,
+        "invoice_number": "INV-2026-0042",
+        "invoice_date": "07/01/2026",
+        "due_date": null,
+        "currency": "USD",
+        "po_number": null,
+        "line_items": [
+          {"description": "Widget A-200", "quantity": "ten", "unit_price": "47.00", "amount": "470.00"}
+        ],
+        "subtotal": "470.00",
+        "tax_amount": "0",
+        "total": "470.00",
+        "payment_details_present": false,
+        "payment_details_raw": null,
+        "field_confidence": {"vendor_name": 0.9},
+        "source_page_refs": {"vendor_name": 1}
+      }
+    },
+    {
+      "wire": {
+        "vendor_name": "ACME Office Supply Co",
+        "vendor_tax_id": null,
+        "invoice_number": "INV-2026-0042",
+        "invoice_date": "2026-07-01",
+        "due_date": null,
+        "currency": "USD",
+        "po_number": null,
+        "line_items": [
+          {"description": "Widget A-200", "quantity": "10", "unit_price": "47.00", "amount": "470.00"}
+        ],
+        "subtotal": "470.00",
+        "tax_amount": "0",
+        "total": "470.00",
+        "payment_details_present": false,
+        "payment_details_raw": null,
+        "field_confidence": {"vendor_name": 0.9, "total": 0.95},
+        "source_page_refs": {"vendor_name": 1, "total": 1}
+      }
+    }
+  ],
+
+  "extract-refusal": {"stop_reason": "refusal"},
+
+  "extract-arith-persistent": {
+    "wire": {
+      "vendor_name": "Sketchy Numbers GmbH",
+      "vendor_tax_id": null,
+      "invoice_number": "SN-777",
+      "invoice_date": "2026-06-15",
+      "due_date": "2026-07-15",
+      "currency": "EUR",
+      "po_number": null,
+      "line_items": [
+        {"description": "Consulting", "quantity": "10", "unit_price": "47.00", "amount": "480.00"},
+        {"description": "Travel", "quantity": "5", "unit_price": "12.50", "amount": "62.50"}
+      ],
+      "subtotal": "532.50",
+      "tax_amount": "42.60",
+      "total": "575.10",
+      "payment_details_present": true,
+      "payment_details_raw": "IBAN DE89 3704 0044 0532 0130 00 · BIC COBADEFFXXX",
+      "field_confidence": {"vendor_name": 0.97, "total": 0.98, "line_items": 0.92},
+      "source_page_refs": {"vendor_name": 1, "total": 1, "line_items": 1}
+    }
+  },
+
+  "extract-garbage": {"parse_error": "output did not match schema: model emitted prose", "raw_text": "I think this invoice is about widgets..."}
+}

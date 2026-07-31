@@ -1,0 +1,35 @@
+from decimal import Decimal
+
+import pytest
+
+from app.llm.pricing import compute_cost
+from app.llm.types import LLMUsage
+
+pytestmark = pytest.mark.unit
+
+
+def test_basic_cost_opus() -> None:
+    usage = LLMUsage(input_tokens=1_000_000, output_tokens=1_000_000)
+    assert compute_cost(usage, "claude-opus-5") == Decimal("30.000000")
+
+
+def test_cache_token_rates() -> None:
+    # 1M cache-write at 1.25x$5 + 1M cache-read at 0.10x$5
+    usage = LLMUsage(cache_creation_input_tokens=1_000_000, cache_read_input_tokens=1_000_000)
+    assert compute_cost(usage, "claude-opus-5") == Decimal("6.750000")
+
+
+def test_realistic_invoice_call() -> None:
+    usage = LLMUsage(input_tokens=2100, output_tokens=640, cache_read_input_tokens=900)
+    # 2100*5/1M + 640*25/1M + 900*0.5/1M = 0.0105 + 0.016 + 0.00045
+    assert compute_cost(usage, "claude-opus-5") == Decimal("0.026950")
+
+
+def test_unknown_model_costs_zero() -> None:
+    usage = LLMUsage(input_tokens=1000, output_tokens=1000)
+    assert compute_cost(usage, "mystery-model") == Decimal(0)
+
+
+def test_fake_model_is_free() -> None:
+    usage = LLMUsage(input_tokens=99999, output_tokens=99999)
+    assert compute_cost(usage, "fake-llm") == Decimal("0.000000")

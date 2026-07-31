@@ -100,6 +100,28 @@ async def client() -> AsyncIterator[httpx.AsyncClient]:
         yield async_client
 
 
+def minimal_pdf(marker: str) -> bytes:
+    """A structurally valid single-page PDF; `marker` varies the content hash."""
+    out = bytearray(f"%PDF-1.4\n%{marker}\n".encode())
+    bodies = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>",
+    ]
+    offsets = []
+    for number, body in enumerate(bodies, start=1):
+        offsets.append(len(out))
+        out += f"{number} 0 obj\n".encode() + body + b"\nendobj\n"
+    xref_position = len(out)
+    out += f"xref\n0 {len(bodies) + 1}\n".encode() + b"0000000000 65535 f \n"
+    for offset in offsets:
+        out += f"{offset:010d} 00000 n \n".encode()
+    out += (
+        f"trailer\n<< /Size {len(bodies) + 1} /Root 1 0 R >>\nstartxref\n{xref_position}\n%%EOF\n"
+    ).encode()
+    return bytes(out)
+
+
 async def mint_key(scopes: list[str], name: str = "test-key") -> tuple[str, ApiKey]:
     """Insert an API key row and return (raw_key, row)."""
     generated = generate_api_key("test")
