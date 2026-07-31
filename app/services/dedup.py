@@ -281,6 +281,35 @@ async def _near_duplicate_flags(
     return flags
 
 
+async def trust_payment_fingerprint(session: AsyncSession, invoice: Invoice) -> str | None:
+    """Record this invoice's remittance account as known-good for the vendor.
+
+    Screening deliberately refuses to learn an account whose arrival triggered
+    F-110, so something has to close the loop for the legitimate case — a vendor
+    really does change banks. That something is a human approving the invoice:
+    the reviewer looked at the flag and accepted it, which is exactly the evidence
+    the automated path lacks. Returns the fingerprint if it was newly trusted.
+    """
+    if invoice.vendor_id is None or not invoice.payment_fingerprint:
+        return None
+    already = await session.scalar(
+        select(VendorPaymentFingerprint.id).where(
+            VendorPaymentFingerprint.vendor_id == invoice.vendor_id,
+            VendorPaymentFingerprint.fingerprint == invoice.payment_fingerprint,
+        )
+    )
+    if already is not None:
+        return None
+    session.add(
+        VendorPaymentFingerprint(
+            vendor_id=invoice.vendor_id,
+            fingerprint=invoice.payment_fingerprint,
+            first_seen_invoice_id=invoice.id,
+        )
+    )
+    return invoice.payment_fingerprint
+
+
 async def _heuristic_flags(
     session: AsyncSession, invoice: Invoice, settings: Settings
 ) -> list[Flag]:
@@ -322,7 +351,8 @@ async def _heuristic_flags(
         ).all()
         known_prints = {row.fingerprint for row in known}
         if invoice.payment_fingerprint:
-            if known_prints and invoice.payment_fingerprint not in known_prints:
+            changed = bool(known_prints) and invoice.payment_fingerprint not in known_prints
+            if changed:
                 flags.append(
                     Flag(
                         code="F-110",
@@ -345,7 +375,13 @@ async def _heuristic_flags(
                         evidence={"prior_invoices": prior_count},
                     )
                 )
-            if invoice.payment_fingerprint not in known_prints:
+            # Learn the account only when arrival isn't itself the alarm. Recording
+            # it unconditionally meant F-110 disarmed itself: the attacker's details
+            # became "known" the moment they were flagged, so the very next invoice
+            # on that account sailed through clean. A changed account earns trust
+            # only when a human approves the invoice carrying it (see
+            # `trust_payment_fingerprint`).
+            if not changed and invoice.payment_fingerprint not in known_prints:
                 session.add(
                     VendorPaymentFingerprint(
                         vendor_id=invoice.vendor_id,

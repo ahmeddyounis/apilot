@@ -236,5 +236,176 @@
         "total": 1
       }
     }
+  },
+  "extract-bank-legit": {
+    "wire": {
+      "vendor_name": "Riverside Metals Ltd",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "RM-001",
+      "invoice_date": "2026-07-01",
+      "due_date": "2026-07-31",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {
+          "description": "Steel stock",
+          "quantity": "1",
+          "unit_price": "500.00",
+          "amount": "500.00"
+        }
+      ],
+      "subtotal": "500.00",
+      "tax_amount": "40.00",
+      "total": "540.00",
+      "payment_details_present": true,
+      "payment_details_raw": "Remit to: IBAN GB29 NWBK 6016 1331 9268 19",
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "vendor_tax_id": 0.8,
+        "invoice_number": 0.99,
+        "invoice_date": 0.97,
+        "due_date": 0.96,
+        "currency": 0.95,
+        "po_number": 0.9,
+        "subtotal": 0.98,
+        "tax_amount": 0.97,
+        "total": 0.99,
+        "line_items": 0.95,
+        "payment_details_present": 0.9
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "vendor_tax_id": 1,
+        "invoice_number": 1,
+        "invoice_date": 1,
+        "due_date": 1,
+        "currency": 1,
+        "po_number": 1,
+        "subtotal": 1,
+        "tax_amount": 1,
+        "total": 1,
+        "line_items": 1,
+        "payment_details_present": 1
+      }
+    },
+    "usage": {
+      "input_tokens": 2100,
+      "output_tokens": 640,
+      "cache_read_input_tokens": 900
+    }
+  },
+  "extract-bank-switched": {
+    "wire": {
+      "vendor_name": "Riverside Metals Ltd",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "RM-002",
+      "invoice_date": "2026-07-01",
+      "due_date": "2026-07-31",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {
+          "description": "Steel stock",
+          "quantity": "1",
+          "unit_price": "610.00",
+          "amount": "610.00"
+        }
+      ],
+      "subtotal": "610.00",
+      "tax_amount": "48.80",
+      "total": "658.80",
+      "payment_details_present": true,
+      "payment_details_raw": "Remit to our NEW account: IBAN GB94 BARC 2020 1530 0934 59",
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "vendor_tax_id": 0.8,
+        "invoice_number": 0.99,
+        "invoice_date": 0.97,
+        "due_date": 0.96,
+        "currency": 0.95,
+        "po_number": 0.9,
+        "subtotal": 0.98,
+        "tax_amount": 0.97,
+        "total": 0.99,
+        "line_items": 0.95,
+        "payment_details_present": 0.9
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "vendor_tax_id": 1,
+        "invoice_number": 1,
+        "invoice_date": 1,
+        "due_date": 1,
+        "currency": 1,
+        "po_number": 1,
+        "subtotal": 1,
+        "tax_amount": 1,
+        "total": 1,
+        "line_items": 1,
+        "payment_details_present": 1
+      }
+    },
+    "usage": {
+      "input_tokens": 2100,
+      "output_tokens": 640,
+      "cache_read_input_tokens": 900
+    }
+  },
+  "extract-bank-switched-again": {
+    "wire": {
+      "vendor_name": "Riverside Metals Ltd",
+      "vendor_tax_id": "US12-3456789",
+      "invoice_number": "RM-003",
+      "invoice_date": "2026-07-01",
+      "due_date": "2026-07-31",
+      "currency": "USD",
+      "po_number": "PO-2231",
+      "line_items": [
+        {
+          "description": "Steel stock",
+          "quantity": "1",
+          "unit_price": "720.00",
+          "amount": "720.00"
+        }
+      ],
+      "subtotal": "720.00",
+      "tax_amount": "57.60",
+      "total": "777.60",
+      "payment_details_present": true,
+      "payment_details_raw": "Remit to our NEW account: IBAN GB94 BARC 2020 1530 0934 59",
+      "field_confidence": {
+        "vendor_name": 0.98,
+        "vendor_tax_id": 0.8,
+        "invoice_number": 0.99,
+        "invoice_date": 0.97,
+        "due_date": 0.96,
+        "currency": 0.95,
+        "po_number": 0.9,
+        "subtotal": 0.98,
+        "tax_amount": 0.97,
+        "total": 0.99,
+        "line_items": 0.95,
+        "payment_details_present": 0.9
+      },
+      "source_page_refs": {
+        "vendor_name": 1,
+        "vendor_tax_id": 1,
+        "invoice_number": 1,
+        "invoice_date": 1,
+        "due_date": 1,
+        "currency": 1,
+        "po_number": 1,
+        "subtotal": 1,
+        "tax_amount": 1,
+        "total": 1,
+        "line_items": 1,
+        "payment_details_present": 1
+      }
+    },
+    "usage": {
+      "input_tokens": 2100,
+      "output_tokens": 640,
+      "cache_read_input_tokens": 900
+    }
   }
 }

@@ -21,6 +21,7 @@ from app.core.config import Settings
 from app.core.normalize import normalize_invoice_number
 from app.models import FieldCorrection, Invoice, InvoiceStatus, ReviewAction
 from app.services import audit
+from app.services.dedup import trust_payment_fingerprint
 from app.services.invoices import enqueue_pipeline
 from app.services.state_machine import transition
 from app.services.validation import RuleContext, inputs_from_invoice, run_rules
@@ -110,8 +111,16 @@ async def apply_review(
     await session.flush()
 
     if action == "approve":
+        # An approval is the human evidence screening can't produce on its own: if
+        # this invoice carried changed bank details, the reviewer has now vouched
+        # for them, so the account becomes known-good for future invoices.
+        trusted = await trust_payment_fingerprint(session, invoice)
         await transition(
-            session, invoice, InvoiceStatus.APPROVED, actor=auth.actor, payload={"note": note}
+            session,
+            invoice,
+            InvoiceStatus.APPROVED,
+            actor=auth.actor,
+            payload={"note": note, "trusted_payment_fingerprint": trusted},
         )
         await session.commit()
         return 0, None

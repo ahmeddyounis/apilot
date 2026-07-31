@@ -6,8 +6,9 @@ import pytest
 from sqlalchemy import select
 
 from app.core.db import get_sessionmaker
+from app.core.normalize import normalize_vendor_name
 from app.llm.fake import scenario
-from app.models import FieldCorrection, Invoice, InvoiceStatus
+from app.models import FieldCorrection, Invoice, InvoiceStatus, Vendor
 from app.services.pipeline import process_invoice_pipeline
 from tests.integration.conftest import minimal_pdf
 from tests.integration.test_extraction_flow import run_scenario, upload
@@ -22,6 +23,17 @@ async def get_invoice(invoice_id: UUID) -> Invoice:
         assert invoice is not None
         session.expunge(invoice)
         return invoice
+
+
+async def seed_vendor(name: str) -> None:
+    """Register a vendor so extraction can link invoices to it.
+
+    Vendor rows are otherwise only created through the PO endpoint, and an invoice
+    with no vendor_id skips the payment-fingerprint checks entirely.
+    """
+    async with get_sessionmaker()() as session:
+        session.add(Vendor(name=name, normalized_name=normalize_vendor_name(name)))
+        await session.commit()
 
 
 async def test_exact_file_duplicate_is_held(
@@ -209,3 +221,63 @@ async def test_exports_and_analytics(client: httpx.AsyncClient, full_access_key:
     assert summary["auto_approval_rate"] == 1.0  # approved by the agent, untouched by humans
     assert summary["cycle_time_seconds"]["avg"] is not None
     assert "fake-llm" in summary["llm_cost"]["by_model"]
+
+
+async def test_flagged_bank_account_is_not_trusted_until_a_human_approves(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """F-110 has to survive a second attempt to be worth anything.
+
+    Screening used to record every unseen fingerprint, including the one it had
+    just raised F-110 on — so the attacker's account joined the vendor's trusted
+    set at the moment of the alarm and the follow-up invoice on that same account
+    passed clean. The control fired once per attacker, then disarmed itself.
+    """
+    await seed_vendor("Riverside Metals Ltd")
+    legit = await run_scenario(
+        client, full_access_key, "extract-bank-legit", minimal_pdf("bank-legit")
+    )
+    # F-100 (first invoice from this vendor) is expected; a bank change is not.
+    assert "F-110" not in {flag["code"] for flag in legit.fraud_flags or []}
+
+    switched = await run_scenario(
+        client, full_access_key, "extract-bank-switched", minimal_pdf("bank-switch-1")
+    )
+    assert switched.status is InvoiceStatus.HELD
+    assert "F-110" in {flag["code"] for flag in switched.fraud_flags or []}
+
+    # The attacker's second invoice, same account: still caught.
+    repeat = await run_scenario(
+        client, full_access_key, "extract-bank-switched-again", minimal_pdf("bank-switch-2")
+    )
+    assert "F-110" in {flag["code"] for flag in repeat.fraud_flags or []}, (
+        "the flagged account became trusted without any human approving it"
+    )
+    assert repeat.status is InvoiceStatus.HELD
+
+
+async def test_approving_a_bank_change_trusts_the_new_account(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """The legitimate other half: vendors do change banks, and a reviewer saying
+    so is the evidence screening cannot produce on its own."""
+    await seed_vendor("Riverside Metals Ltd")
+    await run_scenario(client, full_access_key, "extract-bank-legit", minimal_pdf("bank-ok"))
+    switched = await run_scenario(
+        client, full_access_key, "extract-bank-switched", minimal_pdf("bank-change")
+    )
+    assert switched.status is InvoiceStatus.HELD
+
+    response = await client.post(
+        f"/api/v1/invoices/{switched.id}/review",
+        headers={"X-API-Key": full_access_key},
+        json={"action": "approve", "note": "called the vendor, the change is real"},
+    )
+    assert response.status_code == 200
+
+    after = await run_scenario(
+        client, full_access_key, "extract-bank-switched-again", minimal_pdf("bank-after")
+    )
+    assert "F-110" not in {flag["code"] for flag in after.fraud_flags or []}, (
+        "an approved bank change should stop flagging"
+    )
