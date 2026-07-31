@@ -90,7 +90,14 @@ class Invoice(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     extraction: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     extraction_model: Mapped[str | None] = mapped_column(Text)
     extraction_mode: Mapped[str | None] = mapped_column(String(16))
+    # LLM calls spent on extraction (retry-with-feedback counts here).
     extraction_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Times the stale-job cron re-queued this invoice. Kept separate from
+    # extraction_attempts, which counts something else entirely: an invoice that
+    # legitimately used its extraction retries would otherwise arrive at the matching
+    # stage with its whole requeue budget already spent, and be abandoned on the
+    # first rescue tick.
+    pipeline_requeues: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     field_confidence: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     source_page_refs: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 

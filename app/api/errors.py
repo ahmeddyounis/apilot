@@ -52,6 +52,12 @@ class InvalidStateError(ApilotError):
     code = "invalid_transition"
 
 
+class ConcurrentTransitionError(InvalidStateError):
+    """Someone else moved this invoice while we were deciding what to do with it."""
+
+    code = "concurrent_modification"
+
+
 class UnauthorizedError(ApilotError):
     status_code = 401
     code = "unauthorized"

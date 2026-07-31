@@ -8,9 +8,10 @@ transaction, and bumps the Prometheus counter. Nothing else may assign the colum
 from datetime import UTC, datetime
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.errors import InvalidStateError
+from app.api.errors import ConcurrentTransitionError, InvalidStateError
 from app.core.metrics import INVOICE_TRANSITIONS
 from app.models import Invoice, InvoiceStatus
 from app.services import audit
@@ -70,6 +71,25 @@ async def transition(
         raise InvalidStateError(
             f"Cannot transition invoice {invoice.id} from '{from_status.value}' "
             f"to '{to_status.value}'"
+        )
+
+    # Compare-and-set against the row itself. `from_status` is whatever the caller
+    # last read, which for the matching stage can be minutes old — the agent runs
+    # for a while and never touches the invoice row meanwhile. Without this check
+    # the write is blind: the rescue cron can abandon an invoice as
+    # `matching -> exception` and the still-running worker then commits
+    # `matching -> approved` over the top, leaving an invoice the system publicly
+    # gave up on approved for payment, with both outcomes recorded in an
+    # append-only audit log that is supposed to be the record of what happened.
+    # The lock is taken here rather than at load time so it is held for the
+    # decision, not for the whole stage.
+    current = await session.scalar(
+        select(Invoice.status).where(Invoice.id == invoice.id).with_for_update()
+    )
+    if current is not None and current != from_status:
+        raise ConcurrentTransitionError(
+            f"Invoice {invoice.id} moved to '{current.value}' while a transition to "
+            f"'{to_status.value}' from '{from_status.value}' was being decided"
         )
 
     now = datetime.now(UTC)

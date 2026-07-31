@@ -10,6 +10,7 @@ from arq.connections import RedisSettings
 from sqlalchemy import delete, select
 from sqlalchemy.engine import CursorResult
 
+from app.api.errors import ConcurrentTransitionError
 from app.core.config import get_settings
 from app.core.db import dispose_engine, get_sessionmaker
 from app.core.logging import configure_logging
@@ -58,31 +59,53 @@ async def requeue_stale(ctx: dict[str, Any]) -> None:
 
         pool = await get_arq_pool()
         for invoice in stale:
-            if invoice.extraction_attempts >= settings.pipeline_max_tries:
-                invoice.error_detail = (
-                    f"Abandoned after {invoice.extraction_attempts} pipeline attempts"
-                )
-                terminal = _TERMINAL_FOR_STATUS[invoice.status]
-                await transition(
-                    session, invoice, terminal, actor="worker", reason="pipeline_error"
-                )
-                logger.warning(
-                    "stale_invoice_terminal",
-                    invoice_id=str(invoice.id),
-                    status=terminal.value,
-                )
-                continue
+            # One invoice per transaction: a decision already made must not be undone
+            # because a *later* invoice's enqueue failed. A single Redis hiccup used
+            # to roll back the whole batch, including terminal transitions and their
+            # audit rows.
+            try:
+                if invoice.pipeline_requeues >= settings.pipeline_max_tries:
+                    invoice.error_detail = (
+                        f"Abandoned after {invoice.pipeline_requeues} pipeline attempts"
+                    )
+                    terminal = _TERMINAL_FOR_STATUS[invoice.status]
+                    await transition(
+                        session, invoice, terminal, actor="worker", reason="pipeline_error"
+                    )
+                    logger.warning(
+                        "stale_invoice_terminal",
+                        invoice_id=str(invoice.id),
+                        status=terminal.value,
+                    )
+                    await session.commit()
+                    continue
 
-            invoice.extraction_attempts += 1
-            await pool.enqueue_job(
-                "process_invoice", str(invoice.id), _job_id=f"pipeline:{invoice.id}"
-            )
-            logger.info(
-                "stale_invoice_requeued",
-                invoice_id=str(invoice.id),
-                attempt=invoice.extraction_attempts,
-            )
-        await session.commit()
+                # arq returns None when a job with this id is already queued or
+                # running. That is the normal case for a backlogged queue, and
+                # counting it as an attempt let the cron exhaust an invoice's budget
+                # and kill it while its original job was still waiting to start.
+                job = await pool.enqueue_job(
+                    "process_invoice", str(invoice.id), _job_id=f"pipeline:{invoice.id}"
+                )
+                if job is None:
+                    logger.info("stale_invoice_already_queued", invoice_id=str(invoice.id))
+                    continue
+
+                invoice.pipeline_requeues += 1
+                await session.commit()
+                logger.info(
+                    "stale_invoice_requeued",
+                    invoice_id=str(invoice.id),
+                    requeue=invoice.pipeline_requeues,
+                )
+            except ConcurrentTransitionError:
+                # A live worker finished this invoice between our query and our
+                # decision. Its outcome is the real one; leave it alone.
+                await session.rollback()
+                logger.info("stale_invoice_moved_on", invoice_id=str(invoice.id))
+            except Exception:
+                await session.rollback()
+                logger.exception("stale_invoice_requeue_failed", invoice_id=str(invoice.id))
 
 
 async def purge_idempotency(ctx: dict[str, Any]) -> None:
