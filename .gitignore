@@ -30,6 +30,11 @@ evals/dataset/*/cases/**/*.png
 evals/dataset/*/cases/**/*.jpg
 !evals/dataset/*/samples/**
 evals/output/
+# Per-run eval reports: one file per invocation, so they pile up fast and say
+# nothing a reviewer needs. The committed baseline (evals/baseline_metrics.json)
+# and the rendered summary (evals/latest_report.md) are the durable record; CI
+# uploads the raw runs as build artifacts.
+evals/reports/*.json
 
 # OS / editors
 .DS_Store
