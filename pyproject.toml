@@ -57,6 +57,8 @@ select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF", "ASYNC"]
 [tool.ruff.lint.per-file-ignores]
 # Compact `"...".split()` default for the currency allowlist beats a 20-line literal.
 "app/core/config.py" = ["SIM905"]
+# Alembic autogenerate emits long op.create_table lines; readability there is moot.
+"alembic/versions/*" = ["E501"]
 
 [tool.mypy]
 files = ["app", "tests"]
