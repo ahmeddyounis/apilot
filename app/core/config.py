@@ -11,8 +11,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import AliasChoices, Field, SecretStr
+from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Shared with .env.example. Named rather than inlined so the production guard below
+# and the shipped example can never drift apart.
+DEV_FINGERPRINT_SECRET = "change-me-dev-only"
+_MIN_FINGERPRINT_SECRET_BYTES = 32
+_DEV_DATABASE_URL = "postgresql+asyncpg://apilot:apilot@localhost:5433/apilot"
 
 
 class Settings(BaseSettings):
@@ -29,7 +35,7 @@ class Settings(BaseSettings):
     log_format: Literal["console", "json"] = "console"
 
     # Infrastructure
-    database_url: str = "postgresql+asyncpg://apilot:apilot@localhost:5433/apilot"
+    database_url: str = _DEV_DATABASE_URL
     redis_url: str = "redis://localhost:6380/0"
 
     # Upload storage
@@ -86,7 +92,49 @@ class Settings(BaseSettings):
     stale_job_requeue_minutes: int = 15
 
     # Fraud fingerprinting
-    fingerprint_secret: SecretStr = SecretStr("change-me-dev-only")
+    fingerprint_secret: SecretStr = SecretStr(DEV_FINGERPRINT_SECRET)
+
+    @model_validator(mode="after")
+    def _refuse_unsafe_production_config(self) -> "Settings":
+        """Refuse to start in prod on defaults that are safe only in dev.
+
+        The fingerprint secret is the sharp one. It keys the HMAC over vendor bank
+        details, `.env.example` ships the same literal this defaults to, and the repo
+        is public — so a deploy that simply forgets to set it makes every payment
+        fingerprint computable by anyone who can read GitHub, and F-110 (bank details
+        changed) forgeable. Nothing about that failure is visible at runtime: the
+        pipeline keeps working and the fraud signal keeps reporting, it just reports
+        something an attacker can predict.
+
+        A crash loop with a legible message is strictly better than serving traffic
+        in that state. This runs inside `get_settings()`, which both entrypoints
+        reach before serving anything.
+        """
+        if self.env != "prod":
+            return self
+
+        problems: list[str] = []
+        secret = self.fingerprint_secret.get_secret_value()
+        if secret == DEV_FINGERPRINT_SECRET:
+            problems.append(
+                "APILOT_FINGERPRINT_SECRET is still the development default from "
+                ".env.example, which is published in a public repository"
+            )
+        elif len(secret.encode()) < _MIN_FINGERPRINT_SECRET_BYTES:
+            problems.append(
+                f"APILOT_FINGERPRINT_SECRET is shorter than {_MIN_FINGERPRINT_SECRET_BYTES} bytes"
+            )
+        if self.database_url == _DEV_DATABASE_URL:
+            problems.append("APILOT_DATABASE_URL is still the local dev default")
+
+        if problems:
+            raise ValueError(
+                "Refusing to start with APILOT_ENV=prod:\n"
+                + "\n".join(f"  - {problem}" for problem in problems)
+                + "\nGenerate a secret with: python -c "
+                '"import secrets; print(secrets.token_urlsafe(32))"'
+            )
+        return self
 
     @property
     def resolved_llm_mode(self) -> Literal["live", "fake"]:

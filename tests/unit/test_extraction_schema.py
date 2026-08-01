@@ -2,7 +2,9 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
+from pydantic import ValidationError
 
+from app.llm.types import describe_schema_mismatch
 from app.schemas.extraction import arithmetic_findings, wire_to_domain
 from app.schemas.extraction_wire import InvoiceExtractionWire
 from app.services.extraction import parse_json_loose
@@ -172,3 +174,40 @@ def test_bounded_amounts_still_reach_the_arithmetic_checks() -> None:
     assert errors == []
     assert domain is not None
     assert arithmetic_findings(domain) == []
+
+
+def test_schema_mismatch_never_echoes_the_offending_payload() -> None:
+    """A schema failure must name fields, not quote them.
+
+    Pydantic's errors() entries carry an `input` key holding what failed to validate,
+    and for a root-level mismatch that is the entire model payload. This string is
+    stored on invoices.error_detail and served to any key with `read`, so including
+    `input` published the extraction verbatim — including payment_details_raw, the
+    vendor's raw bank details, which _persist otherwise takes deliberate care to drop
+    before writing the immutable extraction JSONB.
+    """
+    remittance = "Remit to IBAN GB29 NWBK 6016 1331 9268 19"
+    try:
+        InvoiceExtractionWire.model_validate(
+            {"payment_details_raw": remittance, "vendor_name": None}
+        )
+    except ValidationError as exc:
+        message = describe_schema_mismatch(exc)
+    else:  # pragma: no cover - the payload above is not valid
+        raise AssertionError("expected a validation error")
+
+    assert "GB29" not in message and remittance not in message
+    assert "vendor_name" in message  # still says which field, and why
+    assert "9268" not in message
+
+
+def test_root_level_mismatch_also_stays_quiet() -> None:
+    """The worst case: `input` is the whole payload, not one field's value."""
+    try:
+        InvoiceExtractionWire.model_validate([{"payment_details_raw": "IBAN GB29 NWBK 6016"}])
+    except ValidationError as exc:
+        message = describe_schema_mismatch(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected a validation error")
+
+    assert "IBAN" not in message and "GB29" not in message

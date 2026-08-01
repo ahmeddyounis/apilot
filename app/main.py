@@ -3,6 +3,7 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import APIRouter, FastAPI
 
 from app import __version__
@@ -22,6 +23,8 @@ from app.core.logging import RequestContextMiddleware, configure_logging
 from app.core.metrics import setup_metrics
 from app.core.redis import close_arq_pool, close_redis
 
+logger = structlog.get_logger(__name__)
+
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
@@ -30,14 +33,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         yield
-        await dispose_engine()
-        await close_arq_pool()
-        await close_redis()
+        # Each shutdown step runs even if an earlier one fails. Unguarded, a raising
+        # dispose_engine() would leave the Redis connections open, and a pod that
+        # can't release its resources cleanly on SIGTERM leaks them across every
+        # rollout.
+        for name, close in (
+            ("database", dispose_engine),
+            ("arq_pool", close_arq_pool),
+            ("redis", close_redis),
+        ):
+            try:
+                await close()
+            except Exception:
+                logger.exception("shutdown_step_failed", component=name)
 
+    # Interactive docs are a development affordance. In prod they publish the full
+    # request/response schema of a payments system to anyone who can reach the port,
+    # and there is no auth in front of them (`/docs`, `/redoc`, `/openapi.json` are
+    # all unauthenticated by design so the demo works).
+    public_docs = settings.env != "prod"
     app = FastAPI(
         title="APilot — AI Invoice Intelligence API",
         version=__version__,
         lifespan=lifespan,
+        docs_url="/docs" if public_docs else None,
+        redoc_url="/redoc" if public_docs else None,
+        openapi_url="/openapi.json" if public_docs else None,
     )
     app.state.settings = settings
 
