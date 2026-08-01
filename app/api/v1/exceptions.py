@@ -5,7 +5,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import ColumnElement, Numeric, case, cast, func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import AuthContext, rate_limited, require_scopes
@@ -41,7 +41,9 @@ async def list_exceptions(
     vendor_id: UUID | None = Query(default=None),
     min_total: Decimal | None = Query(default=None, ge=0),
     limit: int = Query(default=25, ge=1, le=100),
-    offset: int = Query(default=0, ge=0),
+    # Deep pagination re-sorts the whole queue to throw the result away. A review
+    # queue this long is a staffing problem, not a paging one.
+    offset: int = Query(default=0, ge=0, le=10_000),
     _auth: AuthContext = Depends(require_scopes("read")),
     _rate_limit: None = Depends(rate_limited()),
     session: AsyncSession = Depends(get_session),
@@ -67,16 +69,16 @@ async def list_exceptions(
         await session.scalar(select(func.count()).select_from(Invoice).where(*conditions))
     ) or 0
 
-    # Risk-weighted money first: unknown risk counts as 0.5, unknown total as 0.
-    risk = func.coalesce(Invoice.risk_score, cast(Decimal("0.5"), Numeric(4, 3)))
-    money = func.coalesce(Invoice.total, cast(Decimal(0), Numeric(14, 2)))
-    priority = case((money > 0, risk * money), else_=risk)
-
+    # Risk-weighted money first. The expression itself hasn't changed — unknown risk
+    # counts as 0.5, unknown total as 0 — but Postgres now maintains it as a stored
+    # generated column (migration 0009) with a partial index over exactly the two
+    # statuses this queue shows. Computed inline it could not be indexed at all, so
+    # every page recomputed it for every queued invoice and top-N sorted the result.
     invoices = (
         await session.scalars(
             select(Invoice)
             .where(*conditions)
-            .order_by(priority.desc(), Invoice.received_at.asc())
+            .order_by(Invoice.review_priority.desc(), Invoice.received_at.asc())
             .limit(limit)
             .offset(offset)
         )

@@ -67,6 +67,10 @@ class Settings(BaseSettings):
     auto_approve_max_total: Decimal = Decimal("2500.00")
     near_dup_cosine_threshold: float = 0.85
     dup_suspect_threshold: float = 0.80
+    # HNSW candidate-list size. Raised above pgvector default (40) because the search
+    # post-filters on model and status, so the scan has to over-fetch to still return
+    # ten usable neighbours.
+    near_dup_ef_search: int = 100
     round_number_min_total: Decimal = Decimal("500.00")
     confidence_review_floor: float = 0.70
     price_tolerance_pct: Decimal = Decimal("0.01")
@@ -110,6 +114,11 @@ class Settings(BaseSettings):
     worker_metrics_enabled: bool = True
     worker_metrics_port: int = 9110
     metrics_refresh_interval_s: int = 15
+
+    # Analytics reporting window when the caller does not supply one. Unbounded
+    # aggregates over the whole history get slower every day the system runs, on
+    # an endpoint dashboards poll.
+    analytics_default_window_days: int = 90
 
     # Review controls
     # Four-eyes: refuse an approval from the key that uploaded or corrected the

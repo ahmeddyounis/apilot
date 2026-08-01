@@ -30,4 +30,11 @@ class LlmCall(UUIDPrimaryKeyMixin, Base):
         TIMESTAMP(timezone=True), server_default=func.now(), nullable=False
     )
 
-    __table_args__ = (Index("ix_llm_calls_invoice_id", "invoice_id"),)
+    __table_args__ = (
+        Index("ix_llm_calls_invoice_id", "invoice_id"),
+        # This is the fastest-growing table in the system — one row per LLM
+        # attempt, retries included — and analytics scans it three times per
+        # request, filtering on created_at and grouping by model.
+        Index("ix_llm_calls_created_at", "created_at"),
+        Index("ix_llm_calls_model", "model"),
+    )

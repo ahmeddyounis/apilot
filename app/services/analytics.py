@@ -1,6 +1,6 @@
 """Operational analytics: the numbers the README's business case is written in."""
 
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -19,10 +19,19 @@ _DECIDED = (
 )
 
 
-async def summary(session: AsyncSession, *, since: datetime | None) -> dict[str, Any]:
-    conditions: list[ColumnElement[bool]] = []
-    if since is not None:
-        conditions.append(Invoice.received_at >= since)
+async def summary(
+    session: AsyncSession, *, since: datetime | None, default_window_days: int = 90
+) -> dict[str, Any]:
+    """Aggregate the pipeline over a bounded window.
+
+    `since` used to be optional in the sense of "no filter at all", which made every
+    aggregate here scan the entire history — and get monotonically slower forever, on
+    an endpoint a dashboard polls. It now defaults to a window rather than to
+    everything, and the resolved window is reported in the response so nobody has to
+    guess which period a number describes.
+    """
+    window_start = since or (datetime.now(UTC) - timedelta(days=default_window_days))
+    conditions: list[ColumnElement[bool]] = [Invoice.received_at >= window_start]
 
     status_rows = (
         await session.execute(
@@ -33,13 +42,16 @@ async def summary(session: AsyncSession, *, since: datetime | None) -> dict[str,
     total_invoices = sum(by_status.values())
 
     # Auto-approval = approved/exported with zero human review actions.
-    reviewed = select(distinct(ReviewAction.invoice_id)).scalar_subquery()
+    # NOT EXISTS, not NOT IN: NULL semantics stop Postgres turning a NOT IN subquery
+    # into an anti-join, so it materialised every reviewed invoice id and rechecked
+    # the list per row.
+    reviewed = select(ReviewAction.id).where(ReviewAction.invoice_id == Invoice.id).exists()
     auto_approved = (
         await session.scalar(
             select(func.count()).where(
                 *conditions,
                 Invoice.status.in_((InvoiceStatus.APPROVED, InvoiceStatus.EXPORTED)),
-                Invoice.id.not_in(reviewed),
+                ~reviewed,
             )
         )
     ) or 0
@@ -55,6 +67,9 @@ async def summary(session: AsyncSession, *, since: datetime | None) -> dict[str,
         )
     ).all()
 
+    # percentile_cont is an ordered-set aggregate: it materialises and sorts every
+    # matching row, so on an unbounded window it got slower every day the system ran.
+    # Bounded by the window above, and the window is the point.
     cycle_seconds = func.extract("epoch", Invoice.decided_at - Invoice.received_at)
     cycle_row = (
         await session.execute(
@@ -65,9 +80,9 @@ async def summary(session: AsyncSession, *, since: datetime | None) -> dict[str,
         )
     ).one()
 
-    llm_conditions: list[ColumnElement[bool]] = []
-    if since is not None:
-        llm_conditions.append(LlmCall.created_at >= since)
+    # Same window, and llm_calls now has an index on created_at — it is the
+    # fastest-growing table in the system, a row per attempt including retries.
+    llm_conditions: list[ColumnElement[bool]] = [LlmCall.created_at >= window_start]
     cost_total = (
         await session.scalar(
             select(func.coalesce(func.sum(LlmCall.cost_usd), 0)).where(*llm_conditions)
@@ -94,6 +109,9 @@ async def summary(session: AsyncSession, *, since: datetime | None) -> dict[str,
     ).all()
 
     return {
+        # Reported, not implied: a caller that passes no `since` should not have
+        # to guess which period these numbers describe.
+        "window": {"since": window_start.isoformat(), "until": datetime.now(UTC).isoformat()},
         "invoices": {"total": total_invoices, "by_status": by_status},
         "auto_approval_rate": round(auto_approved / decided, 4) if decided else None,
         "decided": decided,
