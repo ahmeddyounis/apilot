@@ -35,10 +35,17 @@ Add to `.mcp.json` in a project (Claude Code) or `claude_desktop_config.json`:
     "apilot": {
       "command": "uv",
       "args": ["run", "python", "-m", "app.mcp_server"],
-      "cwd": "/absolute/path/to/apilot"
+      "cwd": "/absolute/path/to/apilot",
+      "env": { "APILOT_MCP_API_KEY": "apk_dev_..." }
     }
   }
 }
+```
+
+Mint the key first — the tools refuse to run without one:
+
+```bash
+uv run python -m app.cli keys create --name mcp --scopes ingest,read
 ```
 
 ## Tools
@@ -93,6 +100,16 @@ Postgres container.
 
 ## Security note
 
-The server runs locally over stdio with the same database credentials as the API.
-It reads files from paths the client supplies — run it only against invoice
-directories you trust, exactly as you would any local tool.
+These tools reach the same pipeline the HTTP API guards with scopes and rate
+limits, so they carry the same credential. stdio has no headers, so the key comes
+from `APILOT_MCP_API_KEY` in the environment the MCP client launches the server
+with; every tool checks it against the same key table, honours revocation, and
+requires a scope (`ingest` to extract, `read` to screen and match). Without a key
+the tools return an error rather than running.
+
+`extract_invoice` still reads whatever local path the client supplies, bounded by
+`APILOT_MAX_UPLOAD_BYTES` and the same magic-byte type check the HTTP upload uses.
+The document is copied into content-addressed storage under its real SHA-256, so
+duplicate detection sees MCP-ingested invoices and the pipeline keeps working if
+you move the original. Run it against invoice directories you trust, as you would
+any local tool.

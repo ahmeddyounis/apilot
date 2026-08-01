@@ -1,21 +1,34 @@
 """MCP round-trip: a real client session over in-memory streams calls each tool."""
 
+import hashlib
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 import anyio
 import pytest
 from mcp import ClientSession
 from mcp.shared.memory import create_client_server_memory_streams
 
+from app.core.db import get_sessionmaker
 from app.llm.fake import scenario
 from app.mcp_server.server import mcp
-from tests.integration.conftest import minimal_pdf
+from app.models import Invoice, InvoiceFile
+from tests.integration.conftest import minimal_pdf, mint_key
 
 pytestmark = pytest.mark.integration
+
+
+@pytest.fixture
+async def mcp_key(monkeypatch: pytest.MonkeyPatch) -> str:
+    """stdio carries no headers, so the MCP server reads its credential from the
+    environment its client launched it with."""
+    raw_key, _ = await mint_key(["ingest", "read"], name="mcp-test")
+    monkeypatch.setenv("APILOT_MCP_API_KEY", raw_key)
+    return raw_key
 
 
 @asynccontextmanager
@@ -45,7 +58,7 @@ def payload(result: Any) -> dict[str, Any]:
     return json.loads(result.content[0].text)
 
 
-async def test_mcp_tools_round_trip(tmp_path: Path) -> None:
+async def test_mcp_tools_round_trip(tmp_path: Path, mcp_key: str) -> None:
     invoice_path = tmp_path / "invoice.pdf"
     invoice_path.write_bytes(minimal_pdf("mcp-demo"))
 
@@ -83,9 +96,67 @@ async def test_mcp_tools_round_trip(tmp_path: Path) -> None:
         ]
 
 
-async def test_mcp_reports_missing_file_honestly(tmp_path: Path) -> None:
+async def test_mcp_reports_missing_file_honestly(tmp_path: Path, mcp_key: str) -> None:
     async with mcp_client() as client:
         result = payload(
             await client.call_tool("extract_invoice", {"file_path": str(tmp_path / "nope.pdf")})
         )
         assert "No such file" in result["error"]
+
+
+async def test_mcp_tools_refuse_without_a_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """These tools reach the same pipeline the HTTP API guards with scopes and rate
+    limits. Unauthenticated, they were a side door for anything able to spawn the
+    process — and extract_invoice reads whatever local path it is handed."""
+    monkeypatch.delenv("APILOT_MCP_API_KEY", raising=False)
+    invoice_path = tmp_path / "invoice.pdf"
+    invoice_path.write_bytes(minimal_pdf("mcp-unauthorised"))
+
+    async with mcp_client() as client:
+        result = payload(
+            await client.call_tool("extract_invoice", {"file_path": str(invoice_path)})
+        )
+        assert "APILOT_MCP_API_KEY is not set" in result["error"]
+
+
+async def test_mcp_tools_refuse_a_key_without_the_scope(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw_key, _ = await mint_key(["read"], name="mcp-read-only")
+    monkeypatch.setenv("APILOT_MCP_API_KEY", raw_key)
+    invoice_path = tmp_path / "invoice.pdf"
+    invoice_path.write_bytes(minimal_pdf("mcp-scopeless"))
+
+    async with mcp_client() as client:
+        result = payload(
+            await client.call_tool("extract_invoice", {"file_path": str(invoice_path)})
+        )
+        assert "lacks the 'ingest' scope" in result["error"]
+
+
+async def test_mcp_ingestion_is_content_addressed(tmp_path: Path, mcp_key: str) -> None:
+    """A fabricated sha256 meant DUP-EXACT-FILE could never fire for an invoice
+    ingested here, and pointing storage_path at the caller's file meant later stages
+    broke if they moved it."""
+    invoice_path = tmp_path / "invoice.pdf"
+    body = minimal_pdf("mcp-hash")
+    invoice_path.write_bytes(body)
+
+    async with mcp_client() as client:
+        with scenario("extract-po-clean"):
+            extracted = payload(
+                await client.call_tool("extract_invoice", {"file_path": str(invoice_path)})
+            )
+    invoice_id = extracted["invoice_id"]
+
+    async with get_sessionmaker()() as session:
+        invoice = await session.get(Invoice, UUID(invoice_id))
+        assert invoice is not None
+        file_row = await session.get(InvoiceFile, invoice.file_id)
+        assert file_row is not None
+        assert file_row.sha256 == hashlib.sha256(body).hexdigest()
+        # Stored under our own roof, not the caller's path.
+        assert str(invoice_path) != file_row.storage_path
+        assert Path(file_row.storage_path).read_bytes() == body
