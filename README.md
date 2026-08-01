@@ -10,6 +10,12 @@ behind a production-grade FastAPI service with a field-level evaluation harness.
 consequential judgment — does the arithmetic hold, does this match the PO, may it be
 approved — is made by deterministic code you can read and a test can pin.
 
+**Built with** — Python 3.13 · FastAPI · Pydantic v2 · PostgreSQL 17 + pgvector ·
+SQLAlchemy 2 (async, asyncpg) · Alembic · Redis + arq · LangGraph · Anthropic Claude
+API · fastembed · rapidfuzz + SciPy · structlog · Prometheus · Typer · MCP · Docker
+Compose · pytest + testcontainers · ruff · mypy (strict) · uv · GitHub Actions.
+[Why each one ↓](#stack)
+
 - **Eval report:** [`evals/latest_report.md`](evals/latest_report.md) ·
   **Architecture decisions:** [`docs/architecture.md`](docs/architecture.md) ·
   **Fraud signals:** [`docs/fraud-signals.md`](docs/fraud-signals.md) ·
