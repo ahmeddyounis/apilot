@@ -162,3 +162,35 @@ async def test_separate_approver_is_off_by_default(
         json={"action": "approve"},
     )
     assert response.status_code == 200
+
+
+async def test_oversized_body_is_refused_before_it_is_read(
+    client: httpx.AsyncClient,
+) -> None:
+    """FastAPI resolves the body before it solves dependencies, and Starlette's
+    multipart parser spools file parts to disk with no cap of its own — so an
+    anonymous POST used to reach disk in full and only then get its 401."""
+    limit = get_settings().max_upload_bytes
+    response = await client.post(
+        "/api/v1/invoices",
+        headers={"Content-Length": str(limit + 1), "Content-Type": "application/pdf"},
+        content=b"",  # never sent; the declared size is what gets rejected
+    )
+
+    assert response.status_code == 413
+    assert response.json()["error"]["code"] == "payload_too_large"
+
+
+async def test_the_real_limit_is_still_the_streamed_bytes(
+    client: httpx.AsyncClient, full_access_key: str
+) -> None:
+    """Content-Length is a client claim, so the header check is an optimisation, not
+    the control. A body that understates its size must still be caught downstream."""
+    limit = get_settings().max_upload_bytes
+    response = await client.post(
+        "/api/v1/invoices",
+        headers={"X-API-Key": full_access_key, "Idempotency-Key": "oversize-stream"},
+        files={"file": ("big.pdf", b"%PDF-1.4\n" + b"0" * (limit + 1), "application/pdf")},
+    )
+
+    assert response.status_code == 413

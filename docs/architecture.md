@@ -98,6 +98,39 @@ taken on the development machine. Container-internal URLs use service DNS and de
 ports; only the host mapping shifts. Documented because a surprising port is exactly
 the kind of thing that wastes an hour.
 
+## 10. Single-tenant by design, and what that means
+
+There is no organization, tenant, or owner entity anywhere in the schema. An API key
+is a credential, not a customer: `AuthContext` carries an id, a name and scopes, and
+no query in the system filters on it. **Any valid key with `read` can fetch any
+invoice in the database**, and `GET /exceptions` will enumerate them for it.
+
+That is a deployment boundary, not an oversight. The unit of isolation is the
+deployment: one database, one storage volume, one set of keys, one customer. Scopes
+divide what a key may *do*; they were never meant to divide what it may *see*.
+
+Stated plainly because the alternative is worse. A `tenant_id` column that most
+queries filter on and a few forget is a system that looks isolated and leaks, and the
+forgetting happens on whichever endpoint was added last. If this ever needs real
+multi-tenancy, the honest version is a schema change and a filter on every read —
+not a middleware that hopes.
+
+The seam, if that day comes: add `tenant_id` to `api_keys`, carry it on
+`AuthContext` (`app/api/deps.py`), and constrain the six query sites that currently
+select invoices without an owner predicate — `app/services/invoices.py`
+(`get_invoice_detail`), `app/api/v1/exceptions.py`, `app/api/v1/matching.py`,
+`app/services/review.py` (`load_for_review`), `app/services/exports.py`, and
+`app/services/analytics.py`. Screening and matching read across invoices by
+construction (duplicate detection compares an invoice to its corpus), so they would
+need the predicate threaded through rather than bolted on — which is the real cost,
+and the reason this is a decision rather than a to-do.
+
+**Compliance boundaries that follow from the same staging choice**, currently
+absent and documented as such rather than half-built: invoice documents are stored
+unencrypted on the volume; there is no retention or deletion path; read access is
+not audited (only writes are); and there is no backup/restore runbook for the audit
+log, which is the system of record for financial decisions.
+
 ## Deliberate non-goals (v1)
 
 Payment execution, ERP write-back connectors, OCR model training, and multi-currency

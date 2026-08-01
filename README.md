@@ -281,7 +281,7 @@ catch duplicate invoices must not create them.
 | Agent | LangGraph | Explicit, replayable graph — not an unbounded loop |
 | Embeddings | fastembed (local, 384-dim) | Near-duplicate detection without a second API key |
 | Observability | structlog + request IDs, Prometheus, append-only audit log | Every state change, agent step, and LLM call is on the record |
-| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 205 tests; integration tests run real Postgres and real migrations |
+| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 223 tests; integration tests run real Postgres and real migrations |
 | Interop | MCP server (stdio) | `extract_invoice`, `check_duplicates`, `match_invoice` for any MCP client |
 
 Everything runs with **zero secrets** — the FakeLLM and FakeEmbeddings are complete
@@ -311,11 +311,20 @@ docs/           architecture · fraud-signals · mcp · deploy
 
 ## Status and honest limitations
 
-Built end to end and fully tested offline. Before this served a real AP department it
-would need: object storage instead of a local volume for multi-replica deployments,
-`/metrics` behind network policy, a backup/restore runbook for the audit log, and —
-most importantly — **live eval numbers**, which need an API key. See
-[`docs/deploy.md`](docs/deploy.md) for the full list and deployment recipes.
+Built end to end and fully tested offline.
+
+**Single-tenant by design.** The unit of isolation is the deployment, not a row: any
+valid key with `read` can fetch any invoice in the database. Scopes divide what a key
+may *do*, never what it may *see*. That is a boundary, not an oversight — a
+`tenant_id` most queries filter on and one forgets is a system that looks isolated
+and leaks. [ADR 10](docs/architecture.md) names the seam if that ever changes.
+
+Before this served a real AP department it would need: object storage instead of a
+local volume for multi-replica deployments, `/metrics` behind network policy, a
+backup/restore runbook for the audit log, encryption at rest for invoice documents, a
+retention and deletion path, read-access auditing, and — most importantly — **live
+eval numbers**, which need an API key. See [`docs/deploy.md`](docs/deploy.md) for
+deployment recipes.
 
 Out of scope by design (v1): payment execution, ERP write-back connectors, OCR model
 training, multi-currency consolidation. The system prepares approvals; it never moves

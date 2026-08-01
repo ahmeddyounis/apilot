@@ -17,6 +17,7 @@ from app.api.v1.matching import router as matching_router
 from app.api.v1.purchase_orders import router as purchase_orders_router
 from app.api.v1.receipts import router as receipts_router
 from app.api.v1.review import router as review_router
+from app.core.body_limit import BodySizeLimitMiddleware
 from app.core.config import Settings, get_settings
 from app.core.db import dispose_engine
 from app.core.logging import RequestContextMiddleware, configure_logging
@@ -62,6 +63,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
 
+    # Outermost: the size check must run before anything reads the body, and the
+    # request-id binding must wrap whatever it rejects.
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=settings.max_upload_bytes)
     app.add_middleware(RequestContextMiddleware)
     register_exception_handlers(app)
     setup_metrics(app)
