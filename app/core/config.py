@@ -104,6 +104,13 @@ class Settings(BaseSettings):
     stale_job_requeue_minutes: int = 15
     stale_batch_size: int = 100
 
+    # Worker metrics exporter. The worker has no HTTP server of its own, and both
+    # domain counters are incremented almost entirely inside it — so without this the
+    # numbers /metrics serves describe only what the API does directly.
+    worker_metrics_enabled: bool = True
+    worker_metrics_port: int = 9110
+    metrics_refresh_interval_s: int = 15
+
     # Review controls
     # Four-eyes: refuse an approval from the key that uploaded or corrected the
     # invoice. Off by default because a single-operator deployment would deadlock

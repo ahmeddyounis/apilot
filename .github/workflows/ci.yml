@@ -25,6 +25,11 @@ jobs:
       - run: uv sync --all-groups
       - run: uv run ruff check .
       - run: uv run ruff format --check .
+      - name: Validate Prometheus alert rules
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "$PWD/ops/prometheus:/ops" prom/prometheus:v3.7.3 \
+            check rules /ops/alerts.yml
 
   typecheck:
     runs-on: ubuntu-latest

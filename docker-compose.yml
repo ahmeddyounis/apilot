@@ -65,6 +65,9 @@ services:
   worker:
     build: .
     command: ["arq", "app.worker.WorkerSettings"]
+    ports:
+      # The worker's own metrics exporter — it has no HTTP server otherwise.
+      - "9110:9110"
     environment:
       APILOT_DATABASE_URL: postgresql+asyncpg://apilot:apilot@db:5432/apilot
       APILOT_REDIS_URL: redis://redis:6379/0
@@ -80,6 +83,19 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    # Opt-in: `docker compose --profile observability up -d`. Not in the default set,
+    # because `make demo` should not need a monitoring stack to run.
+    profiles: [observability]
+    volumes:
+      - ./ops/prometheus:/etc/prometheus:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+      - worker
 
 volumes:
   pgdata:

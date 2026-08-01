@@ -31,8 +31,21 @@ class AuditLog(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
     )
+    # The HTTP request that caused this row, carried across the job boundary so a
+    # worker failure can be traced back to the upload that produced it. Nullable:
+    # rows written before this column existed genuinely had no request id, and the
+    # append-only trigger means they can never be backfilled — which is the log
+    # working as designed.
+    request_id: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now(), nullable=False
     )
 
-    __table_args__ = (Index("ix_audit_log_invoice_id_id", "invoice_id", "id"),)
+    __table_args__ = (
+        Index("ix_audit_log_invoice_id_id", "invoice_id", "id"),
+        Index(
+            "ix_audit_log_request_id",
+            "request_id",
+            postgresql_where=text("request_id IS NOT NULL"),
+        ),
+    )

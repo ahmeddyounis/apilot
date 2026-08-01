@@ -13,23 +13,24 @@ counter, and an invoice sitting in `extracting` with no error surface until the 
 cron noticed fifteen minutes later.
 """
 
-from dataclasses import dataclass
-
 import anthropic
 
 from app.llm.types import FixtureMissingError, LLMError
 
 
-@dataclass(frozen=True)
 class ProviderFailure(LLMError):
-    """A provider call that never produced a usable response."""
+    """A provider call that never produced a usable response.
 
-    reason: str
-    transient: bool
-    detail: str
+    A plain exception rather than a dataclass: a frozen one cannot have
+    ``__traceback__`` assigned, so it blows up the moment it is re-raised through
+    another frame — which is exactly what an exception is for.
+    """
 
-    def __str__(self) -> str:
-        return f"{self.reason}: {self.detail}"
+    def __init__(self, *, reason: str, transient: bool, detail: str) -> None:
+        super().__init__(f"{reason}: {detail}")
+        self.reason = reason
+        self.transient = transient
+        self.detail = detail
 
 
 # Order matters: APITimeoutError subclasses APIConnectionError, and RateLimitError

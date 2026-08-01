@@ -1,0 +1,116 @@
+# Alert rules for APilot.
+#
+# Committed instead of a Grafana dashboard JSON because this is the artifact that
+# says which numbers matter and what "bad" looks like — and `promtool check rules`
+# makes it verifiable in CI, which a dashboard blob is not.
+#
+# Every annotation says what a human should *do*, not what the number is.
+
+groups:
+  - name: apilot-pipeline
+    rules:
+      - alert: InvoicesAbandoned
+        expr: increase(apilot_pipeline_abandoned_total[1h]) > 0
+        labels:
+          severity: page
+        annotations:
+          summary: "{{ $value }} invoice(s) abandoned in the last hour"
+          description: >
+            The rescue cron exhausted its retry budget and moved an invoice to a
+            terminal failure. A document someone uploaded will never be paid unless a
+            human looks at it. Start with invoices.error_detail, then the audit log
+            for that invoice_id.
+
+      - alert: PipelineQueueBackingUp
+        expr: max(apilot_queue_oldest_job_age_seconds) > 900
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "Oldest queued job is {{ $value | humanizeDuration }} old"
+          description: >
+            15m is the stale-job cron's own cutoff (APILOT_STALE_JOB_REQUEUE_MINUTES).
+            Past it the cron starts re-queueing work that is merely slow, spending the
+            retry budget of invoices that were never actually stuck.
+
+      - alert: InvoicesStuckExtracting
+        expr: |
+          min_over_time(apilot_invoices_pending{status="extracting"}[15m]) > 0
+          and sum(rate(apilot_invoice_transitions_total{from_status="extracting"}[15m])) == 0
+        for: 15m
+        labels:
+          severity: page
+        annotations:
+          summary: "Invoices sitting in `extracting` with no transitions out"
+          description: >
+            A level with no flow. Either every worker is dead or the provider is
+            hanging. Check apilot_llm_call_failures_total by reason.
+
+      - alert: ExtractionFailureRateHigh
+        expr: |
+          sum(rate(apilot_invoice_transitions_total{to_status="extraction_failed"}[30m]))
+          / clamp_min(sum(rate(apilot_invoice_transitions_total{from_status="extracting"}[30m])), 0.001)
+          > 0.20
+        for: 30m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "More than a fifth of extractions are failing"
+
+      - alert: LLMProviderDegraded
+        expr: |
+          sum by (reason) (
+            rate(apilot_llm_call_failures_total{reason=~"timeout|rate_limited|overloaded|connection|api_error"}[10m])
+          ) > 0.1
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "LLM calls failing: {{ $labels.reason }}"
+          description: >
+            Transient failures are re-queued rather than failed, so invoices are not
+            lost — but each one costs a 15-minute rescue cycle, and the backlog grows
+            while it lasts.
+
+      - alert: LLMSpendSpike
+        expr: sum(increase(apilot_llm_cost_usd_total[1h])) > 25
+        labels:
+          severity: ticket
+        annotations:
+          summary: "${{ $value | printf \"%.2f\" }} of LLM spend in the last hour"
+          description: >
+            Either volume spiked or retry-with-feedback is looping. Cross-check
+            rate(apilot_llm_call_failures_total{reason="schema_invalid"}) — a model
+            that has stopped honouring the schema pays for every attempt.
+
+  - name: apilot-review
+    rules:
+      - alert: ReviewQueueStale
+        expr: max(apilot_review_queue_oldest_seconds) > 172800
+        for: 1h
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Oldest unreviewed exception is {{ $value | humanizeDuration }} old"
+          description: >
+            Invoices in exception/held are unpaid invoices. Vendors notice before you
+            do. GET /api/v1/exceptions lists them riskiest-first.
+
+  - name: apilot-api
+    rules:
+      - alert: ApiErrorRateHigh
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          / clamp_min(sum(rate(http_requests_total[5m])), 0.001) > 0.02
+        for: 5m
+        labels:
+          severity: page
+
+      - alert: ApiLatencyP95High
+        expr: |
+          histogram_quantile(
+            0.95, sum by (le, handler) (rate(http_request_duration_seconds_bucket[5m]))
+          ) > 1.5
+        for: 10m
+        labels:
+          severity: ticket

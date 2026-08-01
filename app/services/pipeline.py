@@ -17,6 +17,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import get_settings
 from app.core.db import get_sessionmaker
+from app.core.metrics import observe_stage
 from app.llm.embeddings import build_embedding_provider
 from app.llm.factory import build_llm_client
 from app.models import Invoice, InvoiceStatus
@@ -49,35 +50,45 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
             await session.commit()
 
         if invoice.status is InvoiceStatus.EXTRACTING:
-            llm = build_llm_client(settings, model=settings.extraction_model)
-            # APILOT_STAGE_TIMEOUT_EXTRACTION_S has existed since the first milestone
-            # and was never referenced. Without it a stage's only bound is arq's
-            # 600s job_timeout, so one wedged call held a worker slot — and a session
-            # from the pool — for ten minutes while the rest of the queue waited.
-            async with asyncio.timeout(settings.stage_timeout_extraction_s):
-                await run_extraction(session, invoice, llm=llm, settings=settings)
-            if invoice.status is not InvoiceStatus.EXTRACTED:
-                logger.info("pipeline_terminal", status=invoice.status.value)
-                return
+            with observe_stage("extraction") as stage:
+                llm = build_llm_client(settings, model=settings.extraction_model)
+                # APILOT_STAGE_TIMEOUT_EXTRACTION_S has existed since the first
+                # milestone and was never referenced. Without it a stage's only bound
+                # is arq's 600s job_timeout, so one wedged call held a worker slot —
+                # and a session from the pool — for ten minutes while the rest of the
+                # queue waited.
+                async with asyncio.timeout(settings.stage_timeout_extraction_s):
+                    await run_extraction(session, invoice, llm=llm, settings=settings)
+                if invoice.status is not InvoiceStatus.EXTRACTED:
+                    stage.value = "terminal"
+                    logger.info("pipeline_terminal", status=invoice.status.value)
+                    return
 
         if invoice.status is InvoiceStatus.EXTRACTED:
-            passed = await run_validation_stage(session, invoice, settings=settings)
-            if not passed:
-                logger.info("pipeline_terminal", status=invoice.status.value)
-                return
-            embedder = build_embedding_provider(settings)
-            proceed = await run_screening_stage(
-                session, invoice, settings=settings, embedder=embedder
-            )
-            if not proceed:
-                logger.info("pipeline_terminal", status=invoice.status.value)
-                return
+            with observe_stage("validation") as stage:
+                passed = await run_validation_stage(session, invoice, settings=settings)
+                if not passed:
+                    stage.value = "terminal"
+                    logger.info("pipeline_terminal", status=invoice.status.value)
+                    return
+            with observe_stage("screening") as stage:
+                embedder = build_embedding_provider(settings)
+                proceed = await run_screening_stage(
+                    session, invoice, settings=settings, embedder=embedder
+                )
+                if not proceed:
+                    stage.value = "terminal"
+                    logger.info("pipeline_terminal", status=invoice.status.value)
+                    return
             await transition(session, invoice, InvoiceStatus.MATCHING, actor=WORKER_ACTOR)
             await session.commit()
 
         if invoice.status is InvoiceStatus.MATCHING:
-            matching_llm = build_llm_client(settings, model=settings.matching_model)
-            async with asyncio.timeout(settings.stage_timeout_matching_s):
-                await run_matching_stage(session, invoice, llm=matching_llm, settings=settings)
+            with observe_stage("matching") as stage:
+                matching_llm = build_llm_client(settings, model=settings.matching_model)
+                async with asyncio.timeout(settings.stage_timeout_matching_s):
+                    await run_matching_stage(session, invoice, llm=matching_llm, settings=settings)
+                if invoice.status is not InvoiceStatus.APPROVED:
+                    stage.value = "terminal"
 
         logger.info("pipeline_checkpoint", status=invoice.status.value)

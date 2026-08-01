@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.core.fingerprint import payment_fingerprint
+from app.core.metrics import LLM_CALL_FAILURES, observe_llm_call
 from app.core.normalize import normalize_invoice_number, normalize_vendor_name
 from app.llm.client import LLMClient
 from app.llm.errors import ProviderFailure, classify_provider_error
@@ -508,15 +509,16 @@ async def _attempt(
     result: ParseResult[Any]
 
     try:
-        wire, result, errors = await _call_provider(
-            llm,
-            config=config,
-            docs=docs,
-            feedback=feedback,
-            system=system,
-            schema=schema,
-            user_text=user_text,
-        )
+        async with observe_llm_call(purpose="extraction", model=llm.model):
+            wire, result, errors = await _call_provider(
+                llm,
+                config=config,
+                docs=docs,
+                feedback=feedback,
+                system=system,
+                schema=schema,
+                user_text=user_text,
+            )
     except Exception as exc:
         # Record the attempt before letting it out. The provider call sits *before*
         # the ledger write below, so a rate-limit storm or a timeout used to produce
@@ -562,6 +564,7 @@ async def _attempt(
 
     latency_ms = int((time.monotonic() - started) * 1000)
     invoice.extraction_attempts += 1
+    success = result.stop_reason != "refusal" and not errors
     record_llm_call(
         session,
         invoice_id=invoice.id,
@@ -570,8 +573,14 @@ async def _attempt(
         model_id=result.model_id,
         latency_ms=latency_ms,
         request_id=result.request_id,
-        success=result.stop_reason != "refusal" and not errors,
+        success=success,
     )
+    if not success:
+        LLM_CALL_FAILURES.labels(
+            purpose="extraction",
+            model=result.model_id,
+            reason="refusal" if result.stop_reason == "refusal" else "schema_invalid",
+        ).inc()
     audit.record(
         session,
         entity_type="invoice",

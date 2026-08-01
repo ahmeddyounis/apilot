@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.agent import tools
 from app.agent.state import AlignedPair, MatchingState, NodeEvent
 from app.core.config import Settings
+from app.core.metrics import observe_llm_call
 from app.core.money import quantize_amount
 from app.llm.client import LLMClient
 from app.llm.errors import classify_provider_error
@@ -418,9 +419,12 @@ class Matcher:
 
         for turn_number in range(1, _MAX_TOOL_TURNS + 1):
             try:
-                turn = await self.llm.tool_turn(
-                    system=MATCHING_SYSTEM, messages=messages, tools=tools.INVESTIGATION_TOOLS
-                )
+                async with observe_llm_call(purpose="matching", model=self.llm.model):
+                    turn = await self.llm.tool_turn(
+                        system=MATCHING_SYSTEM,
+                        messages=messages,
+                        tools=tools.INVESTIGATION_TOOLS,
+                    )
             except Exception as exc:
                 failure = classify_provider_error(exc)
                 logger.warning(
