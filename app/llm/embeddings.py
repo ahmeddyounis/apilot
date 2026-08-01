@@ -8,6 +8,7 @@ property that similar texts land close in cosine space.
 import hashlib
 import math
 import re
+from functools import lru_cache
 from typing import Protocol
 
 import structlog
@@ -62,11 +63,20 @@ class FastEmbedProvider:
         return [vector.tolist() for vector in self._model.embed(texts)]
 
 
-def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
-    if settings.resolved_llm_mode == "fake":
+@lru_cache(maxsize=4)
+def _cached_provider(mode: str, model_name: str) -> EmbeddingProvider:
+    """One provider per (mode, model), not one per invoice.
+
+    FastEmbedProvider.__init__ loads and initialises an ONNX model from disk.
+    build_embedding_provider was called inside the per-invoice pipeline, so every
+    single invoice paid that cost — synchronously, on the worker's event loop, which
+    also stalled every other job in flight. Keyed rather than a bare global so a test
+    that flips the mode still gets the right provider.
+    """
+    if mode == "fake":
         return FakeEmbeddings()
     try:
-        return FastEmbedProvider(settings.embedding_model)
+        return FastEmbedProvider(model_name)
     except ImportError:
         # Loud, because the failure is invisible otherwise: the pipeline keeps
         # running and near-duplicate detection keeps reporting scores, but they come
@@ -78,3 +88,7 @@ def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
             hint="install the 'embeddings' dependency group",
         )
         return FakeEmbeddings()
+
+
+def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
+    return _cached_provider(settings.resolved_llm_mode, settings.embedding_model)

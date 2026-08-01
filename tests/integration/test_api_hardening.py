@@ -194,3 +194,22 @@ async def test_the_real_limit_is_still_the_streamed_bytes(
     )
 
     assert response.status_code == 413
+
+
+async def test_a_broken_rate_limiter_returns_503_rather_than_hanging(
+    client: httpx.AsyncClient, full_access_key: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`rate_limited()` is a dependency on nearly every endpoint, so an unreachable
+    Redis decides whether the API responds at all. With no socket timeout and a
+    black-holed connection it waited forever — while /health, which does no I/O by
+    design, stayed green and kept the pod in service."""
+
+    async def unreachable(*_: object, **__: object) -> None:
+        raise ConnectionError("redis unreachable")
+
+    monkeypatch.setattr("app.core.ratelimit.RateLimiter.hit", unreachable)
+
+    response = await client.get("/api/v1/exceptions", headers={"X-API-Key": full_access_key})
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "service_unavailable"

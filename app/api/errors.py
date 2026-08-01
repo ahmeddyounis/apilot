@@ -77,6 +77,13 @@ class RateLimitedError(ApilotError):
         self.retry_after = retry_after
 
 
+class ServiceUnavailableError(ApilotError):
+    """A dependency this request needs is down. Retryable, and the client should."""
+
+    status_code = 503
+    code = "service_unavailable"
+
+
 class PayloadTooLargeError(ApilotError):
     status_code = 413
     code = "payload_too_large"

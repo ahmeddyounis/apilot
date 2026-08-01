@@ -56,10 +56,16 @@ async def requeue_stale(ctx: dict[str, Any]) -> None:
     async with sessionmaker() as session:
         stale = (
             await session.scalars(
-                select(Invoice).where(
+                select(Invoice)
+                .where(
                     Invoice.status.in_(_RESUMABLE_STATUSES),
                     Invoice.updated_at < cutoff,
                 )
+                # Bounded: after an outage every stalled invoice is stale at once, and
+                # an unbounded sweep would load all of them and try to enqueue the lot
+                # in one tick. Oldest first, and the cron runs again in five minutes.
+                .order_by(Invoice.updated_at.asc())
+                .limit(settings.stale_batch_size)
             )
         ).all()
 
@@ -156,6 +162,7 @@ class WorkerSettings:
     # thing that retries anything — `requeue_stale` above is the real recovery path,
     # and it enforces the same budget via invoices.pipeline_requeues. Kept aligned
     # so an explicit Retry, if one is ever raised, obeys the same limit.
+    max_jobs = get_settings().worker_max_jobs
     max_tries = get_settings().pipeline_max_tries
     # We never read results; keeping them would also block same-id re-enqueues.
     keep_result = 0

@@ -8,6 +8,7 @@
 Flags never auto-reject: the worst outcome is ``held`` with a written explanation.
 """
 
+import asyncio
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -220,7 +221,10 @@ async def _near_duplicate_flags(
     embedder: EmbeddingProvider,
 ) -> list[Flag]:
     text = canonical_text(invoice)
-    vector = embedder.embed([text])[0]
+    # ONNX inference is synchronous CPU work, and arq runs max_jobs coroutines on
+    # one event loop — so calling it directly froze every other invoice in flight
+    # for its duration. Extraction already gives its PDF work the same treatment.
+    vector = (await asyncio.to_thread(embedder.embed, [text]))[0]
 
     # Upsert this invoice's embedding, then search the rest of the corpus.
     await session.execute(delete(InvoiceEmbedding).where(InvoiceEmbedding.invoice_id == invoice.id))

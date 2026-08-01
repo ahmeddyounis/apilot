@@ -9,15 +9,23 @@ from uuid import UUID
 import structlog
 from fastapi import Depends, Request, Security
 from fastapi.security import APIKeyHeader
+from redis.exceptions import RedisError
 from sqlalchemy import or_, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.errors import ForbiddenError, UnauthorizedError
+from app.api.errors import (
+    ForbiddenError,
+    RateLimitedError,
+    ServiceUnavailableError,
+    UnauthorizedError,
+)
 from app.core.db import get_session
 from app.core.ratelimit import RateLimiter
 from app.core.redis import get_redis
 from app.core.security import hash_api_key
 from app.models import ApiKey
+
+logger = structlog.get_logger(__name__)
 
 API_KEY_HEADER = "X-API-Key"
 
@@ -95,6 +103,19 @@ def rate_limited(bucket: str = "default") -> Callable[..., Coroutine[Any, Any, N
             else settings.rate_limit_default_per_min
         )
         limiter = RateLimiter(get_redis())
-        await limiter.hit(key_id=auth.key_id, bucket=bucket, limit_per_min=limit)
+        try:
+            await limiter.hit(key_id=auth.key_id, bucket=bucket, limit_per_min=limit)
+        except RateLimitedError:
+            raise
+        except (RedisError, OSError, TimeoutError) as exc:
+            # Fail closed, and quickly. This dependency runs on nearly every endpoint,
+            # so a Redis that is unreachable — or, worse, hanging — would otherwise
+            # decide whether the whole API responds. Answering 503 lets the caller
+            # retry and lets a load balancer see the pod as unhealthy; the previous
+            # behaviour was to wait forever while /health stayed green.
+            # OSError/TimeoutError as well as RedisError: a socket-level failure
+            # does not always reach us wrapped in the client's own hierarchy.
+            logger.warning("rate_limiter_unavailable", error=str(exc)[:200])
+            raise ServiceUnavailableError("Rate limiter unavailable; retry shortly") from exc
 
     return dependency

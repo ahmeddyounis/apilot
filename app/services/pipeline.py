@@ -8,6 +8,7 @@ Remaining stages land in later milestones (P3 validation, P5 screening,
 P4 matching + decision gate).
 """
 
+import asyncio
 from uuid import UUID
 
 import structlog
@@ -49,7 +50,12 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
 
         if invoice.status is InvoiceStatus.EXTRACTING:
             llm = build_llm_client(settings, model=settings.extraction_model)
-            await run_extraction(session, invoice, llm=llm, settings=settings)
+            # APILOT_STAGE_TIMEOUT_EXTRACTION_S has existed since the first milestone
+            # and was never referenced. Without it a stage's only bound is arq's
+            # 600s job_timeout, so one wedged call held a worker slot — and a session
+            # from the pool — for ten minutes while the rest of the queue waited.
+            async with asyncio.timeout(settings.stage_timeout_extraction_s):
+                await run_extraction(session, invoice, llm=llm, settings=settings)
             if invoice.status is not InvoiceStatus.EXTRACTED:
                 logger.info("pipeline_terminal", status=invoice.status.value)
                 return
@@ -71,6 +77,7 @@ async def process_invoice_pipeline(invoice_id: UUID) -> None:
 
         if invoice.status is InvoiceStatus.MATCHING:
             matching_llm = build_llm_client(settings, model=settings.matching_model)
-            await run_matching_stage(session, invoice, llm=matching_llm, settings=settings)
+            async with asyncio.timeout(settings.stage_timeout_matching_s):
+                await run_matching_stage(session, invoice, llm=matching_llm, settings=settings)
 
         logger.info("pipeline_checkpoint", status=invoice.status.value)

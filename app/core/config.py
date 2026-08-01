@@ -38,6 +38,18 @@ class Settings(BaseSettings):
     database_url: str = _DEV_DATABASE_URL
     redis_url: str = "redis://localhost:6380/0"
 
+    # Connection pools and timeouts. Sized against the worker's concurrency: arq
+    # runs `worker_max_jobs` coroutines on one loop, each of which may hold a session,
+    # so the pool has to cover that with headroom or jobs block on checkout and then
+    # fail — and a plain exception in a job is dropped, not retried.
+    db_pool_size: int = 10
+    db_max_overflow: int = 10
+    db_pool_recycle_s: int = 1800
+    db_pool_timeout_s: int = 30
+    db_statement_timeout_ms: int = 30_000
+    redis_connect_timeout_s: float = 2.0
+    redis_socket_timeout_s: float = 5.0
+
     # Upload storage
     storage_dir: Path = Path("./storage/uploads")
     max_upload_bytes: int = 15 * 1024 * 1024
@@ -74,7 +86,6 @@ class Settings(BaseSettings):
     llm_mode: Literal["auto", "live", "fake"] = "auto"
     extraction_model: str = "claude-opus-5"
     matching_model: str = "claude-opus-5"
-    llm_max_concurrency: int = 4
     anthropic_api_key: SecretStr | None = Field(
         default=None,
         validation_alias=AliasChoices("ANTHROPIC_API_KEY", "anthropic_api_key"),
@@ -89,7 +100,9 @@ class Settings(BaseSettings):
     stage_timeout_extraction_s: int = 180
     stage_timeout_matching_s: int = 180
     pipeline_max_tries: int = 4
+    worker_max_jobs: int = 8
     stale_job_requeue_minutes: int = 15
+    stale_batch_size: int = 100
 
     # Review controls
     # Four-eyes: refuse an approval from the key that uploaded or corrected the

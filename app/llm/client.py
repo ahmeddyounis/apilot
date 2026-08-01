@@ -13,6 +13,12 @@ from app.llm.types import DocumentInput, FeedbackContext, ParseResult, TextResul
 
 
 class LLMClient(Protocol):
+    # The model actually in use. Needed when a call fails before it returns anything:
+    # the ledger row and the failure counter still have to say which model was asked,
+    # and reaching for the configured model id instead would report `claude-opus-5`
+    # for calls that FakeLLM served.
+    model: str
+
     async def parse_document[T: BaseModel](
         self,
         *,

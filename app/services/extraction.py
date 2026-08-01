@@ -32,7 +32,13 @@ from app.core.config import Settings
 from app.core.fingerprint import payment_fingerprint
 from app.core.normalize import normalize_invoice_number, normalize_vendor_name
 from app.llm.client import LLMClient
-from app.llm.types import DocumentInput, FeedbackContext, FixtureMissingError, ParseResult
+from app.llm.errors import ProviderFailure, classify_provider_error
+from app.llm.types import (
+    DocumentInput,
+    FeedbackContext,
+    LLMUsage,
+    ParseResult,
+)
 from app.models import Invoice, InvoiceLineItem, InvoiceStatus, Vendor
 from app.schemas.extraction import InvoiceExtraction, arithmetic_findings, wire_to_domain
 from app.schemas.extraction_wire import (
@@ -283,9 +289,18 @@ async def run_extraction(
             await _run_single(
                 session, invoice, llm=llm, config=config, docs=docs, settings=settings
             )
-    except FixtureMissingError as exc:
-        # Fake mode without a fixture: terminal and honest, never invented.
-        await _fail(session, invoice, reason="fixture_missing", detail=str(exc))
+    except ProviderFailure as failure:
+        if failure.transient:
+            # "Not now" — a rate limit, a timeout, an overloaded upstream. Failing the
+            # invoice here would turn a provider's bad ten minutes into a permanent
+            # extraction_failed on a document that is perfectly readable. Let it out:
+            # the invoice stays in `extracting`, and the stale-job cron re-queues it
+            # against the same retry budget every other stall uses. The attempt is
+            # already on the ledger and in the audit log, which is what was missing.
+            raise
+        # "Not ever" — a refused key, a malformed request, a missing fixture. Retrying
+        # spends money to reproduce the same answer, so say so now.
+        await _fail(session, invoice, reason=failure.reason, detail=failure.detail)
 
 
 async def _run_single(
@@ -492,6 +507,106 @@ async def _attempt(
     wire: Any = None
     result: ParseResult[Any]
 
+    try:
+        wire, result, errors = await _call_provider(
+            llm,
+            config=config,
+            docs=docs,
+            feedback=feedback,
+            system=system,
+            schema=schema,
+            user_text=user_text,
+        )
+    except Exception as exc:
+        # Record the attempt before letting it out. The provider call sits *before*
+        # the ledger write below, so a rate-limit storm or a timeout used to produce
+        # no ledger row, no audit row and no counter — the cost ledger's "every API
+        # attempt gets a row" quietly stopped being true exactly when things were
+        # going wrong. Committing here keeps the record even though the caller's
+        # transaction is about to unwind.
+        failure = classify_provider_error(exc)
+        invoice.extraction_attempts += 1
+        record_llm_call(
+            session,
+            invoice_id=invoice.id,
+            purpose="extraction",
+            usage=LLMUsage(),
+            model_id=llm.model,
+            latency_ms=int((time.monotonic() - started) * 1000),
+            success=False,
+        )
+        audit.record(
+            session,
+            entity_type="invoice",
+            entity_id=invoice.id,
+            invoice_id=invoice.id,
+            event_type="extraction_attempt",
+            actor="worker",
+            payload={
+                "attempt": attempt,
+                "model": llm.model,
+                "provider_failure": failure.reason,
+                "transient": failure.transient,
+                "detail": failure.detail,
+            },
+        )
+        await session.commit()
+        logger.warning(
+            "llm_call_failed",
+            invoice_id=str(invoice.id),
+            purpose="extraction",
+            reason=failure.reason,
+            transient=failure.transient,
+        )
+        raise failure from exc
+
+    latency_ms = int((time.monotonic() - started) * 1000)
+    invoice.extraction_attempts += 1
+    record_llm_call(
+        session,
+        invoice_id=invoice.id,
+        purpose="extraction",
+        usage=result.usage,
+        model_id=result.model_id,
+        latency_ms=latency_ms,
+        request_id=result.request_id,
+        success=result.stop_reason != "refusal" and not errors,
+    )
+    audit.record(
+        session,
+        entity_type="invoice",
+        entity_id=invoice.id,
+        invoice_id=invoice.id,
+        event_type="extraction_attempt",
+        actor="worker",
+        payload={
+            "attempt": attempt,
+            "model": result.model_id,
+            "stop_reason": result.stop_reason,
+            "errors": errors[:5],
+            "had_feedback": feedback is not None,
+        },
+    )
+    await session.commit()
+    return wire, result, errors
+
+
+async def _call_provider(
+    llm: LLMClient,
+    *,
+    config: ExtractionConfig,
+    docs: list[DocumentInput],
+    feedback: FeedbackContext | None,
+    system: str,
+    schema: type,
+    user_text: str,
+) -> tuple[Any, ParseResult[Any], list[str]]:
+    """The provider call itself, with no bookkeeping — so the caller can wrap exactly
+    the part that talks to the network."""
+    errors: list[str] = []
+    wire: Any = None
+    result: ParseResult[Any]
+
     if config.structured_outputs:
         result = await llm.parse_document(
             docs=docs,
@@ -531,34 +646,6 @@ async def _attempt(
                 errors.append(parse_error)
             wire = parsed_wire
 
-    latency_ms = int((time.monotonic() - started) * 1000)
-    invoice.extraction_attempts += 1
-    record_llm_call(
-        session,
-        invoice_id=invoice.id,
-        purpose="extraction",
-        usage=result.usage,
-        model_id=result.model_id,
-        latency_ms=latency_ms,
-        request_id=result.request_id,
-        success=result.stop_reason != "refusal" and not errors,
-    )
-    audit.record(
-        session,
-        entity_type="invoice",
-        entity_id=invoice.id,
-        invoice_id=invoice.id,
-        event_type="extraction_attempt",
-        actor="worker",
-        payload={
-            "attempt": attempt,
-            "model": result.model_id,
-            "stop_reason": result.stop_reason,
-            "errors": errors[:5],
-            "had_feedback": feedback is not None,
-        },
-    )
-    await session.commit()
     return wire, result, errors
 
 
