@@ -31,7 +31,10 @@ def _run[T](coro: Coroutine[Any, Any, T]) -> T:
 @keys_cli.command("create")
 def keys_create(
     name: str = typer.Option(..., help="Human-readable key name"),
-    scopes: str = typer.Option("ingest,read,review,export", help="Comma-separated scopes"),
+    # Least privilege by default: a key that can submit invoices and read them
+    # back. Approving payments and pulling the accounting export are separate
+    # grants you have to ask for.
+    scopes: str = typer.Option("ingest,read", help="Comma-separated scopes"),
 ) -> None:
     """Mint a new API key. The secret is printed once and never stored."""
     from app.models import ApiKey

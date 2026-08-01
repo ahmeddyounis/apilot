@@ -91,6 +91,12 @@ class Settings(BaseSettings):
     pipeline_max_tries: int = 4
     stale_job_requeue_minutes: int = 15
 
+    # Review controls
+    # Four-eyes: refuse an approval from the key that uploaded or corrected the
+    # invoice. Off by default because a single-operator deployment would deadlock
+    # on it — there would be nobody else to approve.
+    require_separate_approver: bool = False
+
     # Fraud fingerprinting
     fingerprint_secret: SecretStr = SecretStr(DEV_FINGERPRINT_SECRET)
 

@@ -20,6 +20,8 @@ from app.core.normalize import normalize_vendor_name
 from app.core.security import generate_api_key, hash_api_key
 from app.models import ApiKey, PoLineItem, PurchaseOrder, Receipt, ReceiptLineItem, Vendor
 
+# Deliberately every scope: the demo walks the entire pipeline including review
+# and export. Real keys are minted with `ingest,read` and widened on request.
 DEMO_SCOPES = ["ingest", "read", "review", "export"]
 
 # Matches the demo invoice fixtures in seed/fixtures/llm/demo.json.

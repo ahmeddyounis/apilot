@@ -256,7 +256,7 @@ than 2 points below the committed baseline or falls under its floor. Reports lan
 | `GET` | `/api/v1/analytics/summary` | `read` | Auto-approval rate, exception reasons, cost, cycle times |
 | `GET` | `/health`, `/health/ready`, `/metrics` | — | Liveness, readiness, Prometheus |
 
-Auth is `X-API-Key` with scopes (`ingest`, `read`, `review`, `export`, `admin`); keys
+Auth is `X-API-Key` with scopes (`ingest`, `read`, `review`, `export`); keys
 are stored as SHA-256 hashes and minted via `uv run python -m app.cli keys create`.
 Rate limits are per-key. Errors share one envelope:
 
