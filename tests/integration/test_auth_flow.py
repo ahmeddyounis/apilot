@@ -1,8 +1,12 @@
+from datetime import UTC, datetime, timedelta
+
 import httpx
 import pytest
 
 from app.core.config import get_settings
+from app.core.db import get_sessionmaker
 from app.main import create_app
+from app.models import ApiKey
 from tests.integration.conftest import mint_key
 
 pytestmark = pytest.mark.integration
@@ -70,3 +74,33 @@ async def test_rate_limit_returns_429_with_retry_after() -> None:
     assert third.status_code == 429
     assert third.json()["error"]["code"] == "rate_limited"
     assert int(third.headers["Retry-After"]) >= 1
+
+
+async def test_expired_key_is_refused(client: httpx.AsyncClient) -> None:
+    """A credential that can approve payments should stop working on its own if
+    nobody remembers to retire it."""
+    raw_key, row = await mint_key(["read"], name="expired")
+    async with get_sessionmaker()() as session:
+        key = await session.get(ApiKey, row.id)
+        assert key is not None
+        key.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+        await session.commit()
+
+    response = await client.get("/api/v1/exceptions", headers={"X-API-Key": raw_key})
+
+    assert response.status_code == 401
+    # Distinguished from revocation: expiry is housekeeping its owner can fix,
+    # revocation is a decision someone made.
+    assert response.json()["error"]["message"] == "API key expired"
+
+
+async def test_key_with_a_future_expiry_still_works(client: httpx.AsyncClient) -> None:
+    raw_key, row = await mint_key(["read"], name="not-yet-expired")
+    async with get_sessionmaker()() as session:
+        key = await session.get(ApiKey, row.id)
+        assert key is not None
+        key.expires_at = datetime.now(UTC) + timedelta(days=1)
+        await session.commit()
+
+    response = await client.get("/api/v1/exceptions", headers={"X-API-Key": raw_key})
+    assert response.status_code == 200

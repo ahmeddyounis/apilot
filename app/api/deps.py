@@ -2,6 +2,7 @@
 
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -47,6 +48,10 @@ async def authenticate(
     api_key = await session.scalar(select(ApiKey).where(ApiKey.key_hash == key_hash))
     if api_key is None or api_key.revoked_at is not None:
         raise UnauthorizedError("Invalid or revoked API key")
+    if api_key.expires_at is not None and api_key.expires_at <= datetime.now(UTC):
+        # Distinguished from revocation on purpose: an expired key is a housekeeping
+        # problem its owner can fix, a revoked one is a decision someone made.
+        raise UnauthorizedError("API key expired")
 
     # Throttled usage stamp: at most one hot-row write per key per 5 minutes.
     await session.execute(
