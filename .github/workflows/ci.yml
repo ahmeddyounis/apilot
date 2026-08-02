@@ -154,7 +154,7 @@ jobs:
           tags: apilot:scan
           cache-from: type=gha
       - name: Scan the image
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: apilot:scan
           severity: HIGH,CRITICAL
