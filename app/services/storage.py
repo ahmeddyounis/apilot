@@ -6,6 +6,7 @@ lands at ``<dir>/<sha[:2]>/<sha[2:4]>/<sha256>`` — identical bytes always shar
 path.
 """
 
+import asyncio
 import hashlib
 import os
 from dataclasses import dataclass
@@ -41,6 +42,44 @@ def sniff_mime(head: bytes) -> str | None:
     if head.startswith(b"II*\x00") or head.startswith(b"MM\x00*"):
         return "image/tiff"
     return None
+
+
+async def store_bytes(
+    data: bytes,
+    *,
+    storage_dir: Path,
+    allowed_mime: list[str],
+    original_filename: str | None = None,
+) -> StoredFile:
+    """Store an in-memory document at its content address.
+
+    For callers that already hold the whole document — the MCP server reads a local
+    path — where `store_upload`'s streaming and size cap buy nothing. The important
+    part is that the file lands in the same content-addressed layout under the same
+    real sha256, so exact-duplicate detection sees MCP-ingested invoices and later
+    stages can still read the document if the caller moves or deletes the original.
+    """
+    mime = sniff_mime(data[:16])
+    if mime is None or mime not in allowed_mime:
+        detected = mime or "unrecognized content"
+        raise UnsupportedMediaError(
+            f"Unsupported file type ({detected}); allowed: {', '.join(allowed_mime)}"
+        )
+
+    sha256 = hashlib.sha256(data).hexdigest()
+    final_path = storage_dir / sha256[:2] / sha256[2:4] / sha256
+    await asyncio.to_thread(final_path.parent.mkdir, parents=True, exist_ok=True)
+    if not await asyncio.to_thread(final_path.exists):
+        async with aiofiles.open(final_path, "wb") as handle:
+            await handle.write(data)
+
+    return StoredFile(
+        sha256=sha256,
+        size_bytes=len(data),
+        mime=mime,
+        storage_path=str(final_path),
+        original_filename=original_filename,
+    )
 
 
 async def store_upload(

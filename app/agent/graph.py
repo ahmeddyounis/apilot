@@ -30,9 +30,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.agent import tools
 from app.agent.state import AlignedPair, MatchingState, NodeEvent
 from app.core.config import Settings
+from app.core.metrics import observe_llm_call
 from app.core.money import quantize_amount
 from app.llm.client import LLMClient
-from app.llm.types import FixtureMissingError
+from app.llm.errors import classify_provider_error
 from app.schemas.matching import (
     Discrepancy,
     Impact,
@@ -418,12 +419,36 @@ class Matcher:
 
         for turn_number in range(1, _MAX_TOOL_TURNS + 1):
             try:
-                turn = await self.llm.tool_turn(
-                    system=MATCHING_SYSTEM, messages=messages, tools=tools.INVESTIGATION_TOOLS
+                async with observe_llm_call(purpose="matching", model=self.llm.model):
+                    turn = await self.llm.tool_turn(
+                        system=MATCHING_SYSTEM,
+                        messages=messages,
+                        tools=tools.INVESTIGATION_TOOLS,
+                    )
+            except Exception as exc:
+                failure = classify_provider_error(exc)
+                logger.warning(
+                    "llm_call_failed",
+                    invoice_id=str(state.invoice_id),
+                    purpose="matching",
+                    reason=failure.reason,
+                    transient=failure.transient,
+                    turn=turn_number,
                 )
-            except FixtureMissingError as exc:
-                # Offline fake mode without a scripted investigation: proceed on
-                # deterministic data alone, honestly noted in the trace.
+                if failure.transient:
+                    # Investigation is an enrichment, not a gate: the deterministic
+                    # pass has already computed every discrepancy and check. Failing
+                    # the whole stage on a rate limit would send an invoice back
+                    # through the rescue cron to redo work that is already correct,
+                    # and the verdict it would eventually reach is the one available
+                    # right now — minus the model's prose. Proceed, and say so.
+                    return {
+                        "investigated": True,
+                        "investigation_skipped": f"provider unavailable ({failure.reason})",
+                        "event_summary": {"skipped": failure.reason},
+                    }
+                # Terminal (a missing fixture offline, a refused key): same call, same
+                # answer next time. Proceed on deterministic data, noted in the trace.
                 return {
                     "investigated": True,
                     "investigation_skipped": str(exc)[:200],

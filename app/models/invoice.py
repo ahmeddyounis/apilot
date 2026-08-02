@@ -9,6 +9,7 @@ from uuid import UUID
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    Computed,
     Date,
     Enum,
     ForeignKey,
@@ -19,6 +20,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -129,10 +131,36 @@ class Invoice(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     file: Mapped[InvoiceFile] = relationship()
 
+    # Maintained by Postgres, never by Python. The review queue used to sort by this
+    # expression inline — a CASE over two coalesced mutable columns, which no index
+    # can serve — so every page recomputed it for every queued invoice.
+    review_priority: Mapped[Decimal | None] = mapped_column(
+        Numeric(18, 3),
+        Computed(
+            "CASE WHEN COALESCE(total, 0) > 0 "
+            "THEN COALESCE(risk_score, 0.5) * COALESCE(total, 0) "
+            "ELSE COALESCE(risk_score, 0.5) END",
+            persisted=True,
+        ),
+    )
+
     __table_args__ = (
         Index("ix_invoices_status", "status"),
         Index("ix_invoices_file_id", "file_id"),
         Index("ix_invoices_received_at", "received_at"),
+        Index("ix_invoices_decided_at", "decided_at"),
+        Index("ix_invoices_updated_at", "updated_at"),
+        Index(
+            "ix_invoices_normalized_invoice_number",
+            "normalized_invoice_number",
+            postgresql_where=text("normalized_invoice_number IS NOT NULL"),
+        ),
+        Index(
+            "ix_invoices_review_queue",
+            text("review_priority DESC"),
+            text("received_at ASC"),
+            postgresql_where=text("status IN ('exception', 'held')"),
+        ),
         # Deliberately NON-unique: duplicates are held by the dedup stage with an
         # explanation, never auto-rejected by a constraint violation.
         Index(

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: apilot-migrate
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: migrate
+          image: apilot:latest
+          imagePullPolicy: IfNotPresent
+          command: ["alembic", "upgrade", "head"]
+          envFrom:
+            - configMapRef: { name: apilot-config }
+            - secretRef: { name: apilot-secrets }
+          env:
+            # Migration 0001 runs CREATE EXTENSION vector, which needs a role the
+            # application itself should not have. Supply a separate privileged URL
+            # here; if it is absent the job falls back to the app's own credentials,
+            # which is fine for a dev cluster and wrong for a managed database.
+            - name: APILOT_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apilot-secrets
+                  key: APILOT_MIGRATION_DATABASE_URL
+                  optional: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: tmp
+          emptyDir: {}

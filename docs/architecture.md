@@ -98,6 +98,90 @@ taken on the development machine. Container-internal URLs use service DNS and de
 ports; only the host mapping shifts. Documented because a surprising port is exactly
 the kind of thing that wastes an hour.
 
+## 10. Single-tenant by design, and what that means
+
+There is no organization, tenant, or owner entity anywhere in the schema. An API key
+is a credential, not a customer: `AuthContext` carries an id, a name and scopes, and
+no query in the system filters on it. **Any valid key with `read` can fetch any
+invoice in the database**, and `GET /exceptions` will enumerate them for it.
+
+That is a deployment boundary, not an oversight. The unit of isolation is the
+deployment: one database, one storage volume, one set of keys, one customer. Scopes
+divide what a key may *do*; they were never meant to divide what it may *see*.
+
+Stated plainly because the alternative is worse. A `tenant_id` column that most
+queries filter on and a few forget is a system that looks isolated and leaks, and the
+forgetting happens on whichever endpoint was added last. If this ever needs real
+multi-tenancy, the honest version is a schema change and a filter on every read —
+not a middleware that hopes.
+
+The seam, if that day comes: add `tenant_id` to `api_keys`, carry it on
+`AuthContext` (`app/api/deps.py`), and constrain the six query sites that currently
+select invoices without an owner predicate — `app/services/invoices.py`
+(`get_invoice_detail`), `app/api/v1/exceptions.py`, `app/api/v1/matching.py`,
+`app/services/review.py` (`load_for_review`), `app/services/exports.py`, and
+`app/services/analytics.py`. Screening and matching read across invoices by
+construction (duplicate detection compares an invoice to its corpus), so they would
+need the predicate threaded through rather than bolted on — which is the real cost,
+and the reason this is a decision rather than a to-do.
+
+**Compliance boundaries that follow from the same staging choice**, currently
+absent and documented as such rather than half-built: invoice documents are stored
+unencrypted on the volume; there is no retention or deletion path; read access is
+not audited (only writes are); and there is no backup/restore runbook for the audit
+log, which is the system of record for financial decisions.
+
+## 11. Every query has a visible bound, and a test that says so
+
+The system was built and tested against a dozen invoices. Several queries were
+correct at that size and quietly O(corpus): the duplicate check scanned the whole
+invoice table on the ingest hot path, the review queue sorted by an expression no
+index could serve, `/exports` materialised every approved invoice in memory, and
+analytics ran seven aggregates over all history — including a `percentile_cont` that
+got slower every day the system ran.
+
+The rule now is that a reader should be able to see the bound. Each hot query either
+uses an index, carries a `LIMIT`, or works over a declared window. Where a bound
+changes behaviour it is surfaced rather than hidden: `/analytics/summary` returns the
+window it used, and `/exceptions` refuses an offset past 10,000 instead of serving it
+slowly.
+
+Two decisions inside that are worth stating. The review queue's sort key is a
+**stored generated column** — Postgres maintains it, so it cannot drift from the
+expression the API used to compute inline, and no Python path can forget to update
+it. And `mark_exported` is still a round trip per invoice inside each chunk, not one
+bulk `UPDATE`: `state_machine.transition` is the only writer of `invoices.status`,
+and it is what validates the edge and writes the audit row atomically with the
+change. Bypassing it for speed would let an export move an invoice out of a status
+the state machine forbids, which is the exact thing the choke point exists to
+prevent. The transaction got shorter; the invariant stayed.
+
+Proved in `tests/integration/volume/` by asserting **plan shape and statement
+counts**, never wall-clock. A timing assertion on a laptop that is also running
+Docker measures the machine and fails for reasons nobody can act on. "Does the
+planner reach for the index" and "does the statement count stay flat as the corpus
+grows" are properties of the code, so a failure names something someone can fix.
+
+## 12. Telemetry has to describe the process that does the work
+
+Both domain counters were incremented almost entirely inside the worker, and only
+the API served `/metrics` — so the metric named for the pipeline was reporting the
+review desk, and the cost counter read zero while the worker spent money. That is
+worse than an absent metric, because a plausible number gets trusted.
+
+The worker now exports on its own port from a daemon thread. Not its own event loop,
+which runs Hungarian assignment and would miss scrapes exactly when the worker is
+busiest; not a pushgateway, which makes series sticky so a dead worker keeps
+publishing and `up{}` stops meaning what it says.
+
+The corollary is that placement is part of the metric's meaning. The LLM failure
+counter wraps the *provider call*, not the ledger write that follows it, because a
+hard API error propagates before any bookkeeping runs — so the telemetry used to go
+quiet during precisely the incident it existed to describe.
+
+See [`observability.md`](observability.md), including why OpenTelemetry is
+deliberately absent and where the seam is if that changes.
+
 ## Deliberate non-goals (v1)
 
 Payment execution, ERP write-back connectors, OCR model training, and multi-currency

@@ -11,7 +11,15 @@ import hmac
 import secrets
 from typing import NamedTuple
 
-SCOPES = frozenset({"ingest", "read", "review", "export", "admin"})
+# No `admin` scope, deliberately. The only administrative operations this system has
+# are key lifecycle ones, and those are CLI-only and out-of-band by design — there is
+# no HTTP surface that mints, revokes or rotates a key, so there is no privileged
+# endpoint to protect. A scope that gates nothing is worse than its absence: it can be
+# granted, it looks like a control, and it enforces nothing. The obvious candidate for
+# it, `mark_exported`, is wrong too — the accounting integration that pulls the CSV
+# and marks the batch delivered is a routine consumer, and making that an admin key
+# would put administrative rights on the most widely-shared credential.
+SCOPES = frozenset({"ingest", "read", "review", "export"})
 
 PREFIX_LENGTH = 12
 

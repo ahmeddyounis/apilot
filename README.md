@@ -19,6 +19,8 @@ Compose · pytest + testcontainers · ruff · mypy (strict) · uv · GitHub Acti
 - **Eval report:** [`evals/latest_report.md`](evals/latest_report.md) ·
   **Architecture decisions:** [`docs/architecture.md`](docs/architecture.md) ·
   **Fraud signals:** [`docs/fraud-signals.md`](docs/fraud-signals.md) ·
+  **Observability:** [`docs/observability.md`](docs/observability.md) ·
+  **Deploying:** [`deploy/k8s/README.md`](deploy/k8s/README.md) ·
   **MCP server:** [`docs/mcp.md`](docs/mcp.md)
 
 ---
@@ -252,11 +254,12 @@ than 2 points below the committed baseline or falls under its floor. Reports lan
 | `POST` | `/api/v1/purchase-orders` | `ingest` | Seed/ingest POs |
 | `POST` | `/api/v1/receipts` | `ingest` | Seed/ingest receiving records |
 | `GET` | `/api/v1/exceptions` | `read` | Review queue, sorted by risk × amount |
-| `GET` | `/api/v1/exports?format=csv\|quickbooks` | `export` | Accounting-ready output |
-| `GET` | `/api/v1/analytics/summary` | `read` | Auto-approval rate, exception reasons, cost, cycle times |
+| `GET` | `/api/v1/exports?format=csv\|quickbooks` | `export` | Build the accounting file, changing nothing |
+| `POST` | `/api/v1/exports` | `export` | Build it **and** mark the batch exported |
+| `GET` | `/api/v1/analytics/summary` | `read` | Auto-approval rate, exception reasons, cost, cycle times (90-day window by default) |
 | `GET` | `/health`, `/health/ready`, `/metrics` | — | Liveness, readiness, Prometheus |
 
-Auth is `X-API-Key` with scopes (`ingest`, `read`, `review`, `export`, `admin`); keys
+Auth is `X-API-Key` with scopes (`ingest`, `read`, `review`, `export`); keys
 are stored as SHA-256 hashes and minted via `uv run python -m app.cli keys create`.
 Rate limits are per-key. Errors share one envelope:
 
@@ -265,8 +268,17 @@ Rate limits are per-key. Errors share one envelope:
 ```
 
 **Idempotency:** same key + same bytes replays the original response with
-`Idempotency-Replay: true`; same key + different bytes is a 409. A system built to
-catch duplicate invoices must not create them.
+`Idempotency-Replay: true`; same key + different bytes is a 409. The *same* bytes
+under two different keys is neither — that is two genuine submissions of one
+document, so each gets its own invoice over a shared content-addressed file row, and
+the duplicate screen decides whether the second gets paid. A system built to catch
+duplicate invoices must not create them, and must not refuse to record them either.
+
+**Read and write are different verbs.** `GET /exports` builds the file and changes
+nothing; `POST` builds it and marks the batch delivered in the same request, so
+invoices are recorded as exported only if they were actually handed over. A `GET`
+that mutates on a query parameter is reachable by a link crawler or a CDN warming a
+URL.
 
 ---
 
@@ -280,8 +292,9 @@ catch duplicate invoices must not create them.
 | LLM | Anthropic (`claude-opus-5` default) behind a provider protocol | Native PDF input, structured outputs, prompt caching; provider is config, not code |
 | Agent | LangGraph | Explicit, replayable graph — not an unbounded loop |
 | Embeddings | fastembed (local, 384-dim) | Near-duplicate detection without a second API key |
-| Observability | structlog + request IDs, Prometheus, append-only audit log | Every state change, agent step, and LLM call is on the record |
-| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 205 tests; integration tests run real Postgres and real migrations |
+| Observability | structlog + request IDs, Prometheus (API **and** worker), append-only audit log | Every state change, agent step and LLM call is on the record — and the request that caused it is on the row |
+| Deployment | Docker Compose · Kustomize manifests (kind + prod overlays) | Validated in CI with kubeconform; the built image is started, not just compiled |
+| Quality | ruff, mypy (strict on `app/`), pytest + testcontainers | 247 tests; integration tests run real Postgres and real migrations |
 | Interop | MCP server (stdio) | `extract_invoice`, `check_duplicates`, `match_invoice` for any MCP client |
 
 Everything runs with **zero secrets** — the FakeLLM and FakeEmbeddings are complete
@@ -303,19 +316,43 @@ app/
   llm/          client protocol · Anthropic client · FakeLLM · embeddings · pricing · prompts
   mcp_server/   MCP tool definitions
 evals/          generator · runner · metrics · dataset · reports · thresholds
-tests/          unit + integration (testcontainers)
-docs/           architecture · fraud-signals · mcp · deploy
+tests/          unit + integration (testcontainers) + volume (query plans)
+deploy/k8s/     kustomize base + kind/prod overlays
+ops/prometheus/ scrape config + alert rules (verified in CI by promtool)
+docs/           architecture · fraud-signals · observability · mcp · deploy
 ```
 
 ---
 
 ## Status and honest limitations
 
-Built end to end and fully tested offline. Before this served a real AP department it
-would need: object storage instead of a local volume for multi-replica deployments,
-`/metrics` behind network policy, a backup/restore runbook for the audit log, and —
-most importantly — **live eval numbers**, which need an API key. See
-[`docs/deploy.md`](docs/deploy.md) for the full list and deployment recipes.
+Built end to end and fully tested offline.
+
+**Single-tenant by design.** The unit of isolation is the deployment, not a row: any
+valid key with `read` can fetch any invoice in the database. Scopes divide what a key
+may *do*, never what it may *see*. That is a boundary, not an oversight — a
+`tenant_id` most queries filter on and one forgets is a system that looks isolated
+and leaks. [ADR 10](docs/architecture.md) names the seam if that ever changes.
+
+**What it refuses to do.** With `APILOT_ENV=prod` the app will not start on the
+fingerprint secret published in this repository, on a secret under 32 bytes, or on
+the local dev database URL — it reports every problem at once and exits. A signing
+key that quietly falls back to a default is worse than one that is missing, because
+nothing about the failure is visible at runtime.
+
+**Known absences, so nobody has to find them.** Invoice documents are stored
+unencrypted on the volume. There is no retention or deletion path, and no
+read-access auditing — writes are audited, reads are not. There is no backup and
+restore runbook, which matters most of all: the audit log is the system of record for
+financial decisions and needs point-in-time recovery before this is real. Local-volume
+storage also couples the API and worker to one filesystem, which is what stops them
+scaling independently; the seam for object storage is named in
+[`deploy/k8s/README.md`](deploy/k8s/README.md) rather than half-built.
+
+**The eval numbers below the fold are fixture-mode**, and labelled as such. Live
+numbers need an API key and a recording run; until then the table demonstrates that
+the harness and pipeline work end to end with zero secrets, not that a model is
+accurate.
 
 Out of scope by design (v1): payment execution, ERP write-back connectors, OCR model
 training, multi-currency consolidation. The system prepares approvals; it never moves

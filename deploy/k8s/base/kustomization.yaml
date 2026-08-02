@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: apilot
+    # Not in selectors: a Deployment's selector is immutable, so baking a label
+    # into it makes any future change a delete-and-recreate.
+    includeSelectors: false
+
+resources:
+  - configmap.yaml
+  - secret.yaml
+  - uploads-pvc.yaml
+  - api-deployment.yaml
+  - worker-deployment.yaml
+  - service.yaml
+  - migration-job.yaml
+  - networkpolicy.yaml
+
+images:
+  - name: apilot
+    newTag: latest

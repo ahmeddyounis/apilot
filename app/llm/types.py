@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 @dataclass(frozen=True)
@@ -74,6 +74,28 @@ class ToolTurn:
         return "".join(
             block.get("text", "") for block in self.content if block.get("type") == "text"
         )
+
+
+def describe_schema_mismatch(exc: ValidationError, *, limit: int = 5) -> str:
+    """Render a schema failure as locations and reasons — never the offending value.
+
+    Pydantic's ``errors()`` entries carry an ``input`` key holding what failed to
+    validate, and for a root-level mismatch that is the *entire* model payload. This
+    string is stored on ``invoices.error_detail`` and served to any key with `read`,
+    so including ``input`` published the extraction verbatim — including
+    ``payment_details_raw``, the vendor's raw bank details, which the persistence
+    path takes deliberate care to drop (``app/services/extraction.py`` pops it before
+    writing the immutable extraction JSONB).
+
+    ``loc`` and ``msg`` are what the retry prompt needs anyway: the model already has
+    its own output, what it lacks is which fields were wrong and why.
+    ``app/schemas/extraction.py`` builds its errors the same way.
+    """
+    parts = [
+        f"{'.'.join(str(piece) for piece in err['loc']) or '<root>'}: {err['msg']}"
+        for err in exc.errors()[:limit]
+    ]
+    return "output did not match schema: " + "; ".join(parts)
 
 
 class LLMError(Exception):

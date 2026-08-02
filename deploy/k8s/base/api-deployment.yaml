@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apilot-api
+  labels: { app.kubernetes.io/name: apilot, app.kubernetes.io/component: api }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app.kubernetes.io/name: apilot, app.kubernetes.io/component: api }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: apilot, app.kubernetes.io/component: api }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Nothing in the API talks to the Kubernetes API.
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      # preStop outlives the endpoint-removal race: kubelet sends SIGTERM and the
+      # endpoints controller removes the pod concurrently, so without a pause a
+      # load balancer can still route to a server that has begun shutting down.
+      # 5s of sleep, then uvicorn's own --timeout-graceful-shutdown 20 drains.
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: api
+          image: apilot:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: 8000 }
+          envFrom:
+            - configMapRef: { name: apilot-config }
+            - secretRef: { name: apilot-secrets }
+          lifecycle:
+            preStop:
+              exec: { command: ["sleep", "5"] }
+          # Liveness on /health, which does no I/O by design — so a database blip
+          # never restarts a container that is itself fine. Readiness on
+          # /health/ready, which checks the database and Redis under a 2s timeout and
+          # returns 503 when degraded, so a pod that cannot serve is taken out of
+          # rotation without being killed.
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /health/ready, port: http }
+            periodSeconds: 5
+            failureThreshold: 2
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 2
+            failureThreshold: 30
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: uploads, mountPath: /data/uploads }
+            # readOnlyRootFilesystem means the process still needs somewhere to
+            # write: multipart spooling lands here.
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: uploads
+          persistentVolumeClaim: { claimName: apilot-uploads }
+        - name: tmp
+          emptyDir: {}

@@ -32,6 +32,7 @@ from app.llm.types import (
     ParseResult,
     TextResult,
     ToolTurn,
+    describe_schema_mismatch,
 )
 
 logger = structlog.get_logger(__name__)
@@ -177,7 +178,7 @@ class AnthropicClient:
             try:
                 parsed = output_schema.model_validate_json(raw_text)
             except ValidationError as exc:
-                parse_error = f"output did not match schema: {exc.errors()[:5]}"
+                parse_error = describe_schema_mismatch(exc)
         else:
             parse_error = "model returned no text content"
 

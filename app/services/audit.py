@@ -6,6 +6,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import current_request_id
 from app.models import AuditLog
 
 
@@ -20,6 +21,7 @@ def record(
     from_status: str | None = None,
     to_status: str | None = None,
     payload: dict[str, Any] | None = None,
+    request_id: str | None = None,
 ) -> AuditLog:
     entry = AuditLog(
         entity_type=entity_type,
@@ -30,6 +32,10 @@ def record(
         to_status=to_status,
         actor=actor,
         payload=payload or {},
+        # Defaulted from the ambient request, so every existing call site — upload,
+        # every state transition, extraction attempts, agent steps, screening,
+        # review corrections — carries it without being touched.
+        request_id=request_id or current_request_id(),
     )
     session.add(entry)
     return entry

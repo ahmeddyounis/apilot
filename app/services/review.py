@@ -19,7 +19,7 @@ from app.api.deps import AuthContext
 from app.api.errors import ApilotError, InvalidStateError
 from app.core.config import Settings
 from app.core.normalize import normalize_invoice_number
-from app.models import FieldCorrection, Invoice, InvoiceStatus, ReviewAction
+from app.models import AuditLog, FieldCorrection, Invoice, InvoiceStatus, ReviewAction
 from app.services import audit
 from app.services.dedup import trust_payment_fingerprint
 from app.services.invoices import enqueue_pipeline
@@ -134,6 +134,51 @@ def _apply_correction(invoice: Invoice, field_path: str, new_value: Any) -> Any:
     return old
 
 
+class SegregationError(ApilotError):
+    status_code = 409
+    code = "separate_approver_required"
+
+
+async def _assert_arms_length(
+    session: AsyncSession, invoice: Invoice, *, approver: AuthContext
+) -> None:
+    """Refuse an approval by the key that submitted or edited the invoice.
+
+    Without this, one credential can upload an invoice, rewrite its payee and total,
+    and approve it for payment — the whole fraud story in three requests, leaving an
+    audit trail that looks orderly because every step was authorised. The four-eyes
+    rule is the standard AP control against exactly that, and `ReviewAction`
+    already records which key did what; nothing had ever read it back.
+
+    Off by default: a single-operator deployment would deadlock on it, since there
+    would be nobody else to approve. Turn it on wherever more than one person has a
+    key.
+    """
+    corrected_by = await session.scalars(
+        select(ReviewAction.api_key_id).where(
+            ReviewAction.invoice_id == invoice.id,
+            ReviewAction.action == "correct",
+        )
+    )
+    if approver.key_id in set(corrected_by):
+        raise SegregationError(
+            "This key corrected the invoice, so it cannot also approve it. "
+            "APILOT_REQUIRE_SEPARATE_APPROVER is on."
+        )
+
+    uploaded_by = await session.scalar(
+        select(AuditLog.actor)
+        .where(AuditLog.invoice_id == invoice.id, AuditLog.event_type == "upload")
+        .order_by(AuditLog.id.asc())
+        .limit(1)
+    )
+    if uploaded_by == approver.actor:
+        raise SegregationError(
+            "This key submitted the invoice, so it cannot also approve it. "
+            "APILOT_REQUIRE_SEPARATE_APPROVER is on."
+        )
+
+
 async def apply_review(
     session: AsyncSession,
     invoice: Invoice,
@@ -151,6 +196,8 @@ async def apply_review(
     await session.flush()
 
     if action == "approve":
+        if settings.require_separate_approver:
+            await _assert_arms_length(session, invoice, approver=auth)
         # An approval is the human evidence screening can't produce on its own: if
         # this invoice carried changed bank details, the reviewer has now vouched
         # for them, so the account becomes known-good for future invoices.

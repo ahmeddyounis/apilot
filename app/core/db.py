@@ -18,7 +18,25 @@ _sessionmaker: async_sessionmaker[AsyncSession] | None = None
 def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
-        _engine = create_async_engine(get_settings().database_url, pool_pre_ping=True)
+        settings = get_settings()
+        _engine = create_async_engine(
+            settings.database_url,
+            pool_pre_ping=True,
+            pool_size=settings.db_pool_size,
+            max_overflow=settings.db_max_overflow,
+            # Connections were never rotated (pool_recycle defaults to -1), which a
+            # PgBouncer or an NLB with an idle timeout eventually kills underneath us.
+            pool_recycle=settings.db_pool_recycle_s,
+            pool_timeout=settings.db_pool_timeout_s,
+            connect_args={
+                "server_settings": {
+                    # One runaway query could otherwise hold a connection for as long
+                    # as it liked; fifteen of those wedge the whole process.
+                    "statement_timeout": str(settings.db_statement_timeout_ms),
+                    "application_name": "apilot",
+                }
+            },
+        )
     return _engine
 
 

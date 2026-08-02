@@ -8,6 +8,7 @@
 Flags never auto-reject: the worst outcome is ``held`` with a written explanation.
 """
 
+import asyncio
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -15,7 +16,8 @@ from typing import Any
 
 import structlog
 from rapidfuzz import fuzz
-from sqlalchemy import delete, select
+from sqlalchemy import select, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
@@ -37,6 +39,10 @@ _EXCLUDED_STATUSES = (InvoiceStatus.EXTRACTION_FAILED, InvoiceStatus.REJECTED)
 
 _SEVERITY_WEIGHTS = {"high": Decimal("0.40"), "medium": Decimal("0.20"), "low": Decimal("0.05")}
 _DUP_WEIGHT = Decimal("0.50")
+
+# Bounds on work that used to grow with the corpus.
+_DUP_CANDIDATE_LIMIT = 25
+_PRIOR_COUNT_PROBE = 3
 
 
 @dataclass(frozen=True)
@@ -186,12 +192,32 @@ async def _exact_duplicate_flags(session: AsyncSession, invoice: Invoice) -> lis
         )
 
     if invoice.normalized_invoice_number:
-        conditions = [
-            Invoice.normalized_invoice_number == invoice.normalized_invoice_number,
-            Invoice.id != invoice.id,
-            Invoice.status.not_in(_EXCLUDED_STATUSES),
-        ]
-        candidates = (await session.scalars(select(Invoice).where(*conditions))).all()
+        # Four columns, not the whole ORM object. This ran once per invoice on the
+        # ingest path and hydrated every match complete with its extraction,
+        # validation_results and fraud_flags JSONB — for a comparison that needs a
+        # vendor name and a status. The filter is on normalized_invoice_number alone,
+        # which only migration 0009 gave an index of its own: the composite one leads
+        # with vendor_id, which this query does not constrain, so the scan was
+        # sequential.
+        candidates = (
+            await session.execute(
+                select(
+                    Invoice.id,
+                    Invoice.vendor_id,
+                    Invoice.vendor_name,
+                    Invoice.status,
+                )
+                .where(
+                    Invoice.normalized_invoice_number == invoice.normalized_invoice_number,
+                    Invoice.id != invoice.id,
+                    Invoice.status.not_in(_EXCLUDED_STATUSES),
+                )
+                # One match is all the flag reports. An invoice number as generic as
+                # "1" is shared by every small vendor in the corpus, so the unbounded
+                # version grew with the customer base.
+                .limit(_DUP_CANDIDATE_LIMIT)
+            )
+        ).all()
         this_vendor = normalize_vendor_name(invoice.vendor_name or "")
         for candidate in candidates:
             same_vendor = (
@@ -219,15 +245,30 @@ async def _near_duplicate_flags(
     settings: Settings,
     embedder: EmbeddingProvider,
 ) -> list[Flag]:
-    text = canonical_text(invoice)
-    vector = embedder.embed([text])[0]
+    canonical = canonical_text(invoice)
+    # ONNX inference is synchronous CPU work, and arq runs max_jobs coroutines on
+    # one event loop — so calling it directly froze every other invoice in flight
+    # for its duration. Extraction already gives its PDF work the same treatment.
+    vector = (await asyncio.to_thread(embedder.embed, [canonical]))[0]
 
-    # Upsert this invoice's embedding, then search the rest of the corpus.
-    await session.execute(delete(InvoiceEmbedding).where(InvoiceEmbedding.invoice_id == invoice.id))
-    session.add(
-        InvoiceEmbedding(invoice_id=invoice.id, embedding=vector, model_name=embedder.model_name)
+    # Upsert rather than delete-then-insert: one round trip, and no tombstone left
+    # in the HNSW index for a row we are about to add back.
+    await session.execute(
+        pg_insert(InvoiceEmbedding)
+        .values(invoice_id=invoice.id, embedding=vector, model_name=embedder.model_name)
+        .on_conflict_do_update(
+            index_elements=[InvoiceEmbedding.invoice_id],
+            set_={"embedding": vector, "model_name": embedder.model_name},
+        )
     )
     await session.flush()
+
+    # pgvector's default ef_search (40) is the candidate list the HNSW scan keeps.
+    # With filters applied *after* the scan, a corpus where most neighbours are
+    # excluded can return fewer real candidates than asked for — and the recall loss
+    # is silent, because a missed near-duplicate looks exactly like a clean invoice.
+    # SET LOCAL, so it lives and dies with this transaction.
+    await session.execute(text(f"SET LOCAL hnsw.ef_search = {settings.near_dup_ef_search}"))
 
     distance = InvoiceEmbedding.embedding.cosine_distance(vector)
     rows = (
@@ -318,14 +359,19 @@ async def _heuristic_flags(
 
     prior_count = 0
     if invoice.vendor_id is not None:
+        # Only ever compared against 0 (F-100) and 3 (F-115), so three rows is the
+        # entire answer. This used to ship every invoice id the vendor has ever had to
+        # the application in order to call len() on it.
         prior_count = len(
             (
                 await session.scalars(
-                    select(Invoice.id).where(
+                    select(Invoice.id)
+                    .where(
                         Invoice.vendor_id == invoice.vendor_id,
                         Invoice.id != invoice.id,
                         Invoice.status.not_in(_EXCLUDED_STATUSES),
                     )
+                    .limit(_PRIOR_COUNT_PROBE)
                 )
             ).all()
         )

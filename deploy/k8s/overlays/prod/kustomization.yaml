@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Managed Postgres (with pgvector available) and managed Redis. Nothing stateful
+# runs in-cluster here — an AP system's database is the system of record for
+# financial decisions, and a StatefulSet with no backup runbook is not that.
+#
+# The Secret is expected to exist already, created out of band or by an external
+# secrets operator. It is deliberately NOT generated here: committing a production
+# fingerprint secret to git would defeat the control it protects.
+
+namespace: apilot
+
+resources:
+  - ../../base
+
+replicas:
+  - { name: apilot-api, count: 3 }
+  - { name: apilot-worker, count: 2 }
+
+patches:
+  - path: production-resources.yaml
+    target: { kind: Deployment, name: apilot-worker }

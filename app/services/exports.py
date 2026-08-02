@@ -49,6 +49,11 @@ QBO_COLUMNS = [
 ]
 
 
+# Rows fetched per round trip while streaming. Large enough that the trip count
+# stays sane, small enough that peak memory does not track the corpus.
+_STREAM_BATCH = 500
+
+
 @dataclass(frozen=True)
 class ExportResult:
     filename: str
@@ -87,20 +92,28 @@ async def build_export(
     if until is not None:
         conditions.append(Invoice.decided_at <= until)
 
-    invoices = (
-        await session.scalars(
-            select(Invoice)
-            .where(*conditions)
-            .options(selectinload(Invoice.line_items))
-            .order_by(Invoice.decided_at.asc())
-        )
-    ).all()
+    # yield_per streams the result in batches instead of materialising every
+    # approved invoice — with its extraction, validation_results and fraud_flags
+    # JSONB, plus all its line items — into memory at once. `since`/`until` are
+    # optional, so a bare request means "the whole history"; that is the request an
+    # accounting integration makes on its first run, and it was the one thing here
+    # that could take the container down.
+    invoices = await session.stream_scalars(
+        select(Invoice)
+        .where(*conditions)
+        .options(selectinload(Invoice.line_items))
+        .order_by(Invoice.decided_at.asc())
+        .execution_options(yield_per=_STREAM_BATCH)
+    )
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
+    exported_ids: list[UUID] = []
     if export_format == "quickbooks":
         writer.writerow(QBO_COLUMNS)
-        for invoice in invoices:
+        async for invoice in invoices:
+            if invoice.line_items:
+                exported_ids.append(invoice.id)
             for line in invoice.line_items:
                 writer.writerow(
                     [
@@ -119,7 +132,9 @@ async def build_export(
                 )
     else:
         writer.writerow(CSV_COLUMNS)
-        for invoice in invoices:
+        async for invoice in invoices:
+            if invoice.line_items:
+                exported_ids.append(invoice.id)
             for line in invoice.line_items:
                 writer.writerow(
                     [
@@ -149,19 +164,43 @@ async def build_export(
         # Only invoices that actually produced rows. An approved invoice with no
         # line items contributes nothing to the file, and marking it exported
         # would record money as delivered to accounting that was never in it.
-        invoice_ids=[invoice.id for invoice in invoices if invoice.line_items],
+        invoice_ids=exported_ids,
     )
+
+
+_MARK_CHUNK = 500
 
 
 async def mark_invoices_exported(
     session: AsyncSession, invoice_ids: list[UUID], *, auth: AuthContext
 ) -> int:
+    """Mark a batch delivered, in chunks, one audit row per invoice.
+
+    The per-invoice loop cost three round trips each — a SELECT, the state machine's
+    own SELECT ... FOR UPDATE, and an audit INSERT — inside a single transaction that
+    held a row lock on every one of them for the length of the HTTP request. Ten
+    thousand invoices meant thirty thousand round trips and ten thousand locks.
+
+    Chunking rather than one bulk UPDATE, deliberately: `transition` is the only
+    writer of `invoices.status`, and it is what validates the edge and writes the
+    audit row atomically with the change. A bulk UPDATE would be faster still and
+    would bypass both — and an export that silently moved an invoice out of a status
+    the state machine forbids is precisely the kind of thing the choke point exists
+    to prevent. So the round trips stay, the transaction does not.
+    """
     marked = 0
-    for invoice_id in invoice_ids:
-        invoice = await session.get(Invoice, invoice_id)
-        if invoice is None or invoice.status is not InvoiceStatus.APPROVED:
-            continue
-        await transition(session, invoice, InvoiceStatus.EXPORTED, actor=auth.actor)
-        marked += 1
-    await session.commit()
+    for start in range(0, len(invoice_ids), _MARK_CHUNK):
+        chunk = invoice_ids[start : start + _MARK_CHUNK]
+        invoices = (
+            await session.scalars(
+                select(Invoice).where(
+                    Invoice.id.in_(chunk),
+                    Invoice.status == InvoiceStatus.APPROVED,
+                )
+            )
+        ).all()
+        for invoice in invoices:
+            await transition(session, invoice, InvoiceStatus.EXPORTED, actor=auth.actor)
+            marked += 1
+        await session.commit()
     return marked

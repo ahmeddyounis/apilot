@@ -73,6 +73,11 @@ async def run_matching_stage(
     """Invoice must be in status MATCHING. Transitions to APPROVED or EXCEPTION,
     persists the verdict + replayable trace, and commits."""
     await session.refresh(invoice, attribute_names=["line_items"])
+    # Close the read transaction before the agent runs. Everything below re-reads what
+    # it needs, and holding this one open left a Postgres backend `idle in
+    # transaction` for the length of up to four LLM turns — blocking vacuum on the
+    # table the whole system writes to, multiplied by the worker's concurrency.
+    await session.commit()
     trace_id = uuid4().hex
 
     matcher = Matcher(session=session, llm=llm, settings=settings)

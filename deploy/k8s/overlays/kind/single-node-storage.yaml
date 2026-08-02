@@ -1,0 +1,11 @@
+# kind ships a single-node RWO storage class, so the base's ReadWriteMany claim
+# would never bind. This works only because API and worker land on the same node —
+# which is exactly the coupling the base comments about, made visible.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apilot-uploads
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests: { storage: 1Gi }

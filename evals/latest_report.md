@@ -9,4 +9,4 @@ recorded model outputs through the real pipeline; live mode calls the API.
 | schema_retry | fixture | 1.0 | 1.0 | 1.0 | 0.0 | — | — |
 | validation | fixture | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
 
-_Refreshed 2026-07-31T20:07:59+00:00 — see `evals/reports/` for full per-run JSON, including per-field F1._
+_Refreshed 2026-08-02T07:30:39+00:00 — see `evals/reports/` for full per-run JSON, including per-field F1._

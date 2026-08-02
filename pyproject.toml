@@ -6,23 +6,26 @@ readme = "README.md"
 license = "MIT"
 authors = [{ name = "Ahmed Younis" }]
 requires-python = ">=3.13,<3.14"
+# Version floors record the minimum each dependency is known to work at; uv.lock
+# is the reproducible pin. Without floors, regenerating the lock could resolve to
+# anything and nothing would say which APIs this code actually needs.
 dependencies = [
-    "fastapi",
-    "uvicorn[standard]",
-    "pydantic",
-    "pydantic-settings",
-    "sqlalchemy[asyncio]",
-    "asyncpg",
-    "alembic",
-    "pgvector",
-    "arq",
-    "redis",
-    "structlog",
-    "python-multipart",
-    "typer",
-    "anthropic",
-    "prometheus-fastapi-instrumentator",
-    "aiofiles",
+    "fastapi>=0.141",
+    "uvicorn[standard]>=0.52",
+    "pydantic>=2.13",
+    "pydantic-settings>=2.14",
+    "sqlalchemy[asyncio]>=2.0.51",
+    "asyncpg>=0.31",
+    "alembic>=1.18",
+    "pgvector>=0.5",
+    "arq>=0.28",
+    "redis>=5.3",
+    "structlog>=26.1",
+    "python-multipart>=0.0.32",
+    "typer>=0.27",
+    "anthropic>=0.120",
+    "prometheus-fastapi-instrumentator>=8.1",
+    "aiofiles>=25.1",
     "pypdfium2>=5.12.1",
     "pillow>=12.3.0",
     "langgraph>=1.2.10",
@@ -41,6 +44,10 @@ dev = [
     "mypy",
     "testcontainers[postgres,redis]",
     "types-aiofiles",
+    # The deployment-contract test parses the manifests. Available transitively today,
+    # declared here so an unrelated upgrade cannot remove it.
+    "pyyaml",
+    "types-pyyaml",
 ]
 # Local ONNX embeddings. Its own group because the runtime image needs it — near-
 # duplicate detection silently degrades to hashed fallback vectors without it — while

@@ -1,0 +1,9 @@
+# Two workers × APILOT_WORKER_MAX_JOBS (8) = 16 concurrent invoices, each of which
+# may hold a session — so the pool settings in the ConfigMap (10 + 10 overflow per
+# process) have to cover it, and the managed database's connection cap has to cover
+# the sum across every replica. These numbers move together.
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests: { cpu: "1", memory: 2Gi }
+    limits: { memory: 3Gi }

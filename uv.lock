@@ -110,9 +110,11 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
     { name = "ruff" },
     { name = "testcontainers", extra = ["redis"] },
     { name = "types-aiofiles" },
+    { name = "types-pyyaml" },
 ]
 embeddings = [
     { name = "fastembed" },
@@ -126,28 +128,28 @@ eval = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiofiles" },
-    { name = "alembic" },
-    { name = "anthropic" },
-    { name = "arq" },
-    { name = "asyncpg" },
-    { name = "fastapi" },
+    { name = "aiofiles", specifier = ">=25.1" },
+    { name = "alembic", specifier = ">=1.18" },
+    { name = "anthropic", specifier = ">=0.120" },
+    { name = "arq", specifier = ">=0.28" },
+    { name = "asyncpg", specifier = ">=0.31" },
+    { name = "fastapi", specifier = ">=0.141" },
     { name = "langgraph", specifier = ">=1.2.10" },
     { name = "mcp", specifier = ">=2.0.0" },
-    { name = "pgvector" },
+    { name = "pgvector", specifier = ">=0.5" },
     { name = "pillow", specifier = ">=12.3.0" },
-    { name = "prometheus-fastapi-instrumentator" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
+    { name = "prometheus-fastapi-instrumentator", specifier = ">=8.1" },
+    { name = "pydantic", specifier = ">=2.13" },
+    { name = "pydantic-settings", specifier = ">=2.14" },
     { name = "pypdfium2", specifier = ">=5.12.1" },
-    { name = "python-multipart" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
     { name = "rapidfuzz", specifier = ">=3.14.5" },
-    { name = "redis" },
+    { name = "redis", specifier = ">=5.3" },
     { name = "scipy", specifier = ">=1.18.0" },
-    { name = "sqlalchemy", extras = ["asyncio"] },
-    { name = "structlog" },
-    { name = "typer" },
-    { name = "uvicorn", extras = ["standard"] },
+    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.51" },
+    { name = "structlog", specifier = ">=26.1" },
+    { name = "typer", specifier = ">=0.27" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.52" },
 ]
 
 [package.metadata.requires-dev]
@@ -157,9 +159,11 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
     { name = "ruff" },
     { name = "testcontainers", extras = ["postgres", "redis"] },
     { name = "types-aiofiles" },
+    { name = "types-pyyaml" },
 ]
 embeddings = [{ name = "fastembed", specifier = ">=0.8.0" }]
 eval = [
@@ -1829,6 +1833,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/df/42/f5b9b90162d2196f016b87228d6bf43f2c2c0c6501bfd5415001b3eb68bb/types_aiofiles-25.1.0.20260518.tar.gz", hash = "sha256:c0c95eb78755d4fa7b397d4f0332c632714dd7cd0d17f49b96e31d4d7a8d8c76", size = 14891, upload-time = "2026-05-18T06:05:27.804Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ca/3d/7a9ed9faafeae3aa3b5bc22fa5b979ff9cf3c83ecbe919b58eae07795b8c/types_aiofiles-25.1.0.20260518-py3-none-any.whl", hash = "sha256:f776bdfb4bec17f743d9ef042e61edf03bdcc7821fc08556fba9b63d873fdea9", size = 14377, upload-time = "2026-05-18T06:05:26.871Z" },
+]
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.20260724"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/6f/a28f44bcd56bebed42b028a2894c79853e2f5e6b5279e633cb3f287a05e7/types_pyyaml-6.0.12.20260724.tar.gz", hash = "sha256:3c1ce1bb73cd5ec02e90390c2b1f00e810d241d8825fd73ff359696839271b6b", size = 17893, upload-time = "2026-07-24T04:58:43.453Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8b/42/0337fefc615e20ee55d1c8f71b774a9b2b734a04669139c20753b27a2a3a/types_pyyaml-6.0.12.20260724-py3-none-any.whl", hash = "sha256:d57db930a4b2efbc57cf430ec8882765d246929432fa253092f383902329a453", size = 20312, upload-time = "2026-07-24T04:58:42.486Z" },
 ]
 
 [[package]]

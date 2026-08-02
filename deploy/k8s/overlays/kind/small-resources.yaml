@@ -1,0 +1,6 @@
+# A laptop or a CI runner, not a cluster.
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 1Gi }

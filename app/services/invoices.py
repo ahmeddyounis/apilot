@@ -14,6 +14,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import AuthContext
 from app.api.errors import ConflictError, NotFoundError
 from app.core.config import Settings
+from app.core.logging import current_request_id
 from app.core.redis import get_arq_pool
 from app.models import IdempotencyKey, Invoice, InvoiceFile, InvoiceStatus
 from app.services import audit
@@ -169,10 +170,17 @@ async def _register_invoice(
     return invoice
 
 
-async def enqueue_pipeline(invoice_id: UUID) -> None:
+async def enqueue_pipeline(invoice_id: UUID, *, request_id: str | None = None) -> None:
     try:
         pool = await get_arq_pool()
-        await pool.enqueue_job("process_invoice", str(invoice_id), _job_id=f"pipeline:{invoice_id}")
+        await pool.enqueue_job(
+            "process_invoice",
+            str(invoice_id),
+            # Defaulted from the ambient request, so both call sites — upload and the
+            # review endpoint's re-run — carry it without knowing they do.
+            request_id=request_id or current_request_id(),
+            _job_id=f"pipeline:{invoice_id}",
+        )
     except Exception:
         # The upload is already durable, so we still return 202. The invoice stays in
         # `received` and the stale-job cron picks it up (RECEIVED is in the cron's

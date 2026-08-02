@@ -188,9 +188,19 @@ async def test_exports_and_analytics(client: httpx.AsyncClient, full_access_key:
     )
     assert approved.status is InvoiceStatus.APPROVED
 
-    export = await client.get(
+    # GET previews without touching status; POST is the checkout that marks the
+    # batch delivered, so the two are asserted separately.
+    preview = await client.get(
         "/api/v1/exports",
-        params={"format": "csv", "mark_exported": "true"},
+        params={"format": "csv"},
+        headers={"X-API-Key": full_access_key},
+    )
+    assert preview.status_code == 200
+    assert (await get_invoice(approved.id)).status is InvoiceStatus.APPROVED
+
+    export = await client.post(
+        "/api/v1/exports",
+        params={"format": "csv"},
         headers={"X-API-Key": full_access_key},
     )
     assert export.status_code == 200

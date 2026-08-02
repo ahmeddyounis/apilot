@@ -36,6 +36,7 @@ from app.llm.types import (
     ParseResult,
     TextResult,
     ToolTurn,
+    describe_schema_mismatch,
 )
 
 FAKE_MODEL_ID = "fake-llm"
@@ -144,7 +145,7 @@ class FakeLLM:
                 usage=usage,
                 model_id=FAKE_MODEL_ID,
                 stop_reason="end_turn",
-                parse_error=f"output did not match schema: {exc.errors()[:5]}",
+                parse_error=describe_schema_mismatch(exc),
             )
         return ParseResult(
             parsed=parsed,
