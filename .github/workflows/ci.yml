@@ -81,6 +81,88 @@ jobs:
           name: eval-reports
           path: evals/reports/
 
+  manifests:
+    name: Kubernetes manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build and validate every overlay
+        run: |
+          set -euo pipefail
+          for overlay in deploy/k8s/overlays/*/; do
+            echo "== $(basename "$overlay")"
+            docker run --rm -v "$PWD/deploy/k8s:/work" -w /work \
+              registry.k8s.io/kustomize/kustomize:v5.4.3 build "overlays/$(basename "$overlay")" \
+              | docker run --rm -i ghcr.io/yannh/kubeconform:v0.6.7 \
+                  -strict -summary -kubernetes-version 1.31.0
+          done
+
+  image-smoke:
+    name: Built image actually runs
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      # docker-build proves the image compiles. Nothing had ever started it, so a
+      # runtime-only failure — a missing dependency in the `embeddings` group, a bad
+      # entrypoint — would have shipped green.
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          tags: apilot:ci
+          cache-from: type=gha
+      - name: Import check inside the image
+        run: |
+          docker run --rm apilot:ci python -c "
+          import fastembed, onnxruntime            # the embeddings group
+          from app.main import create_app          # the API entrypoint
+          from app.worker import WorkerSettings    # the worker entrypoint
+          print('imports ok')"
+      - name: Serve /health from the built image
+        run: |
+          set -euo pipefail
+          docker run -d --name apilot-smoke -p 8000:8000 apilot:ci
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health > /dev/null; then break; fi
+            sleep 1
+          done
+          curl -sf http://localhost:8000/health | grep -q '"status":"ok"'
+          # No database or Redis, so readiness must report degraded rather than lie.
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health/ready)" = "503"
+          docker rm -f apilot-smoke
+
+  security:
+    name: Dependency and image scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+      - run: uv sync --all-groups
+      - name: Audit dependencies for known vulnerabilities
+        run: uvx pip-audit --strict
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          tags: apilot:scan
+          cache-from: type=gha
+      - name: Scan the image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: apilot:scan
+          severity: HIGH,CRITICAL
+          # The base image is Debian slim; a CRITICAL with no fix available is not
+          # something this repo can act on, so it does not fail the build.
+          ignore-unfixed: true
+          exit-code: "1"
+
   docker-build:
     runs-on: ubuntu-latest
     needs: [lint]

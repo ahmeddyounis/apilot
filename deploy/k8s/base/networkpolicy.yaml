@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apilot-metrics-not-public
+spec:
+  # /metrics is served unauthenticated on the same port as the API, so the only
+  # thing keeping business counters and per-endpoint traffic off the internet is
+  # network policy. Ingress to the API port is expected to come through an
+  # ingress controller; this restricts the worker's exporter to in-cluster callers.
+  #
+  # NOTE: kind's default CNI does not enforce NetworkPolicy, so this being present
+  # and schema-valid is not evidence that it works. See deploy/k8s/README.md.
+  podSelector:
+    matchLabels: { app.kubernetes.io/name: apilot, app.kubernetes.io/component: worker }
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - { protocol: TCP, port: 9110 }

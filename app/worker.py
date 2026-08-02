@@ -221,7 +221,20 @@ class WorkerSettings:
     on_startup = on_startup
     on_shutdown = on_shutdown
     redis_settings = RedisSettings.from_dsn(get_settings().redis_url)
-    job_timeout = 600
+    # Reconciled against the deployment's grace period. The two stage timeouts bound
+    # a job at roughly 180 + 180 plus overhead, so 600 was never reachable — and a
+    # ceiling nobody hits still sets the pod's terminationGracePeriodSeconds, which
+    # means every rollout waits for a number that describes nothing.
+    job_timeout = 420
+    # On SIGTERM, finish what is in flight rather than dropping it. arq does not retry
+    # a job killed mid-flight (it only re-queues Retry/CancelledError), so without
+    # this every rollout handed its in-flight invoices to the stale-job cron and cost
+    # them a 15-minute rescue cycle. 90s covers the common case; anything longer is
+    # dropped and rescued, which is the honest trade — a rollout that waits seven
+    # minutes for one slow invoice is its own outage.
+    job_completion_wait = 90
+    # Default is an hour, which makes `arq --check` useless as a liveness probe.
+    health_check_interval = 30
     # arq only re-queues a job for Retry/RetryJob/CancelledError; a plain exception
     # (an LLM error, a dropped connection, a killed pod) marks the job finished and
     # drops it. The pipeline raises plain exceptions, so this bound is never the

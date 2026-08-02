@@ -1,0 +1,36 @@
+# DEMO ONLY — see the header in kustomization.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata: { labels: { app: postgres } }
+    spec:
+      containers:
+        - name: postgres
+          # pgvector, not stock postgres: migration 0001 creates the extension.
+          image: pgvector/pgvector:pg17
+          env:
+            - { name: POSTGRES_USER, value: apilot }
+            - { name: POSTGRES_PASSWORD, value: apilot }
+            - { name: POSTGRES_DB, value: apilot }
+            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
+          ports: [{ containerPort: 5432 }]
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", "apilot"] }
+            periodSeconds: 3
+          volumeMounts: [{ name: data, mountPath: /var/lib/postgresql/data }]
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector: { app: postgres }
+  ports: [{ port: 5432, targetPort: 5432 }]

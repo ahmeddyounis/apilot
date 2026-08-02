@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apilot-uploads
+spec:
+  # ReadWriteMany because the API writes the document and the worker reads it back
+  # (app/services/storage.py writes it, app/services/extraction.py opens it) — so
+  # they must share a filesystem, and that coupling is what stops API and worker
+  # scaling independently on a cluster whose storage class is RWO-only.
+  #
+  # The real fix is object storage behind a seam in storage.py; it is named as a
+  # follow-up in deploy/k8s/README.md rather than half-built here. Until then, the
+  # kind overlay patches this to ReadWriteOnce, which works only because both pods
+  # land on the single node.
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests: { storage: 20Gi }

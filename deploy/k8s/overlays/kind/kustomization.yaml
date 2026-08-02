@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# DEMO ONLY. This overlay exists so `kubectl apply -k` produces a working system on
+# a laptop and in CI. It runs single-replica Postgres and Redis with no backups, no
+# point-in-time recovery, no failover, and a password committed to git. Do not point
+# it at real payables.
+
+namespace: apilot
+
+resources:
+  - ../../base
+  - namespace.yaml
+  - postgres.yaml
+  - redis.yaml
+
+patches:
+  - path: single-node-storage.yaml
+    target: { kind: PersistentVolumeClaim, name: apilot-uploads }
+  - path: small-resources.yaml
+    target: { kind: Deployment }
+
+secretGenerator:
+  - name: apilot-secrets
+    behavior: replace
+    literals:
+      - APILOT_DATABASE_URL=postgresql+asyncpg://apilot:apilot@postgres:5432/apilot
+      - APILOT_REDIS_URL=redis://redis:6379/0
+      # 32+ bytes so the production config guard is satisfied. Public, and
+      # deliberately so — this cluster is a demo.
+      - APILOT_FINGERPRINT_SECRET=kind-demo-secret-not-for-real-payables-0001
+
+generatorOptions:
+  disableNameSuffixHash: true

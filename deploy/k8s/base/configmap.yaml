@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apilot-config
+data:
+  # Non-secret settings only. Secrets live in the Secret, so this can be read by
+  # anyone with cluster access without leaking a signing key.
+  APILOT_ENV: "prod"
+  APILOT_LOG_FORMAT: "json"
+  APILOT_STORAGE_DIR: "/data/uploads"
+  # Must cover APILOT_WORKER_MAX_JOBS with headroom: each concurrent job may hold a
+  # session, and a job that blocks on checkout and then times out is dropped by arq
+  # rather than retried.
+  APILOT_WORKER_MAX_JOBS: "8"
+  APILOT_DB_POOL_SIZE: "10"
+  APILOT_DB_MAX_OVERFLOW: "10"
+  APILOT_DB_STATEMENT_TIMEOUT_MS: "30000"
+  APILOT_WORKER_METRICS_PORT: "9110"
