@@ -131,6 +131,57 @@ unencrypted on the volume; there is no retention or deletion path; read access i
 not audited (only writes are); and there is no backup/restore runbook for the audit
 log, which is the system of record for financial decisions.
 
+## 11. Every query has a visible bound, and a test that says so
+
+The system was built and tested against a dozen invoices. Several queries were
+correct at that size and quietly O(corpus): the duplicate check scanned the whole
+invoice table on the ingest hot path, the review queue sorted by an expression no
+index could serve, `/exports` materialised every approved invoice in memory, and
+analytics ran seven aggregates over all history — including a `percentile_cont` that
+got slower every day the system ran.
+
+The rule now is that a reader should be able to see the bound. Each hot query either
+uses an index, carries a `LIMIT`, or works over a declared window. Where a bound
+changes behaviour it is surfaced rather than hidden: `/analytics/summary` returns the
+window it used, and `/exceptions` refuses an offset past 10,000 instead of serving it
+slowly.
+
+Two decisions inside that are worth stating. The review queue's sort key is a
+**stored generated column** — Postgres maintains it, so it cannot drift from the
+expression the API used to compute inline, and no Python path can forget to update
+it. And `mark_exported` is still a round trip per invoice inside each chunk, not one
+bulk `UPDATE`: `state_machine.transition` is the only writer of `invoices.status`,
+and it is what validates the edge and writes the audit row atomically with the
+change. Bypassing it for speed would let an export move an invoice out of a status
+the state machine forbids, which is the exact thing the choke point exists to
+prevent. The transaction got shorter; the invariant stayed.
+
+Proved in `tests/integration/volume/` by asserting **plan shape and statement
+counts**, never wall-clock. A timing assertion on a laptop that is also running
+Docker measures the machine and fails for reasons nobody can act on. "Does the
+planner reach for the index" and "does the statement count stay flat as the corpus
+grows" are properties of the code, so a failure names something someone can fix.
+
+## 12. Telemetry has to describe the process that does the work
+
+Both domain counters were incremented almost entirely inside the worker, and only
+the API served `/metrics` — so the metric named for the pipeline was reporting the
+review desk, and the cost counter read zero while the worker spent money. That is
+worse than an absent metric, because a plausible number gets trusted.
+
+The worker now exports on its own port from a daemon thread. Not its own event loop,
+which runs Hungarian assignment and would miss scrapes exactly when the worker is
+busiest; not a pushgateway, which makes series sticky so a dead worker keeps
+publishing and `up{}` stops meaning what it says.
+
+The corollary is that placement is part of the metric's meaning. The LLM failure
+counter wraps the *provider call*, not the ledger write that follows it, because a
+hard API error propagates before any bookkeeping runs — so the telemetry used to go
+quiet during precisely the incident it existed to describe.
+
+See [`observability.md`](observability.md), including why OpenTelemetry is
+deliberately absent and where the seam is if that changes.
+
 ## Deliberate non-goals (v1)
 
 Payment execution, ERP write-back connectors, OCR model training, and multi-currency
