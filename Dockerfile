@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --group embeddings
 
 # --- runtime ----------------------------------------------------------------------
-FROM python:3.13-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 RUN useradd --system --uid 10001 --create-home apilot \
     && mkdir -p /data/uploads \
