@@ -32,7 +32,7 @@ jobs:
           fi
       # Pinned to the exact release: astral-sh publishes floating major tags only
       # through v7, so `@v9` does not resolve and every job fails to start.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         if: steps.guard.outputs.run == 'true'
         with:
           enable-cache: true

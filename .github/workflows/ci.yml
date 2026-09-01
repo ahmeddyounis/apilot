@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v7
       # Pinned to the exact release: astral-sh publishes floating major tags only
       # through v7, so `@v9` does not resolve and every job fails to start.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
       - run: uv sync --all-groups
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v7
       # Pinned to the exact release: astral-sh publishes floating major tags only
       # through v7, so `@v9` does not resolve and every job fails to start.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
       - run: uv sync --all-groups
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v7
       # Pinned to the exact release: astral-sh publishes floating major tags only
       # through v7, so `@v9` does not resolve and every job fails to start.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
       - run: uv sync --all-groups
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v7
       # Pinned to the exact release: astral-sh publishes floating major tags only
       # through v7, so `@v9` does not resolve and every job fails to start.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
       - run: uv sync --all-groups
@@ -139,7 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@v10.0.1
         with:
           enable-cache: true
       - run: uv sync --all-groups
