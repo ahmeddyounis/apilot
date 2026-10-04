@@ -10,28 +10,28 @@ requires-python = ">=3.13,<3.14"
 # is the reproducible pin. Without floors, regenerating the lock could resolve to
 # anything and nothing would say which APIs this code actually needs.
 dependencies = [
-    "fastapi>=0.141",
+    "fastapi>=0.142.2",
     "uvicorn[standard]>=0.52",
-    "pydantic>=2.13",
-    "pydantic-settings>=2.14",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
     "sqlalchemy[asyncio]>=2.0.51",
     "asyncpg>=0.31",
-    "alembic>=1.18",
+    "alembic>=1.20.0",
     "pgvector>=0.5",
     "arq>=0.28",
     "redis>=5.3",
     "structlog>=26.1",
     "python-multipart>=0.0.32",
-    "typer>=0.27",
+    "typer>=0.27.2",
     "anthropic>=0.120",
     "prometheus-fastapi-instrumentator>=8.1",
     "aiofiles>=25.1",
-    "pypdfium2>=5.12.1",
+    "pypdfium2>=5.13.0",
     "pillow>=12.3.0",
-    "langgraph>=1.2.10",
-    "rapidfuzz>=3.14.5",
-    "scipy>=1.18.0",
-    "mcp>=2.0.0",
+    "langgraph>=1.2.12",
+    "rapidfuzz>=3.14.6",
+    "scipy>=1.18.1",
+    "mcp>=2.2.0",
 ]
 
 [dependency-groups]
@@ -52,13 +52,13 @@ dev = [
 # Local ONNX embeddings. Its own group because the runtime image needs it — near-
 # duplicate detection silently degrades to hashed fallback vectors without it — while
 # unit-test and lint CI paths shouldn't be carrying onnxruntime around.
-embeddings = ["fastembed>=0.8.0"]
+embeddings = ["fastembed>=0.8.1"]
 # Synthetic invoice generation for the eval harness. Kept out of the default install
 # so playwright never weighs down core or CI-unit paths.
 eval = [
-    "faker>=40.36.0",
+    "faker>=40.40.0",
     "jinja2>=3.1.6",
-    "playwright>=1.62.0",
+    "playwright>=1.63.0",
     {include-group = "embeddings"},
 ]
 
